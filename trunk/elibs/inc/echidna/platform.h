@@ -489,7 +489,7 @@ extern "C" {
 			#else
 				#include <windows.h>
 			#endif
-		
+
 	#elif defined(_EL_PLAT_PCW32__)	/* PC with Watcom 32 bits */
 
 		/* Processor:
@@ -674,7 +674,9 @@ extern "C" {
       #define uint16 UINT16
       #define int32  INT32
       #define uint32 UINT32
-      #define bool   BOOL
+      #ifndef __cplusplus
+          #define bool   BOOL
+      #endif
 
    #elif _EL_CPU_r4400__
 
@@ -704,7 +706,10 @@ extern "C" {
       #define uint16 UINT16
       #define int32  INT32
       #define uint32 UINT32
-      #define bool   BOOL
+      
+      #ifndef __cplusplus
+          #define bool   BOOL
+      #endif
 
 	   #define TRUE  1
 	   #define FALSE 0
@@ -759,7 +764,9 @@ extern "C" {
       #define uint16 UINT16
       #define int32  INT32
       #define uint32 UINT32
-      #define bool   BOOL
+      #ifndef __cplusplus
+          #define bool   BOOL
+      #endif
 
    #else
       #error Platform CPU not specified.
