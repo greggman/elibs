@@ -34,6 +34,37 @@
  *		* Add Best Fit Algorithm
  *
  *
+	The Echidna Copyright
+	
+	Copyright 1991-2003 Echidna, Inc. All rights reserved.
+	
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions are
+	met:
+	
+	* Redistributions of source code must retain the above copyright notice,
+	  this list of conditions and the following disclaimer.
+	
+	* Redistributions in binary form must reproduce the above copyright
+	  notice, this list of conditions and the following disclaimer in the
+	  documentation and/or other materials provided with the distribution.
+	
+	THIS SOFTWARE IS PROVIDED BY Echidna ``AS IS'' AND ANY EXPRESS OR IMPLIED
+	WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+	MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN
+	NO EVENT SHALL Echidna OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+	INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+	NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+	DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+	THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+	THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+	
+	The views and conclusions contained in the software and documentation are
+	those of the authors and should not be interpreted as representing
+	official policies, either expressed or implied, of Echidna or
+	Echidna, Inc.
+
  *
 */
 
@@ -234,13 +265,13 @@ long roundUp (long value, long padsize)
     {
         value = value + padsize - value % padsize;
     }
-    
+
     return value;
 }
 
 
 /*************************************************************************
-                            NP_SplitNamedPairs                           
+                            NP_SplitNamedPairs
  *************************************************************************
 
    SYNOPSIS
@@ -248,36 +279,36 @@ long roundUp (long value, long padsize)
 
    PURPOSE
   		Take a string like this "foo=1,goo=boof" and parse it so it's easy to use
-  
+
    INPUT
 		str        :
 		pairSplit  : value to split pairs by (eg, ',')
 		valueSplit : value to splut value and label by (eg, '=')
-  
+
    OUTPUT
-		None  
-  
+		None
+
    EFFECTS
-		None  
-  
+		None
+
    RETURNS
         NamedPairs pointer, used to pass to other NP_ funcs
-  
+
    SEE ALSO
-  
-  
+
+
    HISTORY
 		01/24/03 GAT: Created.
-  
+
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 NamedPairs* NP_SplitNamedPairs (const char* str, char pairSplit, char valueSplit)
 {
     NamedPairs* pNP = CHK_CallocateMemory (sizeof (NamedPairs), "NamedPairs");
-    
+
     pNP->pairList = &pNP->pairListX;
     LST_InitList (pNP->pairList);
-    
+
     {
         while (*str)
         {
@@ -285,9 +316,9 @@ NamedPairs* NP_SplitNamedPairs (const char* str, char pairSplit, char valueSplit
 			const char* valueSplitter = NULL;
 
             while (*str && isspace(*str)) ++str;
-            
+
             pairStart = str;
-            
+
             while (*str && *str != pairSplit)
             {
                 if (*str == valueSplit)
@@ -296,35 +327,35 @@ NamedPairs* NP_SplitNamedPairs (const char* str, char pairSplit, char valueSplit
                 }
 				++str;
             }
-            
+
             if (pairStart != str)
             {
                 BOOL fHaveValue = (valueSplitter != NULL && valueSplitter + 1 != str);
                 const char* nameEnd  = (valueSplitter != NULL) ? valueSplitter : str;
-                const char* valueStart = fHaveValue ? valueSplitter + 1 : NULL; 
+                const char* valueStart = fHaveValue ? valueSplitter + 1 : NULL;
                 const char* valueEnd   = fHaveValue ? str : NULL;
-                
+
                 // eat whitespace after name
                 while (nameEnd > pairStart && isspace (nameEnd[-1])) --nameEnd;
-                
+
                 // eat whitespace before and after value
                 if (valueStart)
                 {
                     while (valueStart < valueEnd && isspace(*valueStart)) ++valueStart;
                     while (valueEnd > valueStart && isspace(valueEnd[-1])) --valueEnd;
                 }
-                
+
                 {
                     int nameLen =  nameEnd - pairStart;
                     int valueLen = valueEnd - valueStart;
-                    
+
                     char* name  = CHK_AllocateMemory (nameLen + 1, "namedpair name");
                     char* value = CHK_AllocateMemory (valueLen + 1, "namedpair value");
-    
-                    // copy name                
+
+                    // copy name
                     strncpy (name, pairStart, nameLen);
                     name[nameLen] = '\0';
-                    
+
                     // copy value
                     if (valueStart)
                     {
@@ -335,28 +366,28 @@ NamedPairs* NP_SplitNamedPairs (const char* str, char pairSplit, char valueSplit
                     {
                         value = CHK_dupstr ("1");
                     }
-                    
+
 					{
 						NamedPair* pPair = CHK_CreateNode (sizeof (NamedPair), name, "namedpair");
 						pPair->value = value;
-                    
+
 						LST_AddTail (pNP->pairList, pPair);
 					}
-                    
+
                     CHK_DeallocateMemory (name, "namedpair name");
                 }
             }
-            
+
             // skip pairSplit
             if (*str) ++str;
         }
     }
-    
+
     return pNP;
 }
 
 /*************************************************************************
-                           NP_GetValueForName                            
+                           NP_GetValueForName
  *************************************************************************
 
    SYNOPSIS
@@ -364,27 +395,27 @@ NamedPairs* NP_SplitNamedPairs (const char* str, char pairSplit, char valueSplit
 
    PURPOSE
   		find a named value
-  
+
    INPUT
 		pNP    : NamedPairs pointer from NP_SplitNamedPairs
 		name   : name we want (not case sensitive)
 		pValue : pointer to pointer to char for value
-  
+
    OUTPUT
-		None  
-  
+		None
+
    EFFECTS
-		None  
-  
+		None
+
    RETURNS
         True if name exists, false if not
-  
+
    SEE ALSO
-  
-  
+
+
    HISTORY
 		01/24/03 GAT: Created.
-  
+
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 BOOL NP_GetValueForName (NamedPairs* pNP, const char* name, char** pValue)
@@ -399,7 +430,7 @@ BOOL NP_GetValueForName (NamedPairs* pNP, const char* name, char** pValue)
 }
 
 /*************************************************************************
-                                 NP_Free                                 
+                                 NP_Free
  *************************************************************************
 
    SYNOPSIS
@@ -407,22 +438,22 @@ BOOL NP_GetValueForName (NamedPairs* pNP, const char* name, char** pValue)
 
    PURPOSE
   		Free this stuff
-  
+
    INPUT
 		pNP :
-  
+
    OUTPUT
-		None  
-  
+		None
+
    EFFECTS
-		None  
-  
+		None
+
    SEE ALSO
-  
-  
+
+
    HISTORY
 		01/24/03 GAT: Created.
-  
+
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 void NP_Free (NamedPairs* pNP)
@@ -433,14 +464,14 @@ void NP_Free (NamedPairs* pNP)
         CHK_freestr (pPair->value);
         pPair = (NamedPair*)LST_Next (pPair);
     }
-    
+
     LST_EmptyList (pNP->pairList);
     CHK_DeallocateMemory (pNP, "namedpairs");
 }
 
 
 /*************************************************************************
-                               hashGetLong                               
+                               hashGetLong
  *************************************************************************
 
    SYNOPSIS
@@ -448,26 +479,26 @@ void NP_Free (NamedPairs* pNP)
 
    PURPOSE
   		
-  
+
    INPUT
 		s :
 		l :
-  
+
    OUTPUT
-		None  
-  
+		None
+
    EFFECTS
-		None  
-  
+		None
+
    RETURNS
-  
-  
+
+
    SEE ALSO
-  
-  
+
+
    HISTORY
 		01/17/97 GAT: Created.
-  
+
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 char* MK_hashGetLong (char *s, uint32 *l)
@@ -487,7 +518,7 @@ char* MK_hashGetLong (char *s, uint32 *l)
 }
 
 /*************************************************************************
-                            LST_NodeHashFunc                             
+                            LST_NodeHashFunc
  *************************************************************************
 
    SYNOPSIS
@@ -495,25 +526,25 @@ char* MK_hashGetLong (char *s, uint32 *l)
 
    PURPOSE
   		
-  
+
    INPUT
 		he :
-  
+
    OUTPUT
-		None  
-  
+		None
+
    EFFECTS
-		None  
-  
+		None
+
    RETURNS
-  
-  
+
+
    SEE ALSO
-  
-  
+
+
    HISTORY
 		01/17/97 GAT: Created.
-  
+
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 uint32 LST_NodeHashFunc (HashEntry *he)
@@ -533,7 +564,7 @@ uint32 LST_NodeHashFunc (HashEntry *he)
 }
 
 /*************************************************************************
-                           LST_NodeHashCmpFunc                           
+                           LST_NodeHashCmpFunc
  *************************************************************************
 
    SYNOPSIS
@@ -541,26 +572,26 @@ uint32 LST_NodeHashFunc (HashEntry *he)
 
    PURPOSE
   		
-  
+
    INPUT
 		t1 :
 		t2 :
-  
+
    OUTPUT
-		None  
-  
+		None
+
    EFFECTS
-		None  
-  
+		None
+
    RETURNS
-  
-  
+
+
    SEE ALSO
-  
-  
+
+
    HISTORY
 		01/17/97 GAT: Created.
-  
+
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 int LST_NodeHashCmpFunc (HashEntry *t1, HashEntry *t2)
@@ -569,7 +600,7 @@ int LST_NodeHashCmpFunc (HashEntry *t1, HashEntry *t2)
 }
 
 /*************************************************************************
-                            FileContentsHashFunc                             
+                            FileContentsHashFunc
  *************************************************************************
 
    SYNOPSIS
@@ -577,25 +608,25 @@ int LST_NodeHashCmpFunc (HashEntry *t1, HashEntry *t2)
 
    PURPOSE
   		
-  
+
    INPUT
 		he :
-  
+
    OUTPUT
-		None  
-  
+		None
+
    EFFECTS
-		None  
-  
+		None
+
    RETURNS
-  
-  
+
+
    SEE ALSO
-  
-  
+
+
    HISTORY
 		01/17/97 GAT: Created.
-  
+
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 uint32 FileContentsHashFunc (HashEntry *he)
@@ -641,7 +672,7 @@ uint32 FileContentsHashFunc (HashEntry *he)
 }
 
 /*************************************************************************
-                           FileContentsHashCmpFunc                           
+                           FileContentsHashCmpFunc
  *************************************************************************
 
    SYNOPSIS
@@ -649,26 +680,26 @@ uint32 FileContentsHashFunc (HashEntry *he)
 
    PURPOSE
   		
-  
+
    INPUT
 		t1 :
 		t2 :
-  
+
    OUTPUT
-		None  
-  
+		None
+
    EFFECTS
-		None  
-  
+		None
+
    RETURNS
-  
-  
+
+
    SEE ALSO
-  
-  
+
+
    HISTORY
 		01/17/97 GAT: Created.
-  
+
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 int FileContentsHashCmpFunc (HashEntry *t1, HashEntry *t2)
@@ -688,7 +719,7 @@ int FileContentsHashCmpFunc (HashEntry *t1, HashEntry *t2)
 }
 
 /*************************************************************************
-                             FindPreLoadFile                             
+                             FindPreLoadFile
  *************************************************************************
 
    SYNOPSIS
@@ -696,25 +727,25 @@ int FileContentsHashCmpFunc (HashEntry *t1, HashEntry *t2)
 
    PURPOSE
   		
-  
+
    INPUT
 		name :
-  
+
    OUTPUT
-		None  
-  
+		None
+
    EFFECTS
-		None  
-  
+		None
+
    RETURNS
-  
-  
+
+
    SEE ALSO
-  
-  
+
+
    HISTORY
 		01/17/97 GAT: Created.
-  
+
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 PreLoadFile* FindPreLoadFile (char* name)
@@ -739,7 +770,7 @@ PreLoadFile* FindPreLoadFile (char* name)
 }
 
 /*************************************************************************
-                             FindFileContentsByName                            
+                             FindFileContentsByName
  *************************************************************************
 
    SYNOPSIS
@@ -747,25 +778,25 @@ PreLoadFile* FindPreLoadFile (char* name)
 
    PURPOSE
   		
-  
+
    INPUT
 		name :
-  
+
    OUTPUT
-		None  
-  
+		None
+
    EFFECTS
-		None  
-  
+		None
+
    RETURNS
-  
-  
+
+
    SEE ALSO
-  
-  
+
+
    HISTORY
 		01/17/97 GAT: Created.
-  
+
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 FileContents* FindFileContentsByName (char* name)
@@ -790,7 +821,7 @@ FileContents* FindFileContentsByName (char* name)
 }
 
 /*************************************************************************
-                        FindFileContentsByContent                        
+                        FindFileContentsByContent
  *************************************************************************
 
    SYNOPSIS
@@ -798,25 +829,25 @@ FileContents* FindFileContentsByName (char* name)
 
    PURPOSE
   		
-  
+
    INPUT
 		fc :
-  
+
    OUTPUT
-		None  
-  
+		None
+
    EFFECTS
-		None  
-  
+		None
+
    RETURNS
-  
-  
+
+
    SEE ALSO
-  
-  
+
+
    HISTORY
 		01/17/97 GAT: Created.
-  
+
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 FileContents* FindFileContentsByContent (FileContents* fc)
@@ -837,7 +868,7 @@ FileContents* FindFileContentsByContent (FileContents* fc)
 }
 
 /*************************************************************************
-                            AddFileToFileList                            
+                            AddFileToFileList
  *************************************************************************
 
    SYNOPSIS
@@ -845,22 +876,22 @@ FileContents* FindFileContentsByContent (FileContents* fc)
 
    PURPOSE
   		
-  
+
    INPUT
 		fc :
-  
+
    OUTPUT
-		None  
-  
+		None
+
    EFFECTS
-		None  
-  
+		None
+
    SEE ALSO
-  
-  
+
+
    HISTORY
 		01/17/97 GAT: Created.
-  
+
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 void AddFileToFileList (FileContents* fc)
@@ -947,7 +978,7 @@ void WritePosition (int fh, long position, int fIsFile, char *msg)
 // WritePosition
 
 /*************************************************************************
-                              AddLoadedFile                              
+                              AddLoadedFile
  *************************************************************************
 
    SYNOPSIS
@@ -955,28 +986,28 @@ void WritePosition (int fh, long position, int fIsFile, char *msg)
 
    PURPOSE
   		Add a file that's already been loaded
-  
+
    INPUT
 		filename :
         alignment:
 		data     :
 		len      :
-  
+
    OUTPUT
-		None  
-  
+		None
+
    EFFECTS
-		None  
-  
+		None
+
    RETURNS
-  
-  
+
+
    SEE ALSO
-  
-  
+
+
    HISTORY
 		01/16/97 GAT: Created.
-  
+
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 FileContents* AddLoadedFile (char *filename, long alignment, uint8* buf, long size, int preLoad)
@@ -1035,7 +1066,7 @@ FileContents* AddLoadedFile (char *filename, long alignment, uint8* buf, long si
 			newfc->Size   = size;
 
             size = roundUp (size, PadSize);
-            
+
 			newfc->PadSize = size;
 
 			guessSize += size;
@@ -1173,7 +1204,7 @@ FileContents* AddUnloadedFile (char *filename, long alignment)
 // AddUnloadedFile
 
 /*************************************************************************
-                                 AddFile                                 
+                                 AddFile
  *************************************************************************
 
    SYNOPSIS
@@ -1181,26 +1212,26 @@ FileContents* AddUnloadedFile (char *filename, long alignment)
 
    PURPOSE
   		
-  
+
    INPUT
 		fname     :
         alignment : how to align this file relative to the start of the block
-  
+
    OUTPUT
-		None  
-  
+		None
+
    EFFECTS
-		None  
-  
+		None
+
    RETURNS
-  
-  
+
+
    SEE ALSO
-  
-  
+
+
    HISTORY
 		01/17/97 GAT: Created.
-  
+
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 FileContents* AddFile (char* filename, long alignment)
@@ -1221,7 +1252,7 @@ FileContents* AddFile (char* filename, long alignment)
 			fc = fc->SameAs;
 		}
 		newfc->SameAs = fc;
-        
+
         // check that alignments agree
         if (alignment > fc->Alignment)
         {
@@ -1262,14 +1293,14 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLin
 	SectionTracker		 secx;
 	SectionTracker		*sec = &secx;
     bool status = TRUE;
-    
+
 	sec = FindSection (sec, specFile, sectionName);
 	if (!sec)
 	{
 		ErrMess ("File %s, Line %d: Couldn't find Section %s\n", LocalGetConfigFilename(pCLForErrorOnly), LocalGetConfigLineNo (pCLForErrorOnly), sectionName);
 		return FALSE;
 	}
-    
+
     // check for a loop
     if (INI_IsSectionUsed(sec))
     {
@@ -1279,29 +1310,29 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLin
     }
 
     INI_markSectionAsUsed(sec);
-    
+
     // check args
     if (GetSectionArgs(sec))
     {
         char* value;
-        
+
         NamedPairs* np = NP_SplitNamedPairs (GetSectionArgs(sec), ',', '=');
         if (!np)
         {
     		ErrMess ("File %s, Line %d: out of memory %s\n", LocalGetConfigFilename(pCLForErrorOnly), LocalGetConfigLineNo (pCLForErrorOnly), sectionName);
             return FALSE;
         }
-        
+
         if (NP_GetValueForName(np, "align", &value))
         {
             long alignment = EL_atol(value);
-            
+
             if (alignment)
             {
                 level->alignment = alignment;
             }
         }
-        
+
         NP_Free (np);
     }
 
@@ -1338,7 +1369,7 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLin
 					
 					arg = equal + 1;
 					while (*arg && isspace(*arg)) arg++;
-                
+
 					if (!stricmp (cmd, "Data") ||
 						!stricmp (cmd, "File"))
 					{
@@ -1354,25 +1385,25 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLin
                         long             alignment = 1;
 						
 						strcpy (line, arg);
-                        
+
                         if ((comma = strchr (line, ',')) != NULL)
                         {
 							NamedPairs* np;
                             char* value;
 
                             *comma++ = '\0';
-                            
+
                             np = NP_SplitNamedPairs (comma, ',', '=');
                             if (!np)
                             {
                 				ErrMess ("File %s, Line %d OOM\n", GetConfigFilename(cl), GetConfigLineNo (cl));
                                 return FALSE;
                             }
-                            
+
                             if (NP_GetValueForName(np, "align", &value))
                             {
                                 long newAlignment = EL_atol(value);
-                                
+
                                 if (newAlignment)
                                 {
                                     alignment = newAlignment;
@@ -1382,12 +1413,12 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLin
                             {
                                 fNullOK = (tolower(value[0]) == 't') || (value[0] == '1') || (tolower(value[0] == 'y'));
                             }
-                            
+
                             NP_Free (np);
                         }
-                        
+
 						fname = TrimWhiteSpaceAndQuotes (line);
-                        
+
                         if (GetConfigFilename(cl))
                         {
     						EIO_fnmerge (filename, EIO_Path(GetConfigFilename(cl)), fname, NULL);
@@ -1402,7 +1433,7 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLin
                                 ErrMess ("File %s, Line %d: could not open file (%s)\n", GetConfigFilename(cl), GetConfigLineNo (cl), fname);
                             }
                         }
-                        
+
                         if (fFound)
                         {
     						part->type   = PART_DATA;
@@ -1436,7 +1467,7 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLin
 						part->level = FindLevel (secname);
 						if (!part->level)
 						{
-							// add a 
+							// add a
 							Section*	pLocalSec;
 							char		localline[1024];
 							
@@ -1463,7 +1494,7 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLin
                         char* comma;
                         char* otherSecName = arg;
                         bool  fNullOK = FALSE;   // If TRUE, section does not exists make this pointer NULL instead of an error
-                        
+
 						strcpy (line, arg);
                         if ((comma = strchr (line, ',')) != NULL)
                         {
@@ -1471,24 +1502,24 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLin
                             char* value;
 
                             *comma++ = '\0';
-                            
+
                             np = NP_SplitNamedPairs (comma, ',', '=');
                             if (!np)
                             {
                 				ErrMess ("File %s, Line %d OOM\n", GetConfigFilename(cl), GetConfigLineNo (cl));
                                 return FALSE;
                             }
-                            
+
                             if (NP_GetValueForName(np, "nullok", &value))
                             {
                                 fNullOK = (tolower(value[0]) == 't') || (value[0] == '1') || (tolower(value[0] == 'y'));
                             }
-                            
+
                             NP_Free (np);
                         }
-                        
+
 						otherSecName = TrimWhiteSpaceAndQuotes (line);
-                        
+
                         part->type   = PART_LEVEL;
 						part->size   = sizeof (void *);
 	
@@ -1498,10 +1529,10 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLin
 	                            // check if level exists
                             SectionTracker	 othersecx;
                             SectionTracker	*othersec = &othersecx;
-                            
+
                             char otherSectionName[MAX_NAME_LEN];
                             sprintf (otherSectionName, "[%s]", otherSecName);
-                            
+
                             othersec = FindSection (othersec, specFile, otherSectionName);
                             if (!othersec && fNullOK)
                             {
@@ -1522,7 +1553,7 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLin
 						//
                         long alignment = EL_atol(arg);
                         long pad       = 0;
-                        
+
                         if (alignment)
                         {
                             long currentOffset = level->size % alignment;
@@ -1540,7 +1571,7 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLin
 						// found pad part
 						//
                         long padding = EL_atol(arg);
-                        
+
 						part->type   = PART_PAD;
 						part->size   = padding;
 					}
@@ -1666,9 +1697,9 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLin
                     else if (!stricmp (cmd, "Insert"))
                     {
                     	char subSectionName[MAX_NAME_LEN];
-                        
+
                     	sprintf (subSectionName, "[%s]", arg);
-    
+
                         status = ParseSection (level, specFile, subSectionName, cl);
                     }
 					else
@@ -1682,7 +1713,7 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLin
 	}
 
     INI_markSectionAsUnused(sec);
-    
+
     return status;
 }
 
@@ -1725,12 +1756,12 @@ Level* ParseLevel (IniList *specFile, char *levelName, ConfigLine* pCL)
 	level->partsList = &level->partsListX;
 	LST_InitList (level->partsList);
 	LST_AddTail (LevelList, level);
-    
+
     if (!ParseSection (level, specFile, sectionName, pCL))
     {
         // todo: this is sloppy.  I don't cleanup here. but since I got an error
         //       I'm not going to finish anyway so ...
-        
+
         return NULL;
     }
 
@@ -1739,7 +1770,7 @@ Level* ParseLevel (IniList *specFile, char *levelName, ConfigLine* pCL)
 // ParseLevel
 
 /*************************************************************************
-                               ReadPreLoad                               
+                               ReadPreLoad
  *************************************************************************
 
    SYNOPSIS
@@ -1747,25 +1778,25 @@ Level* ParseLevel (IniList *specFile, char *levelName, ConfigLine* pCL)
 
    PURPOSE
   		
-  
+
    INPUT
 		filename :
-  
+
    OUTPUT
-		None  
-  
+		None
+
    EFFECTS
-		None  
-  
+		None
+
    RETURNS
-  
-  
+
+
    SEE ALSO
-  
-  
+
+
    HISTORY
 		01/16/97 GAT: Created.
-  
+
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 int ReadPreLoad (char *filename)
@@ -1907,7 +1938,7 @@ int ReadPreLoad (char *filename)
 }
 
 /*************************************************************************
-                              WritePreLoad                               
+                              WritePreLoad
  *************************************************************************
 
    SYNOPSIS
@@ -1915,22 +1946,22 @@ int ReadPreLoad (char *filename)
 
    PURPOSE
   		
-  
+
    INPUT
 		filename :
-  
+
    OUTPUT
-		None  
-  
+		None
+
    EFFECTS
-		None  
-  
+		None
+
    SEE ALSO
-  
-  
+
+
    HISTORY
 		01/16/97 GAT: Created.
-  
+
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 void WritePreLoad (char* filename, char* keyname)
@@ -2062,7 +2093,7 @@ void WritePreLoad (char* filename, char* keyname)
 }
 
 /*************************************************************************
-                              CopyIntoFile                               
+                              CopyIntoFile
  *************************************************************************
 
    SYNOPSIS
@@ -2070,26 +2101,26 @@ void WritePreLoad (char* filename, char* keyname)
 
    PURPOSE
   		copy the bytes from one file into a currently opened file
-  
+
    INPUT
 		outfh       : file handle for output file
 		infilename  :
-  
+
    OUTPUT
-		None  
-  
+		None
+
    EFFECTS
-		None  
-  
+		None
+
    RETURNS
-  
-  
+
+
    SEE ALSO
-  
-  
+
+
    HISTORY
 		05/09/02 GAT: Created.
-  
+
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 int CopyIntoFile (int outfh, const char*infilename)
@@ -2129,7 +2160,7 @@ int CopyIntoFile (int outfh, const char*infilename)
 }
 
 /*************************************************************************
-                             WriteOutFixups                              
+                             WriteOutFixups
  *************************************************************************
 
    SYNOPSIS
@@ -2137,25 +2168,25 @@ int CopyIntoFile (int outfh, const char*infilename)
 
    PURPOSE
   		Write out the fixups and an end zero
-  
+
    INPUT
 		fh :
-  
+
    OUTPUT
-		None  
-  
+		None
+
    EFFECTS
-		None  
-  
+		None
+
    RETURNS
-  
-  
+
+
    SEE ALSO
-  
-  
+
+
    HISTORY
 		05/17/02 GAT: Created.
-  
+
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 void WriteOutFixups (int fh)
@@ -2214,18 +2245,18 @@ void WritePadding (int fh, long padding)
 #define ARG_OUTFILE		(newargs[ 0])
 #define ARG_SPECFILE	(newargs[ 1])
 #define ARG_VERBOSE		(newargs[ 2])
-#define	ARG_DONTOUT		(newargs[ 3]) 
+#define	ARG_DONTOUT		(newargs[ 3])
 #define	ARG_DUPERR		(newargs[ 4])
-#define ARG_PACK		(newargs[ 5]) 
-#define ARG_BIGENDIAN	(newargs[ 6]) 
-#define ARG_BYTES		(newargs[ 7]) 
-#define ARG_CHUNK		(newargs[ 8]) 
-#define	ARG_HARDWARE	(newargs[ 9]) 
-#define ARG_FIXUPS		(newargs[10]) 
-#define	ARG_PADEND		(newargs[11]) 
-#define ARG_TOPSECTION	(newargs[12]) 
-#define	ARG_WRITELOAD	(newargs[13]) 
-#define	ARG_KEYFILE		(newargs[14]) 
+#define ARG_PACK		(newargs[ 5])
+#define ARG_BIGENDIAN	(newargs[ 6])
+#define ARG_BYTES		(newargs[ 7])
+#define ARG_CHUNK		(newargs[ 8])
+#define	ARG_HARDWARE	(newargs[ 9])
+#define ARG_FIXUPS		(newargs[10])
+#define	ARG_PADEND		(newargs[11])
+#define ARG_TOPSECTION	(newargs[12])
+#define	ARG_WRITELOAD	(newargs[13])
+#define	ARG_KEYFILE		(newargs[14])
 #define ARG_DONTSORT	(newargs[15])
 #define	ARG_READLOAD	(newargs[16])
 #define	ARG_INCPATH		(newargs[17])
@@ -2313,7 +2344,7 @@ int main(int argc, char **argv)
 		DontOut      =  SWITCH_VALUE(ARG_DONTOUT);
 		fDontSort    =  SWITCH_VALUE(ARG_DONTSORT);
         fDupErr      =  SWITCH_VALUE(ARG_DUPERR);
-        
+
         SetINIErrorOnDuplicateSection(fDupErr);
 
 		if (ARG_TOPSECTION)
@@ -2352,18 +2383,18 @@ int main(int argc, char **argv)
             PositionOffsetShift -= 2; // flags
             #else
 
-            /*            
+            /*
               NOTE: The reason we can't currently calculate a position offset
                      is because fixups point to non offset areas.  In other
                      words even though all pointers in the data will be on
                      padsize boundries, the fixup pointers point to like
                      individual fields inside a structure/level that need
                      fixing.
-                     
+
                     I'm not sure how I could fix this.  I can't put the bits
                     at the top of the offset because some platforms start
                     the ram address at > 0x4000000 or > 0x8000000.
-                    
+
                     the only thing I can think of is making the fixups a
                     completely different format
             */
@@ -2659,9 +2690,9 @@ int main(int argc, char **argv)
 						long			 endAddress;
 
 						fc = pos->fc;
-                        
+
 						endAddress = curAddress + fc->PadSize;
-                        
+
                         // align this section if we need to
                         if (fc->Alignment && curAddress % fc->Alignment)
                         {
@@ -2799,7 +2830,7 @@ int main(int argc, char **argv)
 				uint32	zero = 0;
 
 				// we need to write the offset to the fixups,
-				// they will be at the end of the file AND they 
+				// they will be at the end of the file AND they
 				// are NOT compatible with the block system
 				// so the block size must be set high so everything
 				// fits in one block
@@ -2830,7 +2861,7 @@ int main(int argc, char **argv)
 				}
 			}
 			#endif
-            
+
             // pad header to padsize
             if (BytesWritten % PadSize)
             {
@@ -2848,9 +2879,9 @@ int main(int argc, char **argv)
 				{
 					FileContents	*fc;
 					long			 offset;
-                    
+
 					fc = pos->fc;
-                    
+
                     // align this section if we need to
                     if (fc->Alignment && BytesWritten % fc->Alignment)
                     {
@@ -2870,10 +2901,10 @@ int main(int argc, char **argv)
 						{
                         	long	lc_block;
                         	long	lc_offset;
-                        
+
                         	lc_block    = BytesWritten / ChunkSize;
                         	lc_offset   = BytesWritten % ChunkSize;
-                            
+
                     		EL_printf ("Block $%04lx : Offset $%04lx : ", lc_block, lc_offset);
 							EL_printf ("Writing %7ld bytes from %s\n", fc->Size, LST_NodeName (fc));
 						}
@@ -3052,10 +3083,10 @@ int main(int argc, char **argv)
 						{
                         	long	lc_block;
                         	long	lc_offset;
-                        
+
                         	lc_block    = BytesWritten / ChunkSize;
                         	lc_offset   = BytesWritten % ChunkSize;
-                            
+
                     		EL_printf ("Block $%04lx : Offset $%04lx : ", lc_block, lc_offset);
 							EL_printf ("Writing %7ld bytes from %s\n", fc->Size, LST_NodeName (fc));
 						}
