@@ -301,6 +301,7 @@
 
 #define POSITIONFLAG_UNRESOLVED	0x1
 #define POSITIONFLAG_ISFILE		0x2
+#define POSITIONFLAG_BITMASK    0x03
 
 /******************************** T Y P E S *******************************/
 
@@ -442,6 +443,16 @@ const char* LocalGetConfigFilename (ConfigLine* pCL)
 int LocalGetConfigLineNo (ConfigLine* pCL)
 {
     return pCL != NULL ? GetConfigLineNo (pCL) : 0;
+}
+
+long roundUp (long value, long padsize)
+{
+    if (value % padsize)
+    {
+        value = value + padsize - value % padsize;
+    }
+    
+    return value;
 }
 
 /*************************************************************************
@@ -931,12 +942,11 @@ void WritePosition (int fh, long position, int fIsFile, char *msg)
 	block    = position / ChunkSize;
 	offset   = position % ChunkSize;
 
-	//pos = offset | (block << 20) | 0x80000001UL;
 	pos = (offset >> PositionOffsetShift) | (block << PositionBlockShift) | POSITIONFLAG_UNRESOLVED | (fIsFile ? POSITIONFLAG_ISFILE : 0);
 
 	if (Verbose)
 	{
-		EL_printf ("Block $%04lx : Offset $%04lx : %s\n", block, offset, msg);
+		EL_printf ("Block $%04lx : Offset $%06lx : %s\n", block, offset, msg);
 	}
 
 	{
@@ -1039,9 +1049,8 @@ FileContents* AddLoadedFile (char *filename, uint8* buf, long size, int preLoad)
 
 			newfc->Size   = size;
 
-			size  = (size + PadSize - 1) / PadSize;
-			size *= PadSize;
-
+            size = roundUp (size, PadSize);
+            
 			newfc->PadSize = size;
 
 			guessSize += size;
@@ -2195,6 +2204,7 @@ int main(int argc, char **argv)
 			long numBlockBits;
 			
 			// find out how many bits are unused in a position because of the pad size;
+            #if 0
 			temp = PadSize;
 			while (!(temp & 0x01))
             {
@@ -2202,6 +2212,25 @@ int main(int argc, char **argv)
                 PositionOffsetShift++;
 			}
             PositionOffsetShift -= 2; // flags
+            #else
+
+            /*            
+              NOTE: The reason we can't currently calculate a position offset
+                     is because fixups point to non offset areas.  In other
+                     words even though all pointers in the data will be on
+                     padsize boundries, the fixup pointers point to like
+                     individual fields inside a structure/level that need
+                     fixing.
+                     
+                    I'm not sure how I could fix this.  I can't put the bits
+                    at the top of the offset because some platforms start
+                    the ram address at > 0x4000000 or > 0x8000000.
+                    
+                    the only thing I can think of is making the fixups a
+                    completely different format
+            */
+            PositionOffsetShift = 0;
+            #endif
 			
 			// find out how many bits are needed for an offset
 			temp = (ChunkSize - 1);
@@ -2297,7 +2326,7 @@ int main(int argc, char **argv)
 			while (!LST_EndOfList (level))
 			{
 
-				long			 size;
+				long size;
 				
 				size = level->size;
 				
@@ -2328,8 +2357,7 @@ int main(int argc, char **argv)
 
 					newfc->Size   = size;
 
-					size  = (size + PadSize - 1) / PadSize;
-					size *= PadSize;
+                    size = roundUp (size, PadSize);
 
 					newfc->PadSize = size;
 
@@ -2436,7 +2464,8 @@ int main(int argc, char **argv)
 
 				blockTableSize  = (((guessSize + ChunkSize - 1) / ChunkSize) + 1) * sizeof (uint32);
 				curAddress      = blockTableSize + fixupBeforeTableSize;
-				guessSize		= guessSize + blockTableSize + fixupBeforeTableSize;
+                curAddress      = roundUp (curAddress, PadSize);
+				guessSize		= guessSize + curAddress;
 
 				if (Verbose)
 				{
@@ -2508,8 +2537,7 @@ int main(int argc, char **argv)
 						// No file that fits was found so look move to next
 						// boundry and just use first file
 						//
-						curAddress  = (curAddress + ChunkSize - 1) / ChunkSize;
-						curAddress *= ChunkSize;
+                        curAddress = roundUp (curAddress, ChunkSize);
 
 						pos = (PositionNode*)LST_Head (SortedList);
 						fc  = pos->fc;
@@ -2653,6 +2681,9 @@ int main(int argc, char **argv)
 				}
 			}
 			#endif
+            
+            // pad header to padsize
+            WritePadding (fh, BytesWritten % PadSize);
 
 			//---------------------------------------------
 			// write files
