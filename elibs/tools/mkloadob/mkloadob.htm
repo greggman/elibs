@@ -19,6 +19,7 @@ pre          { margin-bottom: 0 }
 <body>
 
 <h1>MKLOADOB (the Echidna Data Linker)</h1>
+<hr>
 <p>Back in the early 90s as soon as CD based game systems came out it became 
 clear that one of the big problems with CD based games was they took forever to 
 load!&nbsp; Those problems were mostly solved by several companies back in the 
@@ -149,8 +150,81 @@ many pointers as you need/want.&nbsp; They can be nested to any level.&nbsp;
 Also notice that the file tree.3d is referenced twice.&nbsp; In this case the 
 file tree.3d would be stored inside the binary file that the data linker creates 
 but there would be two pointers pointing to that data.</p>
+<h2>Running the Data Linker</h2>
+<p>A typical command line might look like this</p>
+<blockquote>
+  <pre>mkloadob mylevel.lbi -duperr -sectorsize 2048 -chunksize $2800000
+         -nopad -nosort -fixupmode 2 -padsize 4 linkerfile.dlk</pre>
+</blockquote>
+<p>Those options say:</p>
+<table border="0" cellpadding="5" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111">
+  <tr>
+    <td valign="top" bgcolor="#E3E3FF">mylevel.lbi</td>
+    <td valign="top" bgcolor="#E3E3FF">the name of the file we are going to 
+    create</td>
+  </tr>
+  <tr>
+    <td valign="top" bgcolor="#F0F0FF">-duperr</td>
+    <td valign="top" bgcolor="#F0F0FF">if two sections have the same name print 
+    an error</td>
+  </tr>
+  <tr>
+    <td valign="top" bgcolor="#E3E3FF">-sectorsize 2048</td>
+    <td valign="top" bgcolor="#E3E3FF">one sector of the disk is 2048 bytes so 
+    our filesize will be padded to a multiple of 2048 bytes</td>
+  </tr>
+  <tr>
+    <td valign="top" bgcolor="#F0F0FF">-chunksize $2800000</td>
+    <td valign="top" bgcolor="#F0F0FF">chunks are probably not sometime you will 
+    use.&nbsp; In this case we just want one big chunk so we set the chunksize 
+    to some giant size</td>
+  </tr>
+  <tr>
+    <td valign="top" bgcolor="#E3E3FF">-nopad</td>
+    <td valign="top" bgcolor="#E3E3FF">normally all chucks would get filled out 
+    to be chunksize big but in this case we don't want that since there is only 
+    one chunk.</td>
+  </tr>
+  <tr>
+    <td valign="top" bgcolor="#F0F0FF">-nosort</td>
+    <td valign="top" bgcolor="#F0F0FF">don't sort any binary included files.&nbsp; 
+    Normally they get sorted so that they can be squeezed into the various 
+    chunks but since we are only going to have one chunk there is no point.</td>
+  </tr>
+  <tr>
+    <td valign="top" bgcolor="#E3E3FF">-fixupmode 2</td>
+    <td valign="top" bgcolor="#E3E3FF">put the pointer fixup table at the end of 
+    the file.&nbsp; Because it's at the end, once the pointers have been fixed 
+    up you can free that part of memory if you want to</td>
+  </tr>
+  <tr>
+    <td valign="top" bgcolor="#F0F0FF">-padsize 4</td>
+    <td valign="top" bgcolor="#F0F0FF">is the alignment for sections.&nbsp; All 
+    sections will start at a 4 byte boundary by default</td>
+  </tr>
+</table>
 <h2>Loading Your Data</h2>
-<p>&nbsp;</p>
+<p>In the case of a one chunk file, loading your data is pretty straight 
+forward.&nbsp; Here's some sample code:</p>
+<blockquote>
+  <pre>#include &quot;link.h&quot;</pre>
+  <pre>struct Level* pLevel;  // the level structure from above
+
+pLevel = LINK_QuickLoadBlockFile (&quot;mylevel.lbi&quot;);</pre>
+</blockquote>
+<p>As you can tell that was extremely difficult! :-p&nbsp; Your level is now 
+loaded and all your pointers are correct.</p>
+<p>The example loading and pointer fixup files are in
+<a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/elibs/elibs/tools/mkloadob/">
+the same folder as mkloadob</a> in the CVS repository.&nbsp; See
+<a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/elibs/elibs/tools/mkloadob/quickload.cpp?rev=HEAD&content-type=text/html">
+Quickload.cpp</a>,
+<a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/elibs/elibs/tools/mkloadob/quickload.h?rev=HEAD&content-type=text/html">
+Quickload.h</a>,
+<a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/elibs/elibs/tools/mkloadob/link.cpp?rev=HEAD&content-type=text/html">
+Link.cpp</a> and
+<a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/elibs/elibs/tools/mkloadob/link.h?rev=HEAD&content-type=text/html">
+Link.h</a></p>
 <h2>Data Linker File Format</h2>
 <p>The format of the data linker files is as follows</p>
 <h3>Preprocessor commands:</h3>
@@ -425,7 +499,11 @@ byte=7 8 9</pre>
   </tr>
   <tr>
     <td class="elist2" nowrap>SPECFILES</td>
-    <td class="elist2">Linker files</td>
+    <td class="elist2">Linker files.&nbsp; Note it says FILES.&nbsp; As in 
+    PLURAL.&nbsp; You can use include statements and/or you can specify as many 
+    files as you need right here.&nbsp; Files are parsed from the [start] 
+    section so the order sections appear in the files and the order of including 
+    them are never relevant (<a href="#relevant">*</a>)</td>
   </tr>
   <tr>
     <td class="elist1" nowrap>-VERBOSE</td>
@@ -512,6 +590,10 @@ byte=7 8 9</pre>
     <td class="elist2">Add an include pat</td>
   </tr>
 </table>
+<p><font size="2"><a name="relevant"></a>(*) Never relevant is an over 
+statement.&nbsp; Of course if you have an include in the middle of a section 
+then it does matter but there is no reason to do that.&nbsp; Use the insert= 
+statement instead.</font></p>
 <h2>Macro Language</h2>
 <p>There is a small macro language built in.&nbsp; It works on a line by line 
 basis.&nbsp; In other words, macros can NOT span more than one line.&nbsp; 
@@ -762,9 +844,9 @@ macro call.&nbsp; The correct way is</p>
     use HTML's align property instead of spaces.</td></tr>
                 </table>
 <h2>Chunkifying your data</h2>
-<p>&nbsp;MKLOADOB canl separate data into chucks of a specified size. If you 
+<p>MKLOADOB can separate data into chucks of a specified size. If you 
 don't need chucks specify a really large size and you'll get just one chunk! 
-Note: no piece of data or any tables can be larger than a single chunk.</p>
+Note: no piece of data or any sections can be larger than a single chunk.</p>
 <p>What's the point to chunks?</p>
 <ul>
   <li>You want to spool music from the CD and STILL be able to load in real 
@@ -777,11 +859,11 @@ Note: no piece of data or any tables can be larger than a single chunk.</p>
 </ul>
 <blockquote>
   <p>At runtime you allocation say 200 chunks of memory. You can then load each 
-  chunk from on of these files into any of those 200 chunks in any order since 
+  chunk from one of these files into any of those 200 chunks in any order since 
   all pointers are chuck relative.</p>
 </blockquote>
 <p>The beginning of the file contains a pointer field for each chunk that ends 
-in NULL. So if there are 4 chunks the start<br>
+in NULL. So if there are 4 chunks the start
 of the very first chunk would be </p>
 <blockquote>
   <pre>$FFFFFFFF ; space for pointer for chunk 0
@@ -820,11 +902,12 @@ find the first one you would go fix up section1. When you find the second one
 you would go to fix up section1 again and if you didn't know the pointers were 
 already fixed up you'd fix them again and mess them up.</p>
 <p>Optionally you can write out a fixup table. This is a list of relative 
-pointers too ALL other pointers in the file followed by a null.&nbsp; The issue 
+pointers to ALL other pointers in the file followed by a null.&nbsp; The issue 
 here is currently all fixup pointers must all fit in the first chunk.&nbsp; If 
 you are not using chunks this is not an issue.&nbsp; If you are and you run out 
 of room then it would be relatively easy to come up with a format that allowed 
-the fixup table to span chunks.</p>
+the fixup table to span chunks.&nbsp; Last time we used chunks we were not using 
+a fixup table.</p>
 <p>When using the multiple chunk method each chunk is padded to be one full 
 chunk long. If you are only using one chunk you probably want to use -NOPAD 
 option to not pad since you will specify an arbitrarily large chunk.</p>
@@ -837,7 +920,7 @@ ONE chunk.</p>
 user memory if they can read an entire sector but if they have to read less than 
 an entire sector they must first load it to their own buffer then copy the part 
 you wanted to user memory. That's clearly slower than directly reading it.</p>
-<p>*) Loading a multi-chunk file would look something like this:</p>
+<p>Loading a multi-chunk file would look something like this:</p>
 <ul>
   <li>Get length of entire file and divide by the chunk size to get the number 
   of chunks</li>
@@ -849,8 +932,8 @@ you wanted to user memory. That's clearly slower than directly reading it.</p>
   </li>
   <li>end for</li>
 </ul>
-<p>&nbsp;now all the blocks are loaded and you know where the data offset table 
-starts so:</p>
+<p>now all the blocks are loaded and you know where the data offset  
+starts, the first pointer after the chunk table so:</p>
 <ul>
   <li>for each non-zero data offset<ul>
     <li>look up the correct block address</li>
@@ -860,9 +943,6 @@ starts so:</p>
   </li>
   <li>endfor</li>
 </ul>
-
-<h3>Loading Chunkified Data</h3>
-<p>&nbsp;</p>
 
 </body>
 
