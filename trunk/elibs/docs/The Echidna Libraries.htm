@@ -4,18 +4,12 @@
 <meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
 <meta NAME="GENERATOR" CONTENT="Microsoft FrontPage 5.0">
 <title>The Echidna Libraries</title>
-<style>
-<!--
-body         { background-color: #FFE0E0; }
-h3           { color: #FFFFFF; padding: 3; background-color: #000080 }
--->
-</style>
+<link rel="stylesheet" type="text/css" href="/viewcvs.py/*checkout*/elibs/elibs/docs/notesstyledef.css?rev=HEAD&content-type=text/html">
+<link rel="stylesheet" type="text/css" href="notesstyledef.css">
 </head>
 
 <body>
 <h1>The Echidna Libraries</h1></font>
-
-<hr>
 
 <ul>
   <li><a href="http://sourceforge.net/projects/elibs/">Jump to the code</a></li>
@@ -170,7 +164,8 @@ permission.</p>
 <p>Examples of some of the utilities:</p>
 </font>
 
-<table CELLSPACING="0" BORDER="0" CELLPADDING="7" WIDTH="568">
+<dir>
+  <table CELLSPACING="0">
   <tr>
     <td WIDTH="16%" VALIGN="TOP"><font SIZE="2">Bin2list</font></td>
     <td WIDTH="84%" VALIGN="TOP"><font SIZE="2">Copies a bunch of files into one file with
@@ -284,9 +279,6 @@ permission.</p>
     use. Since the time this was written, some compiler companies do this for you
     automatically. Unfortunately I don&#146;t think Microsoft is one of them yet.</font></td>
   </tr>
-</table>
-
-<table CELLSPACING="0" BORDER="0" CELLPADDING="7" WIDTH="568">
   <tr>
     <td WIDTH="16%" VALIGN="TOP"><font SIZE="2">Makelist</font></td>
     <td WIDTH="84%" VALIGN="TOP"><font SIZE="2">Makes a list based on a word table.<p>Example.
@@ -366,6 +358,7 @@ permission.</p>
     </font></td>
   </tr>
 </table>
+</DIR>
 
 <h3><a name="arguments"></a>Arguments and Response files:</h3>
 
@@ -375,28 +368,28 @@ of command line. Since it is parsing it as a command line that means that if it 
 another @ symbol inside that file it will start parsing that file also. This is most
 useful for passing lots of arguments to programs like bin2list and echecksize. Example:
 
-<dir>
-  <p>--file-everylevelstuff.arp--<br>
-  ;<br>
-  ; these files need to be in every level<br>
-  ;<br>
-  %myprojectdatadir%\mainpalette.pal<br>
-  %myprojectdatadir%\statusbar.img<br>
-  %myprojectdatadir%\player.img</p>
-  <p>--file-level1.arp&#151;<br>
-  ;<br>
-  ; these files are used in level 1<br>
-  ;<br>
-  %myprojectdatadir%\level1tiles.img<br>
-  %myprojectdatadir%\level1snds.snd</p>
-</dir>
+<pre>
+  --file-everylevelstuff.arp--
+  ;
+  ; these files need to be in every level
+  ;
+  %myprojectdatadir%\mainpalette.pal
+  %myprojectdatadir%\statusbar.img
+  %myprojectdatadir%\player.img
+  --file-level1.arp&#151;
+  ;
+  ; these files are used in level 1
+  ;
+  %myprojectdatadir%\level1tiles.img
+  %myprojectdatadir%\level1snds.snd
+</pre>
 
 <p>Now, you can run bin2list like this
 
-<dir>
-  <p>Bin2list level1.dat @%myprojectdatadir%everylevelstuff.arp
-  @%myprojectdatadir%\level1.arp</p>
-</dir>
+<pre>
+  Bin2list level1.dat @%myprojectdatadir%everylevelstuff.arp
+  @%myprojectdatadir%\level1.arp
+</pre>
 
 <p>As you can see you can use multiple response files and environment variables will get
 expanded. (Note: Environment variables can also get expanded in our .INI file routines).
@@ -408,15 +401,15 @@ takes an INFILE and an OUTFILE and you supply two arguments then the first argum
 go to INFILE and the second to OUTFILE. Arguments can be forced to a particular argument
 position by prefixing it with the name of the position. Example:</p>
 
-<blockquote>
-  <p>Myprogram OUTFILE mynewfile INFILE myoldfile</p>
-</blockquote>
+<pre>
+  Myprogram OUTFILE mynewfile INFILE myoldfile
+</pre>
 
 <p>Or</p>
 
-<blockquote>
-  <p>Myprogram OUTFILE=mynewfile INFILE=myoldfile</p>
-</blockquote>
+<pre>
+  Myprogram OUTFILE=mynewfile INFILE=myoldfile
+</pre>
 
 <p>This is important especially in programs that can take multiple files in multiple
 positions. In order for the program to know which position to put your arguments you may
@@ -424,22 +417,20 @@ have to prefix all arguments. For example of you had a program called imageproce
 could take multiple files in for both images and palettes and you wanted to use a response
 file it might need to look like this:
 
-<dir>
-  <dir>
-    <p>INFILE=myimage1.tga<br>
-    INFILE=myimage2.tga<br>
-    INFILE=myimage3.tga<br>
-    PALETTE=mypalette1.pcx<br>
-    PALETTE=mypalette2.pcx<br>
-    PALETTE=mypalette3.pcx</p>
-  </dir>
-</dir>
+<pre>
+    INFILE=myimage1.tga
+    INFILE=myimage2.tga
+    INFILE=myimage3.tga
+    PALETTE=mypalette1.pcx
+    PALETTE=mypalette2.pcx
+    PALETTE=mypalette3.pcx
+</pre>
 
 <p>And then you might run the program like this</p>
 
-<blockquote>
-  <p>Imageprocess @response.arp myoutfile</p>
-</blockquote>
+<pre>
+  Imageprocess @response.arp myoutfile
+</pre>
 
 <h3>Notes about utilities and libraries</h3>
 
@@ -510,29 +501,29 @@ ourselves to work more efficiently wherever we are.</p>
 ELIBS equal to the path to the directory of the libraries. Example: You installed them in
 d:\work\elibs then</p>
 
-<blockquote>
-  <p>set ELIBS=d:\work\elibs</p>
-</blockquote>
+<pre>
+  set ELIBS=d:\work\elibs
+</pre>
 
 <p>In unix CSH (currently Irix only)</p>
 
-<blockquote>
-  <p>setenv ELIBS ~/work/elibs</p>
-</blockquote>
+<pre>
+  setenv ELIBS ~/work/elibs
+</pre>
 
 <p>Every .c/.cpp/.h file must have at the top</p>
 
-<blockquote>
-  <p>#include &quot;platform.h&quot;<br>
-  #include &quot;switches.h&quot;<br>
-  #include &lt;echidna\ensure.h&gt;</p>
-</blockquote>
+<pre>
+  #include &quot;platform.h&quot;
+  #include &quot;switches.h&quot;
+  #include &lt;echidna\ensure.h&gt;
+</pre>
 
 <p>The header file &quot;platform.h&quot; in your local directory should look like this</p>
 
-<blockquote>
-  <p>#include &lt;echidna/platform.h&gt;</p>
-</blockquote>
+<pre>
+  #include &lt;echidna/platform.h&gt;
+</pre>
 
 <p>There needs to be a switches.h in your local directory. I can be empty but you can use
 it to set the following switches.</p>
@@ -595,14 +586,12 @@ work for that matter. If you choose to use them you do so completely at your own
 
 <h3>Echidna is:</h3>
 
-<dir>
-  <dir>
-    <p>John Alvarado<br>
+<blockquote>
+    John Alvarado<br>
     Dan Chang<br>
     Greg Marquez<br>
-    <a href="http://greggman.com/">Gregg Tavares</a></p>
-  </dir>
-</dir>
+    <a href="http://greggman.com/">Gregg Tavares</a>
+</blockquote>
 </font>
 
 <h3><a name="download"></a>Downloads:</h3>
