@@ -140,7 +140,8 @@
 			IntermediateDirectory=".\elib___Win32_MFC_Debug"
 			ConfigurationType="4"
 			UseOfMFC="2"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"

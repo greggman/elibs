@@ -538,7 +538,7 @@ BEGINFUNC (SplicePalettes)
       )
       {
          *ppconNew = pmerge->pcon;
-         ppconNew->Constraint = (mkOpen == pmerge->mergekind) ? 0 : GFF_PCON_NOT_SETTABLE;
+         ppconNew->Constraint = (uint8)((mkOpen == pmerge->mergekind) ? 0 : GFF_PCON_NOT_SETTABLE);
       }
    }
 
