@@ -132,6 +132,11 @@ static bool mlang_isfloat (const char* str)
 		str++;
 	}
 	
+	if (*str == '-' || *str == '+')
+	{
+		str++;
+	}
+
     while (*str && isdigit (*str))
     {
         before++;
