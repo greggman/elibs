@@ -35,6 +35,7 @@
 #include "echidna/eerrors.h"
 
 #include "readpcx.h"
+#include "readpic.h"
 #include "readtga.h"
 #include "photoshp.h"
 #include "echidna/gff.h"
@@ -104,6 +105,15 @@ BlockO32BitPixels *Read32BitPicture (const char* filename)
 		{
 			InfoMess (("Loading Targa file %s\n", filename));
 			if (!loadTGA32Bit (b32, mf))
+			{
+				free(b32);
+				b32 = 0;
+			}
+		}
+		else if (!stricmp (".pic", EIO_Ext(filename)))
+		{
+			InfoMess (("Loading Softimage PIC file %s\n", filename));
+			if (!loadPIC32Bit (b32, mf))
 			{
 				free(b32);
 				b32 = 0;
