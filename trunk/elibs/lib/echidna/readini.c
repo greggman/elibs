@@ -438,6 +438,7 @@ IniList *CreateINI (const char *name)
 IniList *AppendINI(IniList *pIniList, const char *filename)
 {
     char        oldDir[EIO_MAXPATH];
+    char        newFilename[EIO_MAXPATH];
     BOOL        fSetDir = FALSE;
     const char  *savedFilename;
 	char		*pch;
@@ -451,9 +452,17 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 	LineCount = 0;
 	WarnErrCount = 0;
     
-    currentFilename = filename;
+    EIO_CurrentDir (oldDir);
+    EIO_fnmerge (newFilename, oldDir, filename, NULL);
     
-	if ((pFile = fopen (filename, "r")) == NULL)
+    if (!EIO_FileExists(newFilename))
+    {
+        strcpy (newFilename, filename);
+    }
+    
+    currentFilename = newFilename;
+    
+	if ((pFile = fopen (newFilename, "r")) == NULL)
 	{
 		ErrMess ("Couldn't open configuration file '%s'\n", filename);
 		return NULL;
@@ -466,16 +475,15 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 			return NULL;
 		}
 	}
-    
+
     /*** add filename to filename list ***/
-    
     {
         LST_NODE*   nd;
         
-        nd = LST_FindIName (LST_Head(&pIniList->FileList), filename);
+        nd = LST_FindIName (LST_Head(&pIniList->FileList), newFilename);
         if (!nd)
         {
-            nd = LST_CreateNode (sizeof (LST_NODE), filename);
+            nd = LST_CreateNode (sizeof (LST_NODE), newFilename);
             if (!nd)
             {
                 ErrMess ("OOM file '%s'\n", filename);
@@ -486,18 +494,17 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
         
         savedFilename = LST_NodeName(nd);
     }        
-    
+
     /*** change current dir so includes etc will work ***/
     if (fChangeCurrentDir)
     {
-        EIO_CurrentDir (oldDir);
-        if (strlen(EIO_Path(filename)) > 0)
+        if (strlen(EIO_Path(newFilename)) > 0)
         {
             fSetDir = TRUE;
-            EIO_ChangeDir (EIO_Path(filename));
+            EIO_ChangeDir (EIO_Path(newFilename));
         }
     }
-
+    
 	/*** Read Config File ***/
 
 	while ((pch = GetLine(szLine, MAX_LINE_SIZE, pFile)) != NULL)
@@ -526,7 +533,7 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
                 
                 if (len == maxlen)
                 {
-					ErrMess ("file '%s', line %d: section name > 1024 characters!\n", filename, LineCount);
+					ErrMess ("file '%s', line %d: section name > 1024 characters!\n", newFilename, LineCount);
     /**/			goto ABORT;
                 }
                 
@@ -570,7 +577,7 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
                         }
                         else if (fErrorOnDuplicateSection)
                         {
-        					ErrMess ("file '%s', line %d: duplicate section (%s), original section in file '%s', line %d.\n", filename, LineCount, secname, pSection->Filename, pSection->LineNo);
+        					ErrMess ("file '%s', line %d: duplicate section (%s), original section in file '%s', line %d.\n", newFilename, LineCount, secname, pSection->Filename, pSection->LineNo);
                         }
                         break;
                     }
@@ -582,11 +589,11 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 			{
 				if ((pSection = AddINISection(pIniList, secname)) == NULL)
 				{
-					ErrMess ("file '%s', line %d: OOM .\n", filename, LineCount);
+					ErrMess ("file '%s', line %d: OOM .\n", newFilename, LineCount);
 /**/				goto ABORT;
                 }
                 
-                pSection->Filename = filename;
+                pSection->Filename = savedFilename;
                 pSection->LineNo   = LineCount;
                 
                 if (argStart)
@@ -650,7 +657,7 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 			}
 			else
 			{
-				ErrMess ("file '%s', line %d: missing quotes/brackets in #include.\n", filename, LineCount);
+				ErrMess ("file '%s', line %d: missing quotes/brackets in #include.\n", newFilename, LineCount);
 			}
 			
 			if (mode)
@@ -663,16 +670,16 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 				while (*pch && *pch != mode) pch++;
 				if (!*pch)
 				{
-					ErrMess ("file '%s', line %d: missing quotes/brackets in #include.\n", filename, LineCount);
+					ErrMess ("file '%s', line %d: missing quotes/brackets in #include.\n", newFilename, LineCount);
 				}
 				else if (pch - newfile + 1 > EIO_MAXPATH)
 				{
-					ErrMess ("file '%s', line %d: filename too long in #include \n", filename, LineCount);
+					ErrMess ("file '%s', line %d: filename too long in #include \n", newFilename, LineCount);
 				}
 				else
 				{
 					int  fFound = FALSE;
-					char newfilename[EIO_MAXPATH];
+					char incFilename[EIO_MAXPATH];
 					char fixedfilename[EIO_MAXPATH];
 					
                     // using fixed as temp here
@@ -686,9 +693,9 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
                     }
                     else
                     {
-                        EIO_fnmerge (newfilename, EIO_Path(filename), fixedfilename, NULL);
+                        EIO_fnmerge (incFilename, EIO_Path(newFilename), fixedfilename, NULL);
 					
-    				    fFound = EIO_FindInclude (fixedfilename, EIO_INCPATH_INIS, newfilename, filename, TRUE);
+    				    fFound = EIO_FindInclude (fixedfilename, EIO_INCPATH_INIS, incFilename, filename, TRUE);
                     }
                     
                     if (fFound)
@@ -700,25 +707,25 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
                         
                         // restore old line count and filename
                         LineCount = oldLineCount;
-                        currentFilename = filename;
+                        currentFilename = newFilename;
 					}
 					else
 					{
-						ErrMess ("File %s, line %d: couldn't open include file %s\n", filename, LineCount, fixedfilename);
+						ErrMess ("File %s, line %d: couldn't open include file %s\n", newFilename, LineCount, fixedfilename);
 					}
 				}            
 			}
 		}
 		else if (!pCurrentList)
 		{
-			WarnMess ("File %s, line %d: No section header.\n", filename, LineCount);
+			WarnMess ("File %s, line %d: No section header.\n", newFilename, LineCount);
 			WarnErrCount++;
 		}
 		else
 		{
 			if ((AddINILine (pSection, pch, LineCount, savedFilename)) == NULL)
 			{
-				ErrMess ("file '%s', line %5d: OOM\n", filename, LineCount);
+				ErrMess ("file '%s', line %5d: OOM\n", newFilename, LineCount);
 /**/			goto ABORT;
 			}
 		}
