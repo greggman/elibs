@@ -20,7 +20,25 @@ h2           { border-top-style: solid; padding-top: 10 }
 
 <h1>MKLOADOB (the Echidna Data Linker)</h1>
 <hr>
-<p>Back in the early 90s as soon as CD based game systems came out it became 
+<ul>
+  <li><a href="#why"><span lang="ja">W</span></a><span lang="ja"><a href="#why">hy, 
+  What, Where</a></span></li>
+  <li><a href="#introduction"><span lang="ja">I</span>ntroductio<span lang="ja">n 
+  and example</span></a></li>
+  <li><a href="#running"><span lang="ja">R</span>unnin<span lang="ja">g the 
+  linker</span></a></li>
+  <li><a href="#loading"><span lang="ja">L</span>oadin<span lang="ja">g your 
+  data</span></a></li>
+  <li><a href="#download"><span lang="ja">D</span>ownloa<span lang="ja">d</span></a></li>
+  <li><a href="#format"><span lang="ja">Data Linker input file f</span>ormat</a></li>
+  <li><a href="#numberformat"><span lang="ja">Nu</span>m<span lang="ja">eric Fo</span>rma<span lang="ja">ts</span></a></li>
+  <li><a href="#arguments"><span lang="ja">Command line a</span>rguments</a></li>
+  <li><a href="#macros"><span lang="ja">M</span>acro<span lang="ja"> Language</span></a></li>
+  <li><a href="#tips"><span lang="ja">T</span>ip<span lang="ja">s and 
+  Suggestions</span></a></li>
+  <li><a href="#cyd"><span lang="ja">Chunkifying your data</span></a></li>
+</ul>
+<p><a name="why"></a>Back in the early 90s as soon as CD based game systems came out it became 
 clear that one of the big problems with CD based games was they took forever to 
 load!&nbsp; Those problems were mostly solved by several companies back in the 
 early 90s but it seems like almost no one noticed because we still get crap like 
@@ -96,7 +114,7 @@ possible.</p>
 my friends and I wrote a tool to deal with this.&nbsp; Since about 1997 we have 
 made it freely available but without docs it's been unlikely that anybody has used it let 
 alone even found it, until now!</p>
-<h2>The Echidna Data Linker</h2>
+<h2><a name="introduction"></a>The Echidna Data Linker</h2>
 <p>It's what we call a Data Linker because it takes a bunch of data an links it 
 together.&nbsp; It's called MKLOADOB.&nbsp; Lame name I know but hey, it's old,
 starting back from the days of DOS.&nbsp; If you are curious, MKLOADOB stands for MaKe 
@@ -171,7 +189,7 @@ or that, allocating bits of memory at time etc..&nbsp; That's a lot of work.&nbs
 Many loaders are hundreds of lines long.&nbsp; Using the a data linker removes 
 all that code.&nbsp; Less code = faster development, faster loading, more 
 memory, less bugs.</span></p>
-<h2>Running the Data Linker</h2>
+<h2><a name="running"></a>Running the Data Linker</h2>
 <p>A typical command line might look like this</p>
 <blockquote>
   <pre>mkloadob mylevel.lbi -duperr -sectorsize 2048 -chunksize $2800000
@@ -224,7 +242,7 @@ memory, less bugs.</span></p>
       sections and files will start at a 4 byte boundary by default</td>
   </tr>
 </table>
-<h2>Loading Your Data</h2>
+<h2><a name="loading"></a>Loading Your Data</h2>
 <p>In the case of a one chunk file, loading your data is pretty straight 
 forward.&nbsp; Here's some sample code:</p>
 <blockquote>
@@ -246,11 +264,11 @@ Quickload.h</a>,
 Link.cpp</a> and
 <a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/elibs/elibs/tools/mkloadob/link.h?rev=HEAD&content-type=text/html">
 Link.h</a></p>
-<h2><span lang="ja">Downloading</span></h2>
+<h2><span lang="ja"><a name="download"></a>Downloading</span></h2>
 <p><span lang="ja">The Echidna Data Linker is one of the tools in the Echidna 
 Libraries which can be <a href="http://elibs.sourceforge.net">accessed through 
 sourceforge.net here</a>.</span></p>
-<h2>Data Linker File Format</h2>
+<h2><a name="format"></a>Data Linker File Format</h2>
 <p>The format of the data linker files is as follows</p>
 <h3>Preprocessor commands:</h3>
 <table border="0" cellpadding="5" cellspacing="0" style="border-collapse: collapse">
@@ -502,7 +520,7 @@ byte=7 8 9</pre>
     </td>
   </tr>
 </table>
-<h2>Numeric Format</h2>
+<h2><a name="numberformat"></a>Numeric Format</h2>
 <p>You can specify integer based numbers as follows</p>
 <blockquote>
 <table border="0" cellpadding="4" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111">
@@ -538,7 +556,7 @@ byte=7 8 9</pre>
   </tr>
 </table>
 </blockquote>
-<h2>Command Line Arguments</h2>
+<h2><a name="arguments"></a>Command Line Arguments</h2>
 <p>Usage: MKLOADOB OUTFILE SPECFILES [switches...]</p>
 <table border="0" cellpadding="5" cellspacing="0" style="border-collapse: collapse">
   <tr>
@@ -642,7 +660,7 @@ byte=7 8 9</pre>
 statement.&nbsp; Of course if you have an include in the middle of a section 
 then it does matter but there is no reason to do that.&nbsp; Use the insert= 
 statement instead.</font></p>
-<h2>Macro Language</h2>
+<h2><a name="macros"></a>Macro Language</h2>
 <p>There is a small macro language built in.&nbsp; It works on a line by line 
 basis.&nbsp; In other words, macros can NOT span more than one line.&nbsp; 
 Variables and macros are referenced with %.&nbsp; Example</p>
@@ -877,7 +895,7 @@ macro call.&nbsp; The correct way is</p>
     ignored. (pre = preformatted).&nbsp; If you need things to be right aligned
     use HTML's align property instead of spaces.</td></tr>
                 </table>
-<h2>Tips / Suggestions</h2>
+<h2><a name="tips"></a>Tips / Suggestions</h2>
 <ul>
   <li>Given the above example I generally put a version number inside the top
     structure of the file</li>
