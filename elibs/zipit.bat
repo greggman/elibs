@@ -1,3 +1,4 @@
+rem this is a test
 del elibs.zip eutils.zip ewinbin.zip
 cd ..
 "c:\program files\winzip\wzzip" -yb -ex -P -r -x*.obj -x*.ilk -x*.pch -x*.pdb -x*.idb -x*.exe -x*.ncb elibs\elibs.zip elibs\inc\*.* elibs\lib\*.* elibs\docs\*.* elibs\zipit.bat
