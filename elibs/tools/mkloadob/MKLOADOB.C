@@ -237,6 +237,10 @@
  *                          ;         secalign=16
  *                          ;
  *                          ;      My section will start at a 16 byte boundary
+ *                          ; 
+ *                          ; NOTE: the boundry is relative to the address of the particular
+ *                          ; block this section ends up being placed in.  The boundry of
+ *                          ; block is up the loader in the program you are using this data.
  *                          ;
  *			path=			; set the path for loading binary files		 
  *							; files encountered after this line will be loaded from here
@@ -318,6 +322,19 @@
 
 /******************************** T Y P E S *******************************/
 
+typedef struct NamedPair
+{
+    LST_NODE    node;
+    char*       value;
+} NamedPair;
+
+typedef struct NamedPairs
+{
+    LST_LIST*   pairList;
+    LST_LIST    pairListX;
+}
+NamedPairs;
+
 typedef struct PreLoadFile
 {
 	LST_NODE			node;
@@ -377,7 +394,6 @@ PositionNode;
 #define PART_RUNTIMEFILE	10
 #define PART_ALIGN          11
 #define PART_PAD            12
-#define PART_SECALIGN       13
 
 typedef struct
 {
@@ -399,6 +415,7 @@ int				 OutMode	  = 0;
 int				 UseFixupsMode= 0;
 int				 PadEnd		  = TRUE;
 int				 fDontSort    = FALSE;
+int              fDupErr      = FALSE;
 long			 PadSize	  = 4;
 long			 ChunkSize    = 2048;
 long			 HardwareSectorSize = 1;
@@ -472,6 +489,207 @@ long roundUp (long value, long padsize)
     return value;
 }
 
+
+/*************************************************************************
+                            NP_SplitNamedPairs                           
+ *************************************************************************
+
+   SYNOPSIS
+		NamedPairs* NP_SplitNamedPairs (const char* str, char pairSplit, char valueSplit)
+
+   PURPOSE
+  		Take a string like this "foo=1,goo=boof" and parse it so it's easy to use
+  
+   INPUT
+		str        :
+		pairSplit  : value to split pairs by (eg, ',')
+		valueSplit : value to splut value and label by (eg, '=')
+  
+   OUTPUT
+		None  
+  
+   EFFECTS
+		None  
+  
+   RETURNS
+        NamedPairs pointer, used to pass to other NP_ funcs
+  
+   SEE ALSO
+  
+  
+   HISTORY
+		01/24/03 GAT: Created.
+  
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+NamedPairs* NP_SplitNamedPairs (const char* str, char pairSplit, char valueSplit)
+{
+    NamedPairs* pNP = CHK_CallocateMemory (sizeof (NamedPairs), "NamedPairs");
+    
+    pNP->pairList = &pNP->pairListX;
+    LST_InitList (pNP->pairList);
+    
+    {
+        while (*str)
+        {
+			const char* pairStart;
+			const char* valueSplitter = NULL;
+
+            while (*str && isspace(*str)) ++str;
+            
+            pairStart = str;
+            
+            while (*str && *str != pairSplit)
+            {
+                if (*str == valueSplit)
+                {
+                    valueSplitter = str;
+                }
+				++str;
+            }
+            
+            if (pairStart != str)
+            {
+                BOOL fHaveValue = (valueSplitter != NULL && valueSplitter + 1 != str);
+                const char* nameEnd  = (valueSplitter != NULL) ? valueSplitter : str;
+                const char* valueStart = fHaveValue ? valueSplitter + 1 : NULL; 
+                const char* valueEnd   = fHaveValue ? str : NULL;
+                
+                // eat whitespace after name
+                while (nameEnd > pairStart && isspace (nameEnd[-1])) --nameEnd;
+                
+                // eat whitespace before and after value
+                if (valueStart)
+                {
+                    while (valueStart < valueEnd && isspace(*valueStart)) ++valueStart;
+                    while (valueEnd > valueStart && isspace(valueEnd[-1])) --valueEnd;
+                }
+                
+                {
+                    int nameLen =  nameEnd - pairStart;
+                    int valueLen = valueEnd - valueStart;
+                    
+                    char* name  = CHK_AllocateMemory (nameLen + 1, "namedpair name");
+                    char* value = CHK_AllocateMemory (valueLen + 1, "namedpair value");
+    
+                    // copy name                
+                    strncpy (name, pairStart, nameLen);
+                    name[nameLen] = '\0';
+                    
+                    // copy value
+                    if (valueStart)
+                    {
+                        strncpy (value, valueStart, valueLen);
+                        value[valueLen] = '\0';
+                    }
+                    else
+                    {
+                        value = CHK_dupstr ("1");
+                    }
+                    
+					{
+						NamedPair* pPair = CHK_CreateNode (sizeof (NamedPair), name, "namedpair");
+						pPair->value = value;
+                    
+						LST_AddTail (pNP->pairList, pPair);
+					}
+                    
+                    CHK_DeallocateMemory (name, "namedpair name");
+                }
+            }
+            
+            // skip pairSplit
+            if (*str) ++str;
+        }
+    }
+    
+    return pNP;
+}
+
+/*************************************************************************
+                           NP_GetValueForName                            
+ *************************************************************************
+
+   SYNOPSIS
+		BOOL NP_GetValueForName (NamedPairs* pNP, const char* name, char** pValue)
+
+   PURPOSE
+  		find a named value
+  
+   INPUT
+		pNP    : NamedPairs pointer from NP_SplitNamedPairs
+		name   : name we want (not case sensitive)
+		pValue : pointer to pointer to char for value
+  
+   OUTPUT
+		None  
+  
+   EFFECTS
+		None  
+  
+   RETURNS
+        True if name exists, false if not
+  
+   SEE ALSO
+  
+  
+   HISTORY
+		01/24/03 GAT: Created.
+  
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+BOOL NP_GetValueForName (NamedPairs* pNP, const char* name, char** pValue)
+{
+    NamedPair* pPair = (NamedPair*)LST_FindIName (pNP->pairList, name);
+    if (pPair)
+    {
+        *pValue = pPair->value;
+        return TRUE;
+    }
+    return FALSE;
+}
+
+/*************************************************************************
+                                 NP_Free                                 
+ *************************************************************************
+
+   SYNOPSIS
+		void NP_Free (NamedPairs* pNP)
+
+   PURPOSE
+  		Free this stuff
+  
+   INPUT
+		pNP :
+  
+   OUTPUT
+		None  
+  
+   EFFECTS
+		None  
+  
+   SEE ALSO
+  
+  
+   HISTORY
+		01/24/03 GAT: Created.
+  
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+void NP_Free (NamedPairs* pNP)
+{
+    NamedPair* pPair = (NamedPair*)LST_Head (pNP->pairList);
+    while (!LST_EndOfList (pPair))
+    {
+        CHK_freestr (pPair->value);
+        pPair = (NamedPair*)LST_Next (pPair);
+    }
+    
+    LST_EmptyList (pNP->pairList);
+    CHK_DeallocateMemory (pNP, "namedpairs");
+}
+
+
 /*************************************************************************
                                hashGetLong                               
  *************************************************************************
@@ -518,7 +736,6 @@ char* MK_hashGetLong (char *s, uint32 *l)
 
 	return s;
 }
-
 
 /*************************************************************************
                             LST_NodeHashFunc                             
@@ -985,13 +1202,14 @@ void WritePosition (int fh, long position, int fIsFile, char *msg)
  *************************************************************************
 
    SYNOPSIS
-		FileContents* AddLoadedFile (char *filename, void* data, long len)
+		FileContents* AddLoadedFile (char *filename, long alignmentvoid* data, long len)
 
    PURPOSE
   		Add a file that's already been loaded
   
    INPUT
 		filename :
+        alignment:
 		data     :
 		len      :
   
@@ -1012,7 +1230,7 @@ void WritePosition (int fh, long position, int fIsFile, char *msg)
   
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-FileContents* AddLoadedFile (char *filename, uint8* buf, long size, int preLoad)
+FileContents* AddLoadedFile (char *filename, long alignment, uint8* buf, long size, int preLoad)
 {
 	FileContents	*newfc = NULL;
 
@@ -1033,6 +1251,7 @@ FileContents* AddLoadedFile (char *filename, uint8* buf, long size, int preLoad)
 		FileContents	*fc;
 
 		newfc = CHK_CreateNode (sizeof (FileContents), filename, "FileContents");
+        newfc->Alignment = alignment;
 
 		if (Pack)
 		{
@@ -1099,7 +1318,7 @@ FileContents* AddLoadedFile (char *filename, uint8* buf, long size, int preLoad)
  * AddUnloadedFile
  *
  * SYNOPSIS
- *		FileContents *AddUnloadedFile (char *filename)
+ *		FileContents *AddUnloadedFile (char *filename, long alignment)
  *
  * PURPOSE
  *		
@@ -1119,7 +1338,7 @@ FileContents* AddLoadedFile (char *filename, uint8* buf, long size, int preLoad)
  * SEE ALSO
  *
 */
-FileContents* AddUnloadedFile (char *filename)
+FileContents* AddUnloadedFile (char *filename, long alignment)
 {
 	FileContents	*newfc = NULL;
 	long			 size;
@@ -1176,7 +1395,7 @@ FileContents* AddUnloadedFile (char *filename)
 	//
 	// see if it's the same as a previous file
 	//
-	newfc = AddLoadedFile (filename, buf, size, preLoad);
+	newfc = AddLoadedFile (filename, alignment, buf, size, preLoad);
 	if (newfc->SameAs != NULL)
 	{
 		if (Pack)
@@ -1209,13 +1428,14 @@ FileContents* AddUnloadedFile (char *filename)
  *************************************************************************
 
    SYNOPSIS
-		FileContents* AddFile (char* fname)
+		FileContents* AddFile (char* fname, long alignment)
 
    PURPOSE
   		
   
    INPUT
-		fname :
+		fname     :
+        alignment : how to align this file relative to the start of the block
   
    OUTPUT
 		None  
@@ -1234,7 +1454,7 @@ FileContents* AddUnloadedFile (char *filename)
   
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-FileContents* AddFile (char* filename)
+FileContents* AddFile (char* filename, long alignment)
 {
 	FileContents*	 fc;
 	
@@ -1252,13 +1472,30 @@ FileContents* AddFile (char* filename)
 			fc = fc->SameAs;
 		}
 		newfc->SameAs = fc;
+        
+        // check that alignments agree
+        if (alignment > fc->Alignment)
+        {
+            if (alignment % fc->Alignment)
+            {
+                ErrMess ("file (%s) aligned more than once and alignments are not compatible, orig = %d, new = %d\n", filename, fc->Alignment, alignment);
+            }
+            fc->Alignment = alignment;
+        }
+        else
+        {
+            if (fc->Alignment % alignment)
+            {
+                ErrMess ("file (%s) aligned more than once and alignments are not compatible, orig = %d, new = %d\n", filename, fc->Alignment, alignment);
+            }
+        }
 		
 		AddFileToFileList (newfc);
 
 		return newfc;
 	}
 	
-	return AddUnloadedFile (filename);
+	return AddUnloadedFile (filename, alignment);
 }
 
 Level* FindLevel (char *levelName)
@@ -1293,6 +1530,31 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLin
     }
 
     INI_markSectionAsUsed(sec);
+    
+    // check args
+    if (GetSectionArgs(sec))
+    {
+        char* value;
+        
+        NamedPairs* np = NP_SplitNamedPairs (GetSectionArgs(sec), ',', '=');
+        if (!np)
+        {
+    		ErrMess ("File %s, Line %d: out of memory %s\n", LocalGetConfigFilename(pCLForErrorOnly), LocalGetConfigLineNo (pCLForErrorOnly), sectionName);
+            return FALSE;
+        }
+        
+        if (NP_GetValueForName(np, "align", &value))
+        {
+            long alignment = EL_atol(value);
+            
+            if (alignment)
+            {
+                level->alignment = alignment;
+            }
+        }
+        
+        NP_Free (np);
+    }
 
 	{
 		ConfigLine		*cl;
@@ -1336,11 +1598,40 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLin
 						//
 	
 						char*			 fname;
+                        char*            comma;
 						char			 filename[EIO_MAXPATH];
                         bool             fFound = FALSE;
+                        long             alignment = 1;
 						
 						strcpy (line, arg);
 						fname = TrimWhiteSpaceAndQuotes (line);
+                        
+                        if ((comma = strchr (fname, ',')) != NULL)
+                        {
+							NamedPairs* np;
+                            char* value;
+
+                            *comma++ = '\0';
+                            
+                            np = NP_SplitNamedPairs (comma, ',', '=');
+                            if (!np)
+                            {
+                				ErrMess ("File %s, Line %d OOM\n", GetConfigFilename(cl), GetConfigLineNo (cl));
+                                return FALSE;
+                            }
+                            
+                            if (NP_GetValueForName(np, "align", &value))
+                            {
+                                long newAlignment = EL_atol(value);
+                                
+                                if (newAlignment)
+                                {
+                                    alignment = newAlignment;
+                                }
+                            }
+                            
+                            NP_Free (np);
+                        }
                         
                         if (GetConfigFilename(cl))
                         {
@@ -1357,7 +1648,7 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLin
                         }
                         
 						part->type   = PART_DATA;
-						part->fc     = AddFile (filename);
+						part->fc     = AddFile (filename, alignment);
 						part->size   = sizeof (void *);
 					}
 					else if (!stricmp (cmd, "load"))
@@ -1441,24 +1732,6 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLin
                         
 						part->type   = PART_PAD;
 						part->size   = padding;
-					}
-					else if (!stricmp (cmd, "secalign"))
-					{
-						//
-						// found secalign part
-						//
-                        long alignment = EL_atol(arg);
-                        
-                        if (level->alignment != 0 && level->alignment != alignment)
-                        {
-            				ErrMess ("File %s, Line %d: multiple section alignments (secalign=)\n", GetConfigFilename(cl), GetConfigLineNo (cl));
-                        }
-                        else
-                        {
-                            level->alignment = alignment;
-                        }
-                        part->type = PART_SECALIGN;
-                        part->size = 0;
 					}
 					else if (!stricmp (cmd, "Long") ||
                              !stricmp (cmd, "int32") ||
@@ -1641,7 +1914,7 @@ Level* ParseLevel (IniList *specFile, char *levelName, ConfigLine* pCL)
 	level->partsList = &level->partsListX;
 	LST_InitList (level->partsList);
 	LST_AddTail (LevelList, level);
-
+    
     if (!ParseSection (level, specFile, sectionName, pCL))
     {
         // todo: this is sloppy.  I don't cleanup here. but since I got an error
@@ -2131,19 +2404,20 @@ void WritePadding (int fh, long padding)
 #define ARG_SPECFILE	(newargs[ 1])
 #define ARG_VERBOSE		(newargs[ 2])
 #define	ARG_DONTOUT		(newargs[ 3]) 
-#define ARG_PACK		(newargs[ 4]) 
-#define ARG_BIGENDIAN	(newargs[ 5]) 
-#define ARG_BYTES		(newargs[ 6]) 
-#define ARG_CHUNK		(newargs[ 7]) 
-#define	ARG_HARDWARE	(newargs[ 8]) 
-#define ARG_FIXUPS		(newargs[ 9]) 
-#define	ARG_PADEND		(newargs[10]) 
-#define ARG_TOPSECTION	(newargs[11]) 
-#define	ARG_WRITELOAD	(newargs[12]) 
-#define	ARG_KEYFILE		(newargs[13]) 
-#define ARG_DONTSORT	(newargs[14])
-#define	ARG_READLOAD	(newargs[15])
-#define	ARG_INCPATH		(newargs[16])
+#define	ARG_DUPERR		(newargs[ 4])
+#define ARG_PACK		(newargs[ 5]) 
+#define ARG_BIGENDIAN	(newargs[ 6]) 
+#define ARG_BYTES		(newargs[ 7]) 
+#define ARG_CHUNK		(newargs[ 8]) 
+#define	ARG_HARDWARE	(newargs[ 9]) 
+#define ARG_FIXUPS		(newargs[10]) 
+#define	ARG_PADEND		(newargs[11]) 
+#define ARG_TOPSECTION	(newargs[12]) 
+#define	ARG_WRITELOAD	(newargs[13]) 
+#define	ARG_KEYFILE		(newargs[14]) 
+#define ARG_DONTSORT	(newargs[15])
+#define	ARG_READLOAD	(newargs[16])
+#define	ARG_INCPATH		(newargs[17])
 
 char Usage[] = "Usage: MKLOADOB OUTFILE SPECFILES [switches...]\n";
 
@@ -2152,6 +2426,7 @@ ArgSpec Template[] = {
 {STANDARD_ARG|REQUIRED_ARG|MULTI_ARG,	"SPECFILES",	"\tSPECFILES           = File(s) of levels and data\n", },
 {SWITCH_ARG,							"-VERBOSE",		"\t-VERBOSE            = Verbose (show errors)\n", },
 {SWITCH_ARG,							"-NOOUTPUT",	"\t-NOOUTPUT           = Don't write output file\n", },
+{SWITCH_ARG,							"-DUPERR",		"\t-DUPERR             = Duplicate sections cause error (default, ignore duplicates)\n", },
 {SWITCH_ARG,							"-NOPACK",		"\t-NOPACK             = Don't Pack\n", },
 {SWITCH_ARG,							"-BIGENDIAN",	"\t-BIGENDIAN          = Big Endian\n", },
 {KEYWORD_ARG,							"-PADSIZE",		"\t-PADSIZE <bytes>    = Padsize Size (Def. 4)\n", },
@@ -2206,6 +2481,7 @@ int main(int argc, char **argv)
     SetINIUndefEnvVarIsError(TRUE);
     SetINIUseMacroLanguage(TRUE);
     SetINIStripCPlusPlusComments(TRUE);
+    SetINIParseArgsInSection(TRUE);
 
 	newargs = argparse (argc, argv, Template);
 
@@ -2224,6 +2500,9 @@ int main(int argc, char **argv)
 		PadEnd       = !SWITCH_VALUE(ARG_PADEND);
 		DontOut      =  SWITCH_VALUE(ARG_DONTOUT);
 		fDontSort    =  SWITCH_VALUE(ARG_DONTSORT);
+        fDupErr      =  SWITCH_VALUE(ARG_DUPERR);
+        
+        SetINIErrorOnDuplicateSection(fDupErr);
 
 		if (ARG_TOPSECTION)
 		{
