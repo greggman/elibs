@@ -3,19 +3,19 @@
  *                               VERSION.H                               *
  *                                                                       *
  *************************************************************************
- 
-                          Copyright 1996 Echidna                         
- 
+
+                          Copyright 1996 Echidnas
+
    DESCRIPTION
-		 
- 
+		
+
    PROGRAMMERS
 		
- 
+
    FUNCTIONS
- 
+
    TABS : 5
- 
+
    HISTORY
 		12/01/96 : Created.
 
