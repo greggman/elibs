@@ -1,30 +1,30 @@
-Microsoft Visual Studio Solution File, Format Version 7.00
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "elib", "elib.vcproj", "{091250E1-C9C5-452A-AD6E-6159984334AB}"
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "elib", "elib.vcproj", "{ADF1C622-349B-4026-AF5D-706083979B4E}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
-		ConfigName.0 = Debug
-		ConfigName.1 = MFC Debug
-		ConfigName.2 = MFC Release
-		ConfigName.3 = multi-threaded debug
-		ConfigName.4 = multi-threaded release
-		ConfigName.5 = Release
-	EndGlobalSection
-	GlobalSection(ProjectDependencies) = postSolution
+		Debug = Debug
+		MFC Debug = MFC Debug
+		MFC Release = MFC Release
+		MultiThread DLL Debug = MultiThread DLL Debug
+		MultiThread DLL Release = MultiThread DLL Release
+		Release = Release
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
-		{091250E1-C9C5-452A-AD6E-6159984334AB}.Debug.ActiveCfg = multi-threaded release|Win32
-		{091250E1-C9C5-452A-AD6E-6159984334AB}.Debug.Build.0 = multi-threaded release|Win32
-		{091250E1-C9C5-452A-AD6E-6159984334AB}.MFC Debug.ActiveCfg = MFC Debug|Win32
-		{091250E1-C9C5-452A-AD6E-6159984334AB}.MFC Debug.Build.0 = MFC Debug|Win32
-		{091250E1-C9C5-452A-AD6E-6159984334AB}.MFC Release.ActiveCfg = MFC Release|Win32
-		{091250E1-C9C5-452A-AD6E-6159984334AB}.MFC Release.Build.0 = MFC Release|Win32
-		{091250E1-C9C5-452A-AD6E-6159984334AB}.multi-threaded debug.ActiveCfg = multi-threaded debug|Win32
-		{091250E1-C9C5-452A-AD6E-6159984334AB}.multi-threaded debug.Build.0 = multi-threaded debug|Win32
-		{091250E1-C9C5-452A-AD6E-6159984334AB}.multi-threaded release.ActiveCfg = multi-threaded release|Win32
-		{091250E1-C9C5-452A-AD6E-6159984334AB}.multi-threaded release.Build.0 = multi-threaded release|Win32
-		{091250E1-C9C5-452A-AD6E-6159984334AB}.Release.ActiveCfg = Release|Win32
-		{091250E1-C9C5-452A-AD6E-6159984334AB}.Release.Build.0 = Release|Win32
+		{ADF1C622-349B-4026-AF5D-706083979B4E}.Debug.ActiveCfg = Debug|Win32
+		{ADF1C622-349B-4026-AF5D-706083979B4E}.Debug.Build.0 = Debug|Win32
+		{ADF1C622-349B-4026-AF5D-706083979B4E}.MFC Debug.ActiveCfg = MFC Debug|Win32
+		{ADF1C622-349B-4026-AF5D-706083979B4E}.MFC Debug.Build.0 = MFC Debug|Win32
+		{ADF1C622-349B-4026-AF5D-706083979B4E}.MFC Release.ActiveCfg = MFC Release|Win32
+		{ADF1C622-349B-4026-AF5D-706083979B4E}.MFC Release.Build.0 = MFC Release|Win32
+		{ADF1C622-349B-4026-AF5D-706083979B4E}.MultiThread DLL Debug.ActiveCfg = MultiThread DLL Debug|Win32
+		{ADF1C622-349B-4026-AF5D-706083979B4E}.MultiThread DLL Debug.Build.0 = MultiThread DLL Debug|Win32
+		{ADF1C622-349B-4026-AF5D-706083979B4E}.MultiThread DLL Release.ActiveCfg = MultiThread DLL Release|Win32
+		{ADF1C622-349B-4026-AF5D-706083979B4E}.MultiThread DLL Release.Build.0 = MultiThread DLL Release|Win32
+		{ADF1C622-349B-4026-AF5D-706083979B4E}.Release.ActiveCfg = Release|Win32
+		{ADF1C622-349B-4026-AF5D-706083979B4E}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
