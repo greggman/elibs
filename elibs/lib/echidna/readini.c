@@ -61,7 +61,7 @@
 
 /****************************** G L O B A L S *****************************/
 
-uint16 uwWarnErrCount;
+static int WarnErrCount;
 
 static BOOL fCaseSensitive = TRUE;
 static BOOL fSaveBlankLines = FALSE;
@@ -71,11 +71,13 @@ static BOOL fCommentAnywhere = TRUE;
 static BOOL fMergeSections = TRUE;
 static BOOL fExpandEVars = TRUE;
 static BOOL fPreprocess  = TRUE;
+static BOOL fUndefEnvVarIsError = FALSE;
 
 static const char *szComment = ";";
 static const char *szSectionMarker = "[";
 
-static uint16 uwLineCount;
+static const char* currentFilename;
+static int LineCount;
 static char szLine[MAX_LINE_SIZE];
 
 
@@ -111,6 +113,11 @@ void SetINIMergeSections(BOOL f)
 	fMergeSections = f;
 }
 
+void SetINIUndefEnvVarIsError(BOOL f)
+{
+    fUndefEnvVarIsError = f;
+}
+
 void SetINIComment(const char *sz)
 {
 	szComment = sz;
@@ -121,9 +128,10 @@ void SetINISectionMarker(const char *sz)
 	szSectionMarker = sz;
 }
 
-uint16 GetINIWarnings(void)
+
+int GetINIWarnings(void)
 {
-	return uwWarnErrCount;
+	return WarnErrCount;
 }
 
 /*********************************************************************
@@ -164,11 +172,15 @@ static char *GetLine (char *line, size_t size, FILE *pFile)
 			
 			ENSURE (strlen(workLine) < MAX_LINE_SIZE);
 
-			uwLineCount++;
+			LineCount++;
 
 			if (fExpandEVars)
 			{
-				EIO_ExpandEVars (line, pch, size);
+				if (!EIO_ExpandEVarsWithErrors (line, pch, size, fUndefEnvVarIsError))
+                {
+            		ErrMess ("file %s : line %d : %s\n", currentFilename, LineCount, GlobalErrMsg);
+					ClearGlobalError();
+                }
 				ENSURE (strlen(line) < size);
 			}
 			else
@@ -242,7 +254,7 @@ static char *GetLine (char *line, size_t size, FILE *pFile)
  * SEE ALSO
  *
 */
-ConfigLine *AddINILine (Section *pst, const char *pszIniLine, uint16 lineNo)
+ConfigLine *AddINILine (Section *pst, const char *pszIniLine, int lineNo)
 {
 	ConfigLine	*pLine;
 
@@ -368,8 +380,10 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 	LST_LIST	*pCurrentList = NULL;
 	Section		*pSection = NULL;
 
-	uwLineCount = 0;
-	uwWarnErrCount = 0;
+	LineCount = 0;
+	WarnErrCount = 0;
+    
+    currentFilename = filename;
 
 	if ((pFile = fopen (filename, "r")) == NULL)
 	{
@@ -412,7 +426,7 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 			{
 				if ((pSection = AddINISection(pIniList, pch)) == NULL)
 				{
-					ErrMess ("OOM file '%s', line %d.\n", filename, uwLineCount);
+					ErrMess ("OOM file '%s', line %d.\n", filename, LineCount);
 /**/				goto ABORT;
 				}
 
@@ -427,7 +441,7 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 			equal = strchr (pch, '=');
 			if (!equal)
 			{
-				ErrMess ("no '=' in #define in file '%s', line %d.\n", filename, uwLineCount);
+				ErrMess ("no '=' in #define in file '%s', line %d.\n", filename, LineCount);
 			}
 			else
 			{
@@ -450,7 +464,7 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 			}
 			else
 			{
-				ErrMess ("missing quotes/brackets in #include in file '%s', line %d.\n", filename, uwLineCount);
+				ErrMess ("missing quotes/brackets in #include in file '%s', line %d.\n", filename, LineCount);
 			}
 			
 			if (mode)
@@ -463,11 +477,11 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 				while (*pch && *pch != mode) pch++;
 				if (!*pch)
 				{
-					ErrMess ("missing quotes/brackets in #include in file '%s', line %d.\n", filename, uwLineCount);
+					ErrMess ("missing quotes/brackets in #include in file '%s', line %d.\n", filename, LineCount);
 				}
 				else if (pch - newfile + 1 > EIO_MAXPATH)
 				{
-					ErrMess ("filename too long in #include in file '%s', line %d.\n", filename, uwLineCount);
+					ErrMess ("filename too long in #include in file '%s', line %d.\n", filename, LineCount);
 				}
 				else
 				{
@@ -480,7 +494,14 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 					
 					if (EIO_FindInclude (fixedfilename, EIO_INCPATH_INIS, newfilename, filename, TRUE))
 					{
+                        // save current line count
+                        int oldLineCount = LineCount;
+                        
 						AppendINI(pIniList, fixedfilename);
+                        
+                        // restore old line count and filename
+                        LineCount = oldLineCount;
+                        currentFilename = filename;
 					}
 					else
 					{
@@ -491,14 +512,14 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 		}
 		else if (!pCurrentList)
 		{
-			WarnMess ("File %s, line %d: No section header.\n", filename, uwLineCount);
-			uwWarnErrCount++;
+			WarnMess ("File %s, line %d: No section header.\n", filename, LineCount);
+			WarnErrCount++;
 		}
 		else
 		{
-			if ((AddINILine (pSection, pch, uwLineCount)) == NULL)
+			if ((AddINILine (pSection, pch, LineCount)) == NULL)
 			{
-				ErrMess ("OOM file '%s', line %5d.\n", filename, uwLineCount);
+				ErrMess ("OOM file '%s', line %5d.\n", filename, LineCount);
 /**/			goto ABORT;
 			}
 		}
