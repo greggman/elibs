@@ -73,6 +73,10 @@ typedef struct
 #define	GetCurrentSectionLine(section)	GetConfigLineNo(((section)->clCurrentLine))
 #define ReadINI(filename)				AppendINI(NULL,(filename))
 
+#define INI_IsSectionUsed(sectionTracker)  ((sectionTracker)->ltSection->type != 0)
+#define INI_markSectionAsUsed(sectionTracker)  ((sectionTracker)->ltSection->type = 1)
+#define INI_markSectionAsUnused(sectionTracker)  ((sectionTracker)->ltSection->type = 0)
+
 /****************** F U N C T I O N   P R O T O T Y P E S *****************/
 
 extern void SetINICaseSensitive(BOOL f);	/* case sensitive section merge, FindSection & FindNextINILine */
