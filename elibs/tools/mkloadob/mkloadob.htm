@@ -1,17 +1,17 @@
 <html>
 
 <head>
-<meta http-equiv="Content-Language" content="ja">
+<meta http-equiv="Content-Language" content="en-us">
 <meta name="GENERATOR" content="Microsoft FrontPage 5.0">
 <meta name="ProgId" content="FrontPage.Editor.Document">
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
-<title>Back in the early 90s as soon as CD based game systems came out it became 
-clear that one of the big problems with CD based games was</title>
+<title>MKLOADOB (the Echidna Data Linker)</title>
 <style>
 <!--
 .elist1      { background-color: #E3E3FF; vertical-align:top }
 .elist2      { background-color: #F0F0FF; vertical-align:top }
 pre          { margin-bottom: 0 }
+h2           { border-top-style: solid; padding-top: 10 }
 -->
 </style>
 </head>
@@ -53,8 +53,14 @@ possible.</p>
   all the data for that stage from one file directly into memory.&nbsp; No 
   loading one model from one file and a different model from a different file.&nbsp; 
   Even if that means putting some of the same models, textures or sounds on the 
-  DVD more than once, do it!&nbsp; You've got a friggen DVD worth of space.&nbsp; 
+  DVD more than once, do it!&nbsp; You've got a friggin DVD worth of space.&nbsp; 
   Use it!</p>
+  <blockquote>
+  <p>Note! I do not mean a WAD files, PAK files or CAB file likes are used in 
+  many PC games.&nbsp; Although those are better than separate files they will 
+  not speed up your load times much at all because you are still treating them 
+  as separate files.</p>
+  </blockquote>
   <p>The second step is putting all the files in your game (the one file for 
   each stage) all together into one BIG file that contains all the data for your 
   entire game.&nbsp; This is not a hard thing to do and it will remove even more 
@@ -82,26 +88,29 @@ possible.</p>
   chunk is usually some kind of ID followed by the length of the chunk after 
   which follows the next chunk.&nbsp; That is NOT a good format for a game.&nbsp; 
   That's a great format for a tool or an application but not for a game because 
-  parsing takes time.&nbsp; More time than not parsing.&nbsp; In a game, anything 
-  which takes more time is BAD.&nbsp; Don't do it!</li>
+  parsing takes time, code and memory.&nbsp; More time, more code and more 
+  memory than not parsing.&nbsp; In a game, anything 
+  which takes more time or memory or code is BAD.&nbsp; Don't do it!</li>
 </ul>
 <p>It's this last step that I'm here to help you with.&nbsp; In the early 1990s 
 my friends and I wrote a tool to deal with this.&nbsp; Since about 1997 we have 
 made it freely available but without docs it's been unlikely that anybody has used it let 
 alone even found it, until now!</p>
-<h2>The Data Linker</h2>
+<h2>The Echidna Data Linker</h2>
 <p>It's what we call a Data Linker because it takes a bunch of data an links it 
-together.&nbsp; It's called MKLOADOB.&nbsp; Lame name I know but hey, it's old, 
-back from the days of DOS.&nbsp; If you are curious, MKLOADOB stands for MaKe 
+together.&nbsp; It's called MKLOADOB.&nbsp; Lame name I know but hey, it's old,
+starting back from the days of DOS.&nbsp; If you are curious, MKLOADOB stands for MaKe 
 LOAD OBject.</p>
 <p>It takes a bunch of spec files of the form below and generates a hierarchical 
 binary file with pointers.</p>
-<h2>Example:</h2>
+<h3>Example:</h3>
 <p>Here's a short example.&nbsp; Let's say you want to have level structure that 
-is an instances where an instance is a model pointer, a position and a y 
+is an<span lang="ja"> array of</span> instances where an instance is a model pointer, a position and a y 
 rotation.&nbsp; Here's the C/C++ structure for what I'm talking about</p>
 <blockquote>
-<pre>struct Instance
+<pre>// level.h
+//
+struct Instance
 {
 	float   transx;
 	float   transy;
@@ -119,7 +128,9 @@ struct Level
 <p>Now lets make a small level with a ground model, a house model and 2 trees of 
 the same model using the data linker</p>
 <blockquote>
-  <pre>[start]
+  <pre>// linker file
+//
+[start]
 long=4	; number of models
 pntr=modeltable
 
@@ -144,12 +155,16 @@ file=tree.3d        ; model file for tree</pre>
 can load directly into memory and with only a few lines of code all your 
 pointers will already be pointing at your data.&nbsp; No need to hand load and 
 hand parse stuff.</p>
-<p>Above notice on the third line that says &quot;pntr=&quot;.&nbsp; This line generates a 
+<p>Above notice the third line that says &quot;pntr=&quot;.&nbsp; This line generates a 
 pointer to a section that matches the name after the '='.&nbsp; You can have as 
-many pointers as you need/want.&nbsp; They can be nested to any level.&nbsp; 
-Also notice that the file tree.3d is referenced twice.&nbsp; In this case the 
-file tree.3d would be stored inside the binary file that the data linker creates 
+many pointers as you need/want.&nbsp; They can be nested to any level and they
+can be circular.&nbsp; 
+Also<span lang="ja">,</span> notice that the file tree.3d is referenced twice.&nbsp; In this case the 
+file tree.3d would be stored only once inside the binary file that the data linker creates 
 but there would be two pointers pointing to that data.</p>
+<p><span lang="ja">For a real game, most of the time we would not write data 
+linker files by hand.&nbsp; We would make our tools generate data linker files 
+and then let the data linker pull it all together.</span></p>
 <h2>Running the Data Linker</h2>
 <p>A typical command line might look like this</p>
 <blockquote>
@@ -159,48 +174,48 @@ but there would be two pointers pointing to that data.</p>
 <p>Those options say:</p>
 <table border="0" cellpadding="5" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111">
   <tr>
-    <td valign="top" bgcolor="#E3E3FF">mylevel.lbi</td>
+    <td valign="top" bgcolor="#E3E3FF" nowrap>mylevel.lbi</td>
     <td valign="top" bgcolor="#E3E3FF">the name of the file we are going to 
     create</td>
   </tr>
   <tr>
-    <td valign="top" bgcolor="#F0F0FF">-duperr</td>
+    <td valign="top" bgcolor="#F0F0FF" nowrap>-duperr</td>
     <td valign="top" bgcolor="#F0F0FF">if two sections have the same name print 
     an error</td>
   </tr>
   <tr>
-    <td valign="top" bgcolor="#E3E3FF">-sectorsize 2048</td>
+    <td valign="top" bgcolor="#E3E3FF" nowrap>-sectorsize 2048</td>
     <td valign="top" bgcolor="#E3E3FF">one sector of the disk is 2048 bytes so 
     our filesize will be padded to a multiple of 2048 bytes</td>
   </tr>
   <tr>
-    <td valign="top" bgcolor="#F0F0FF">-chunksize $2800000</td>
-    <td valign="top" bgcolor="#F0F0FF">chunks are probably not sometime you will 
+    <td valign="top" bgcolor="#F0F0FF" nowrap>-chunksize $2800000</td>
+    <td valign="top" bgcolor="#F0F0FF">chunks are probably not something you will 
     use.&nbsp; In this case we just want one big chunk so we set the chunksize 
     to some giant size</td>
   </tr>
   <tr>
-    <td valign="top" bgcolor="#E3E3FF">-nopad</td>
+    <td valign="top" bgcolor="#E3E3FF" nowrap>-nopad</td>
     <td valign="top" bgcolor="#E3E3FF">normally all chucks would get filled out 
     to be chunksize big but in this case we don't want that since there is only 
     one chunk.</td>
   </tr>
   <tr>
-    <td valign="top" bgcolor="#F0F0FF">-nosort</td>
+    <td valign="top" bgcolor="#F0F0FF" nowrap>-nosort</td>
     <td valign="top" bgcolor="#F0F0FF">don't sort any binary included files.&nbsp; 
     Normally they get sorted so that they can be squeezed into the various 
     chunks but since we are only going to have one chunk there is no point.</td>
   </tr>
   <tr>
-    <td valign="top" bgcolor="#E3E3FF">-fixupmode 2</td>
+    <td valign="top" bgcolor="#E3E3FF" nowrap>-fixupmode 2</td>
     <td valign="top" bgcolor="#E3E3FF">put the pointer fixup table at the end of 
     the file.&nbsp; Because it's at the end, once the pointers have been fixed 
     up you can free that part of memory if you want to</td>
   </tr>
   <tr>
-    <td valign="top" bgcolor="#F0F0FF">-padsize 4</td>
-    <td valign="top" bgcolor="#F0F0FF">is the alignment for sections.&nbsp; All 
-    sections will start at a 4 byte boundary by default</td>
+    <td valign="top" bgcolor="#F0F0FF" nowrap>-padsize 4</td>
+    <td valign="top" bgcolor="#F0F0FF">is the alignment for sections.&nbsp; All
+      sections and files will start at a 4 byte boundary by default</td>
   </tr>
 </table>
 <h2>Loading Your Data</h2>
@@ -248,7 +263,13 @@ long=2</pre>
 </blockquote>
 <p>Will result in a long starting at a 1 byte offset from the start of mysection.&nbsp; 
 The reason is this allows you to use the data linker to make unaligned data. If 
-you want aligned data you need to use the align= option</p>
+you want aligned data you need to use the align= option<span lang="ja"> as in</span></p>
+<blockquote>
+  <pre><span lang="ja">[mysection]
+byte=1
+align=4
+long=2</span></pre>
+</blockquote>
 <table border="0" cellpadding="5" cellspacing="0" style="border-collapse: collapse">
   <tr>
     <td class="elist1">[secname]</td>
@@ -257,7 +278,7 @@ you want aligned data you need to use the align= option</p>
     <blockquote>
       <pre>[mysection,align=16]</pre>
     </blockquote>
-    <p>My section will start at a 16 byte boundary</p>
+    <p>Mysection will start at a 16 byte boundary</p>
     <p>NOTE: the alignment is relative to the address of the particular block 
     this section ends up being placed in. The alignment of block is up to the 
     loader in the program you are using this data.</td>
@@ -269,10 +290,16 @@ you want aligned data you need to use the align= option</p>
     <blockquote>
       <pre>file=myfile.bin,align=16</pre>
     </blockquote>
-    <p>NOTE: the alignment is relative to the address of the particular block 
-    this section ends up being placed in. The alignment of block is up to the 
+      <p>alignment is relative to the address of the particular block 
+    this files ends up being placed in. The alignment of block is up to the 
     loader in the program you are using this data.</p>
-    <p>To understand file, the long hand way of writing this would be as follows</p>
+    <p>You can also optionally allow a file to not exist like this</p>
+      <blockquote>
+    <pre>file=myfile.bin,nullok=true</pre>
+      </blockquote>
+    <p>In this case if the file does not exist a NULL pointer will be
+    inserted.&nbsp; Normally the linker would print an error.</p>
+    <p>To understand <span lang="ja">the </span>file<span lang="ja">= command</span>, the long hand way of writing this would be as follows</p>
     <blockquote>
       <pre>...
 pntr=myfile.bin.section
@@ -314,11 +341,18 @@ binc=myfile.bin</pre>
   </tr>
   <tr>
     <td class="elist1">pntr=</td>
-    <td class="elist1">pointer to another section</td>
+    <td class="elist1">pointer to another section<p>You can also optionally
+      allow the section to not exist like this</p>
+      <blockquote>
+        <pre>pntr=mysection,nullok=true</pre>
+      </blockquote>
+      <p>In this case if the section does not exist a NULL pointer will be
+      inserted.&nbsp; Normally the linker would print an error.</p>
+    </td>
   </tr>
   <tr>
     <td class="elist2">level=</td>
-    <td class="elist2">pointer to another section (same as level=)</td>
+    <td class="elist2">pointer to another section (same as <span lang="ja">pntr</span>=)</td>
   </tr>
   <tr>
     <td class="elist1">long=</td>
@@ -394,7 +428,7 @@ binc=myfile.bin</pre>
   <tr>
     <td class="elist1">align=</td>
     <td class="elist1">boundary to align to (no arg or 0 = default)<p>
-    NOTE: THIS ALIGNS BASED ON THE START OF THE SECTION&nbsp; NOT MEMORY.</p>
+    NOTE: THIS ALIGNS BASED ON THE START OF THE SECTION<span lang="ja">,</span>&nbsp; NOT MEMORY.</p>
     <p>In other words, if you have section like this</p>
     <blockquote>
       <pre>[mysection]
@@ -428,6 +462,10 @@ file=file3.bin ; load dir\subdir\file2.bin
 path=dir\subdir
 file=file1.bin ; loads dir\subdir\file1.bin</pre>
     </blockquote>
+      <p><span lang="ja">Also note that by default, files are loaded relative to 
+      the file they are referenced from first.&nbsp; In other words if a file= 
+      statement is found in c:\mydir\myfile.dlink the file will be looked for in 
+      c:\mydir </span>
     </td>
   </tr>
   <tr>
@@ -502,8 +540,8 @@ byte=7 8 9</pre>
     <td class="elist2">Linker files.&nbsp; Note it says FILES.&nbsp; As in 
     PLURAL.&nbsp; You can use include statements and/or you can specify as many 
     files as you need right here.&nbsp; Files are parsed from the [start] 
-    section so the order sections appear in the files and the order of including 
-    them are never relevant (<a href="#relevant">*</a>)</td>
+    section so the order sections appear in the files and the order
+    <span lang="ja">they are</span> includ<span lang="ja">ed is</span> n<span lang="ja">ot</span> relevant (<a href="#relevant">*</a>)</td>
   </tr>
   <tr>
     <td class="elist1" nowrap>-VERBOSE</td>
@@ -535,13 +573,13 @@ byte=7 8 9</pre>
   <tr>
     <td class="elist1" nowrap>-CHUNKSIZE &lt;bytes&gt;</td>
     <td class="elist1">Chunk Size (Def. 2048).&nbsp; This is the size of one 
-    chuck.&nbsp; See Chunkifying your data.&nbsp; Most likely you'll want to set 
-    this to something like $8000000</td>
+    chuck.&nbsp; See <a href="#cyd">Chunkifying your data</a>.&nbsp; Most likely you'll want to set 
+    this to something like $<span lang="ja">7F0</span>00000</td>
   </tr>
   <tr>
     <td class="elist2" nowrap>-SECTORSIZE &lt;bytes&gt;</td>
     <td class="elist2">Hardware Sector Size (Def. 1).&nbsp; If you set this to 
-    anysize larger then 1 your file will be padded to be a multiple of this 
+    any<span lang="ja"> </span>size larger then 1 your file will be padded to be a multiple of this 
     number.</td>
   </tr>
   <tr>
@@ -689,22 +727,8 @@ macro call.&nbsp; The correct way is</p>
     equal, 1 if <b>str1</b> is asciibetically higher than <b>str2</b></td></tr>
 <tr><td class="elist2">%fascii(str)</td><td class="elist2">return
     the ascii value of the first character of <b>str</b></td></tr>
-<tr><td class="elist1">%fquote(str)</td><td class="elist1">quote
-    a str.&nbsp; This is used to make macros.&nbsp; Normally, all arguments are
-    interpreted when they are first used.&nbsp; This function prevents
-    that.&nbsp; Example:
-    <blockquote>
-      <p>%fset(filename,mypic.jpg)<br>
-      %fset(somecode,%picWidth(%filename))</p>
-    </blockquote>
-    <p>Assuming mypic.jpg is 75 pixels wide somecode=&quot;75&quot;</p>
-    <blockquote>
-      <p>%fset(filename,mypic.jpg)<br>
-      %fset(somecode,%fquote(%picWidth(%filename)))</p>
-    </blockquote>
-    <p>In this case somecode=&quot;%picWidth(%filename)&quot; which means later
-    in the code you can do this put %somecode in your HTML and it will get
-    evaluated</td></tr>
+<tr><td class="elist1">%fquote(str)</td><td class="elist1"><span lang="ja">quote 
+  something, don't interpret it</span></td></tr>
 <tr><td class="elist2">%fsearch(string1,string2)</td><td class="elist2">find
     string2 in string1, if found return the index to the&nbsp;first character
     found or -1 if not found</td></tr>
@@ -773,10 +797,10 @@ macro call.&nbsp; The correct way is</p>
           <tr>
             <td width="16%" class="elist1"><b><font size="2">e</font></b></td>
             <td width="21%" class="elist1"><b><font size="2">float</font></b></td>
-            <td width="63%" class="elist1"><font size="2">Signed value having the form [ – ]<i>d</i><b>.</b><i>dddd</i>
+            <td width="63%" class="elist1"><font size="2">Signed value having the form [ E]<i>d</i><b>.</b><i>dddd</i>
               <b>e</b> [<i>sign</i>]<i>ddd</i> where <i>d</i> is a single
               decimal digit, <i>dddd</i> is one or more decimal digits, <i>ddd</i>
-              is exactly three decimal digits, and <i>sign</i> is + or –.</font></td>
+              is exactly three decimal digits, and <i>sign</i> is + or E</font></td>
           </tr>
           <tr>
             <td width="16%" class="elist1"><b><font size="2">E</font></b></td>
@@ -787,7 +811,7 @@ macro call.&nbsp; The correct way is</p>
           <tr>
             <td width="16%" class="elist1"><b><font size="2">f</font></b></td>
             <td width="21%" class="elist1"><b><font size="2">float</font></b></td>
-            <td width="63%" class="elist1"><font size="2">Signed value having the form [ – ]<i>dddd</i><b>.</b><i>dddd</i>,
+            <td width="63%" class="elist1"><font size="2">Signed value having the form [ E]<i>dddd</i><b>.</b><i>dddd</i>,
               where <i>dddd</i> is one or more decimal digits. The number of
               digits before the decimal point depends on the magnitude of the
               number, and the number of digits after the decimal point depends
@@ -800,7 +824,7 @@ macro call.&nbsp; The correct way is</p>
               printed in <b>f</b>  or <b>e</b>  format, whichever is more
               compact for the given value and precision. The <b>e</b>
               format is used only when the exponent of the value is less than
-              –4 or greater than or equal to the precision argument. Trailing
+              E or greater than or equal to the precision argument. Trailing
               zeros are truncated, and the decimal point appears only if one or
               more digits follow it.</font></td>
           </tr>
@@ -843,7 +867,61 @@ macro call.&nbsp; The correct way is</p>
     ignored. (pre = preformatted).&nbsp; If you need things to be right aligned
     use HTML's align property instead of spaces.</td></tr>
                 </table>
-<h2>Chunkifying your data</h2>
+<h2>Tips / Suggestions</h2>
+<ul>
+  <li>Given the above example I generally put a version number inside the top
+    structure of the file</li>
+</ul>
+<blockquote>
+  <blockquote>
+    <pre>// level.h
+struct Level
+{
+    int       versionNumber;
+    int       numInstances;
+    Instance* pInstances;
+};</pre>
+    <pre>// linker file
+[start]
+long=1  ; version number
+long=4	; number of models
+pntr=modeltable</pre>
+  </blockquote>
+  <p>This way, anytime I change the format of the data I change the version
+  number.&nbsp; The loader in the game can check the version number and print an
+  error message.&nbsp; That way I won't spend hours debugging something just
+  because I'm using old data with a new version of the code or visa versa.</p>
+</blockquote>
+<ul>
+  <li>Since the #define format is the same a C/C++ you can use the same header
+    file for both the data linker and your code.&nbsp; For example</li>
+</ul>
+<blockquote>
+  <blockquote>
+    <pre>// objectdefs.h
+//
+#define OBJECTID_PLAYER 1
+#define OBJECTID_ZOMBIE 2
+#define OBJECTID_CHEST  3</pre>
+    <pre>// linker file
+//
+[object_instance_array]
+long=%OBJECTID_PLAYER% ; object type
+pntr=instance_data_player
+long=%OBJECTID_ZOMBIE%
+pntr=instance_data_zombie_1
+long=%OBJECTID_ZOMBIE%
+pntr=instance_data_zombie_2
+long=%OBJECTID_ZOMBIE%
+pntr=instance_data_zombie_3
+long=%OBJECTID_CHEST%
+pntr=instance_data_chest_1
+long=%OBJECTID_CHEST%
+pntr=instance_data_chest_2</pre>
+  </blockquote>
+</blockquote>
+<p>&nbsp;</p>
+<h2><a name="cyd"></a>Chunkifying <span lang="ja">Y</span>our <span lang="ja">D</span>ata</h2>
 <p>MKLOADOB can separate data into chucks of a specified size. If you 
 don't need chucks specify a really large size and you'll get just one chunk! 
 Note: no piece of data or any sections can be larger than a single chunk.</p>
@@ -862,7 +940,7 @@ Note: no piece of data or any sections can be larger than a single chunk.</p>
   chunk from one of these files into any of those 200 chunks in any order since 
   all pointers are chuck relative.</p>
 </blockquote>
-<p>The beginning of the file contains a pointer field for each chunk that ends 
+<p>The <span lang="ja">first chunk</span> of the file contains a pointer field for each chunk that ends 
 in NULL. So if there are 4 chunks the start
 of the very first chunk would be </p>
 <blockquote>
