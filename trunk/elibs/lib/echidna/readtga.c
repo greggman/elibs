@@ -386,12 +386,15 @@ int loadTGA32Bit (BlockO32BitPixels *blockPtr, MEMFILE *mf)
 
 	MEMFILE_Read(mf, tgaHeader, sizeof (TGAHeader));
 	
+
+	#if 0	
 	if (tgaHeader->idesc & 0xf0)
 	{
 		SetGlobalErr (ERR_GENERIC);
 		GEcatf ("Invalid TGA file");
 		goto cleanup;
 	}
+	#endif
 
 	#if 0
 	{
