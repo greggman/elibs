@@ -139,8 +139,15 @@
  *	
  *			endfor
  *	
+ *      Preprocessor commands:
+ *
+ *          #include "filename" ; includes another linker file
+ *          #define var=value   ; defines a var that can be references as %var%
+ *
+ *          note: these are implemented in the ReadINI module in the echidna libs
  *
  * 		Commands:
+ *
  *			file=			; pointer to a file						: quotes are optional
  *			data=			; pointer to a file (same as file=)		: quotes are optional
  *			load=			; pointer to a file loaded at runtime	: quotes are optional 
@@ -2044,6 +2051,7 @@ int main(int argc, char **argv)
 
 	SetINIMergeSections(FALSE);
 	SetINICaseSensitive(FALSE);
+    SetINIUndefEnvVarIsError(TRUE);
 
 	newargs = argparse (argc, argv, Template);
 
