@@ -2642,6 +2642,13 @@ int main(int argc, char **argv)
 					{
 						if (Verbose)
 						{
+                        	long	lc_block;
+                        	long	lc_offset;
+                        
+                        	lc_block    = BytesWritten / ChunkSize;
+                        	lc_offset   = BytesWritten % ChunkSize;
+                            
+                    		EL_printf ("Block $%04lx : Offset $%04lx : ", lc_block, lc_offset);
 							EL_printf ("Writing %7ld bytes from %s\n", fc->Size, LST_NodeName (fc));
 						}
 
@@ -2799,7 +2806,6 @@ int main(int argc, char **argv)
                                     break;
 								case PART_ALIGN:
 									{
-                                        
                                         WritePadding (fh, part->size);
 									}
 									break;
@@ -2813,6 +2819,13 @@ int main(int argc, char **argv)
 					{
 						if (Verbose)
 						{
+                        	long	lc_block;
+                        	long	lc_offset;
+                        
+                        	lc_block    = BytesWritten / ChunkSize;
+                        	lc_offset   = BytesWritten % ChunkSize;
+                            
+                    		EL_printf ("Block $%04lx : Offset $%04lx : ", lc_block, lc_offset);
 							EL_printf ("Writing %7ld bytes from %s\n", fc->Size, LST_NodeName (fc));
 						}
 
