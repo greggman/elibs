@@ -148,6 +148,21 @@
  *
  * 		Commands:
  *
+ *          IMPORTANT!!!
+ *
+ *          data fields are not automatically aligned.  In other words
+ *
+ *          [mysection]
+ *          byte=1
+ *          long=2
+ *
+ *          Will result in a long starting at a 1 byte offset from the
+ *          start of mysection
+ *
+ *          The reason is this allows you to use the data linker to make
+ *          unaligned data.  If you want aligned data you need to use
+ *          the align= option
+ *
  *			file=			; pointer to a file						: quotes are optional
  *			data=			; pointer to a file (same as file=)		: quotes are optional
  *			load=			; pointer to a file loaded at runtime	: quotes are optional 
@@ -192,8 +207,23 @@
  *							;    string="ABC" inserts "ABC" (including the quotes!!!)
  *			binc=           ; binary file to include here
  *							;    quotes are optional
- *			pad=			; boundry to pad to (no arg or 0 = default)
- *							;    NOT IMPLEMENTED!!!!
+ *			align=			; boundry to align to (no arg or 0 = default)
+ *                          ; NOTE: THIS ALIGNS BASED ON THE START OF THE SECTION
+ *                          ;       NOT MEMORY.
+ *                          ;      
+ *                          ;     In otherwords, if you have section like this
+ *                          ;      
+ *                          ;         [mysection]
+ *                          ;         byte=1
+ *                          ;         pad=4
+ *                          ;         long=$12345678
+ *                          ;         
+ *                          ;      You will get 3 bytes of padding after the first byte BUT
+ *                          ;      the section will be placed based on the -PADSIZE option.
+ *                          ;      If -PADSIZE is set to a non multiple of 4 in the example
+ *                          ;      above it's possible the section will not start at a 4 byte
+ *                          ;      boundry and therefore neither will the long
+ *                          ;         
  *
  *			path=			; set the path for loading binary files		 
  *							; files encountered after this line will be loaded from here
@@ -329,6 +359,7 @@ PositionNode;
 #define PART_FLOAT			8
 #define	PART_BINC			9
 #define PART_RUNTIMEFILE	10
+#define PART_ALIGN          11
 
 typedef struct
 {
@@ -1333,6 +1364,25 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName)
 							part->level = ParseLevel (specFile, arg);
 						}
 					}
+					else if (!stricmp (cmd, "align"))
+					{
+						//
+						// found align part
+						//
+                        long alignment = EL_atol(arg);
+                        long pad       = 0;
+                        
+                        if (alignment)
+                        {
+                            long currentOffset = level->size % alignment;
+                            if (currentOffset)
+                            {
+                                pad = alignment - currentOffset;
+                            }
+                        }
+						part->type   = PART_ALIGN;
+						part->size   = pad;
+					}
 					else if (!stricmp (cmd, "Long") ||
                              !stricmp (cmd, "int32") ||
                              !stricmp (cmd, "uint32"))
@@ -1973,6 +2023,18 @@ void WriteOutFixups (int fh)
 	}
 }
 
+void WritePadding (int fh, long padding)
+{
+    while (padding > 0)
+    {
+        long	part;
+
+        part = min (padding, sizeof(ZeroData));
+        MK_Write (fh, ZeroData, part);
+        padding -= part;
+    }
+}
+
 /******************************** TEMPLATE ********************************/
 
 #define ARG_OUTFILE		(newargs[ 0])
@@ -2026,7 +2088,7 @@ int main(int argc, char **argv)
 	long	 fixupAfterTableSize;
 	long	 totalSize;
 
-	EL_printf ("MKLOADOB Copyright (c) 1997 Echidna\n");
+	EL_printf ("MKLOADOB Copyright (c) 1997-2002 Echidna\n");
 
 	LST_InitList (PreLoadFileList);
 	LST_InitList (FileList);
@@ -2734,6 +2796,12 @@ int main(int argc, char **argv)
 									{
 										CopyIntoFile (fh, part->string);
 									}
+                                    break;
+								case PART_ALIGN:
+									{
+                                        
+                                        WritePadding (fh, part->size);
+									}
 									break;
 								}
 
@@ -2764,19 +2832,7 @@ int main(int argc, char **argv)
 						}
 					}
 				
-					{
-						long	pad;
-
-						pad = fc->PadSize - fc->Size;
-						while (pad)
-						{
-							long	part;
-
-							part = min (pad, sizeof(ZeroData));
-							MK_Write (fh, ZeroData, part);
-							pad -= part;
-						}
-					}
+                    WritePadding (fh, fc->PadSize - fc->Size);
 
 					pos = (PositionNode*)LST_Next (pos);
 
@@ -2799,14 +2855,7 @@ int main(int argc, char **argv)
 							pad = ChunkSize - pad;
 							slack += pad;
 
-							while (pad)
-							{
-								long	part;
-
-								part = min (pad, sizeof(ZeroData));
-								MK_Write (fh, ZeroData, part);
-								pad -= part;
-							}
+                            WritePadding (fh, pad);
 						}
 
 					}
@@ -2860,14 +2909,7 @@ int main(int argc, char **argv)
 						
 						HardwarePadBytes += pad;
 
-						while (pad)
-						{
-							long	part;
-
-							part = min (pad, sizeof(ZeroData));
-							MK_Write (fh, ZeroData, part);
-							pad -= part;
-						}
+                        WritePadding (fh, pad);
 					}
 				}
 			}
