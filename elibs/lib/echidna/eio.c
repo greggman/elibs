@@ -1138,6 +1138,53 @@ char *EIO_CurrentDir (char *path)
 
 } /* EIO_CurrentDir */
 
+/*************************************************************************
+                              EIO_ChangeDir                              
+ *************************************************************************
+
+   SYNOPSIS
+		int	 EIO_ChangeDir (char *path)
+
+   PURPOSE
+  		Change the current directory
+  
+   INPUT
+		path :
+  
+   OUTPUT
+		None  
+  
+   EFFECTS
+		None  
+  
+   RETURNS
+  
+  
+   SEE ALSO
+  
+  
+   HISTORY
+		01/31/03 GAT: Created.
+  
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+int	 EIO_ChangeDir (char *path)
+{
+#if _EL_OS_WIN32__
+
+    int result = TRUE;
+    
+    if (path && strlen(path) > 0)
+    {
+        result = (_chdir (path) == 0);
+    }
+
+    return result;
+#else
+    #error Need 'EIO_ChangeDir'
+#endif
+}
+
 /*------------------------------------------------------------------------*/
 /**# MODULE:EIO_FreeDirTracker                                            */
 /*------------------------------------------------------------------------*/

@@ -101,6 +101,7 @@ extern void SetINIUseMacroLanguage(BOOL f); /* Set TRUE to allow macro language,
 extern void SetINIStripCPlusPlusComments(BOOL f);  /* Set TRUE to allow CPlusPlus comments, added because I needed both C++ and ASM comments */
 extern void SetINIErrorOnDuplicateSection(BOOL f); /* set TRUE to cause error if more than one section with same name */
 extern void SetINIParseArgsInSection(BOOL f);   /* set to TRUE to make [sectionname,arg=foo] get parsed */
+extern void SetINIChangeCurrentDir(BOOL f);   /* set to TRUE to have it change the current directory to the current file's path so that relative includes will work */
 
 extern void SetINIComment(const char *sz);		/* string to match for a comment. Eg., szComment = "//" */
 extern void SetINISectionMarker(const char *sz);/* lines beginning w/ <szSectionMarker> start a section */

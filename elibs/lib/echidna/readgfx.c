@@ -375,7 +375,7 @@ UINT8 *ReadRawPalette (const char* filename, int *pNumColors)
 	mf = MEMFILE_Load (filename);
 	if (mf)
 	{
-		pu8 = (UINT8 *)calloc(3, 256);
+		pu8 = (UINT8 *)calloc(4, 256);
 	
 		if (!stricmp (".raw", EIO_Ext(filename))
 		 || !stricmp (".act", EIO_Ext(filename))
@@ -384,11 +384,12 @@ UINT8 *ReadRawPalette (const char* filename, int *pNumColors)
          int i;
          UINT8 *pu8Temp;
 			InfoMess (("Loading raw palette %s\n", filename));
-         for (i = 0, pu8Temp = pu8; i < 256; i++, pu8Temp += 3)
+         for (i = 0, pu8Temp = pu8; i < 256; i++, pu8Temp += 4)
          {
             int result;
             result = MEMFILE_Read (mf, pu8Temp, 3);
             if (result != 3) break;
+            pu8Temp[3] = 255;
          }
          *pNumColors = i;
 		}
@@ -418,11 +419,12 @@ UINT8 *ReadRawPalette (const char* filename, int *pNumColors)
             paletteEntry *ppal;
             
    			InfoMess (("Copying PCX palette %s\n", filename));
-            for (i = 0, pu8Temp = pu8, ppal = pbop8->palette; i < 256; i++, pu8Temp += 3, ppal++)
+            for (i = 0, pu8Temp = pu8, ppal = pbop8->palette; i < 256; i++, pu8Temp += 4, ppal++)
             {
                pu8Temp[0] = ppal->red;
                pu8Temp[1] = ppal->green;
                pu8Temp[2] = ppal->blue;
+               pu8Temp[4] = 255;
             }
             Free8BitPicture (pbop8);
          }
@@ -441,7 +443,7 @@ UINT8 *ReadRawPalette (const char* filename, int *pNumColors)
          for (;;) 
          {
             result = MEMFILE_Read (mf, &chunkheader, sizeof (CHUNKHEADER));
-            if (sizeof (CHUNKHEADER) != result || IDPCON == chunkheader.id)
+            if (sizeof (CHUNKHEADER) != result || IDPCON == chunkheader.id || IDPCN2 == chunkheader.id)
             {
                break;
             } else  // skip unwanted data
@@ -455,7 +457,7 @@ UINT8 *ReadRawPalette (const char* filename, int *pNumColors)
             int i;
             UINT8 *pu8Temp;
             
-            for (i = 0, pu8Temp = pu8; i < 256; i++, pu8Temp += 3)
+            for (i = 0, pu8Temp = pu8; i < 256; i++, pu8Temp += 4)
             {
                int result;
                PCONDATA pcondata;
@@ -464,6 +466,25 @@ UINT8 *ReadRawPalette (const char* filename, int *pNumColors)
                pu8Temp[0] = pcondata.Red; 
                pu8Temp[1] = pcondata.Green; 
                pu8Temp[2] = pcondata.Blue; 
+               pu8Temp[3] = 255;
+            }
+            *pNumColors = i;
+         }
+         else if (sizeof (CHUNKHEADER) == result && chunkheader.id == IDPCN2)
+         { /* Found pcon chunk */
+            int i;
+            UINT8 *pu8Temp;
+            
+            for (i = 0, pu8Temp = pu8; i < 256; i++, pu8Temp += 4)
+            {
+               int result;
+               PCN2DATA pcondata;
+               result = MEMFILE_Read (mf, &pcondata, sizeof(PCN2DATA));
+               if (result != sizeof(PCN2DATA)) break;
+               pu8Temp[0] = pcondata.Red; 
+               pu8Temp[1] = pcondata.Green; 
+               pu8Temp[2] = pcondata.Blue; 
+               pu8Temp[3] = pcondata.Alpha; 
             }
             *pNumColors = i;
          }

@@ -13,14 +13,15 @@
 	<Configurations>
 		<Configuration
 			Name="MFC Release|Win32"
-			OutputDirectory=".\elib___Win32_MFC_Release"
-			IntermediateDirectory=".\elib___Win32_MFC_Release"
+			OutputDirectory=".\7.0\elib___Win32_MFC_Release"
+			IntermediateDirectory=".\7.0\elib___Win32_MFC_Release"
 			ConfigurationType="4"
 			UseOfMFC="2"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="$(elibs)/inc"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_EL_PLAT_WIN32__=1"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -37,7 +38,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\mfcelib.lib"
+				OutputFile="..\7.0\mfcelib.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -55,14 +56,15 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\Debug"
-			IntermediateDirectory=".\Debug"
+			OutputDirectory=".\7.0\Debug"
+			IntermediateDirectory=".\7.0\Debug"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="$(elibs)/inc"
 				PreprocessorDefinitions="WIN32,_DEBUG,_WINDOWS,_EL_PLAT_WIN32__=1"
 				RuntimeLibrary="5"
 				UsePrecompiledHeader="2"
@@ -77,7 +79,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\elibd.lib"
+				OutputFile="..\7.0\elibd.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -95,14 +97,15 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory=".\Release"
-			IntermediateDirectory=".\Release"
+			OutputDirectory=".\7.0\Release"
+			IntermediateDirectory=".\7.0\Release"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="$(elibs)/inc"
 				PreprocessorDefinitions="WIN32,NDEBUG,_WINDOWS,_EL_PLAT_WIN32__=1"
 				StringPooling="TRUE"
 				RuntimeLibrary="4"
@@ -118,7 +121,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\elib.lib"
+				OutputFile="..\7.0\elib.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -136,8 +139,8 @@
 		</Configuration>
 		<Configuration
 			Name="MFC Debug|Win32"
-			OutputDirectory=".\elib___Win32_MFC_Debug"
-			IntermediateDirectory=".\elib___Win32_MFC_Debug"
+			OutputDirectory=".\7.0\elib___Win32_MFC_Debug"
+			IntermediateDirectory=".\7.0\elib___Win32_MFC_Debug"
 			ConfigurationType="4"
 			UseOfMFC="2"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -145,6 +148,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="$(elibs)/inc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_EL_PLAT_WIN32__=1"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
@@ -159,7 +163,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\mfcelibd.lib"
+				OutputFile="..\7.0\mfcelibd.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -177,14 +181,15 @@
 		</Configuration>
 		<Configuration
 			Name="multi-threaded debug|Win32"
-			OutputDirectory="multi-threaded debug"
-			IntermediateDirectory="multi-threaded debug"
+			OutputDirectory="7.0\multi-threaded debug"
+			IntermediateDirectory="7.0\multi-threaded debug"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="$(elibs)/inc"
 				PreprocessorDefinitions="WIN32,_DEBUG,_WINDOWS,_EL_PLAT_WIN32__=1"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="2"
@@ -199,7 +204,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\elibmtd.lib"
+				OutputFile="..\7.0\elibmtd.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -217,14 +222,15 @@
 		</Configuration>
 		<Configuration
 			Name="multi-threaded release|Win32"
-			OutputDirectory="multi-threaded release"
-			IntermediateDirectory="multi-threaded release"
+			OutputDirectory="7.0\multi-threaded release"
+			IntermediateDirectory="7.0\multi-threaded release"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE">
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="$(elibs)/inc"
 				PreprocessorDefinitions="WIN32,NDEBUG,_WINDOWS,_EL_PLAT_WIN32__=1"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
@@ -240,7 +246,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\elibmt.lib"
+				OutputFile="..\7.0\elibmt.lib"
 				SuppressStartupBanner="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -290,6 +296,9 @@
 		</File>
 		<File
 			RelativePath=".\listapi.c">
+		</File>
+		<File
+			RelativePath="maclang.cpp">
 		</File>
 		<File
 			RelativePath=".\memfile.c">

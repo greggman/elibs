@@ -80,6 +80,7 @@ static BOOL fUseMacroLanguage = FALSE;
 static BOOL fStripCPlusPlusComments = FALSE;
 static BOOL fErrorOnDuplicateSection = FALSE;
 static BOOL fParseArgsInSection = FALSE;
+static BOOL fChangeCurrentDir = FALSE;
 
 static const char *szComment = ";";
 static const char *szSectionMarker = "[";
@@ -156,6 +157,11 @@ void SetINIStripCPlusPlusComments(BOOL f)
 void SetINIErrorOnDuplicateSection(BOOL f)
 {
 	fErrorOnDuplicateSection = f;
+}
+
+void SetINIChangeCurrentDir(BOOL f)
+{
+	fChangeCurrentDir = f;
 }
 
 int GetINIWarnings(void)
@@ -431,6 +437,8 @@ IniList *CreateINI (const char *name)
 */
 IniList *AppendINI(IniList *pIniList, const char *filename)
 {
+    char        oldDir[EIO_MAXPATH];
+    BOOL        fSetDir = FALSE;
     const char  *savedFilename;
 	char		*pch;
 	FILE		*pFile;
@@ -479,6 +487,16 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
         savedFilename = LST_NodeName(nd);
     }        
     
+    /*** change current dir so includes etc will work ***/
+    if (fChangeCurrentDir)
+    {
+        EIO_CurrentDir (oldDir);
+        if (strlen(EIO_Path(filename)) > 0)
+        {
+            fSetDir = TRUE;
+            EIO_ChangeDir (EIO_Path(filename));
+        }
+    }
 
 	/*** Read Config File ***/
 
@@ -660,9 +678,20 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
                     // using fixed as temp here
 					strncpy (fixedfilename, newfile, pch - newfile);
 					fixedfilename[pch - newfile] = '\0';
-                    EIO_fnmerge (newfilename, EIO_Path(filename), fixedfilename, NULL);
+                    
+                    // check if it's local
+                    if (EIO_FileExists (fixedfilename))
+                    {
+                        fFound = TRUE;
+                    }
+                    else
+                    {
+                        EIO_fnmerge (newfilename, EIO_Path(filename), fixedfilename, NULL);
 					
-					if (EIO_FindInclude (fixedfilename, EIO_INCPATH_INIS, newfilename, filename, TRUE))
+    				    fFound = EIO_FindInclude (fixedfilename, EIO_INCPATH_INIS, newfilename, filename, TRUE);
+                    }
+                    
+                    if (fFound)
 					{
                         // save current line count
                         int oldLineCount = LineCount;
@@ -675,7 +704,7 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 					}
 					else
 					{
-						ErrMess ("File %s, line %d: couldn't open include file %s\n", filename, LineCount, newfilename);
+						ErrMess ("File %s, line %d: couldn't open include file %s\n", filename, LineCount, fixedfilename);
 					}
 				}            
 			}
@@ -694,6 +723,12 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 			}
 		}
 	}
+    
+    /*** change current directory back to what it was ***/
+    if (fChangeCurrentDir && fSetDir && strlen(oldDir) > 0)
+    {
+        EIO_ChangeDir (oldDir);
+    }
 
 	fclose(pFile);
 	return pIniList;
