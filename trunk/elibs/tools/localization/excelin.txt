@@ -1,0 +1,19 @@
+#
+# this is a test
+#
+$SET_DEF[FILE,%FILENAME%]
+$SET_DEF[SHEET,Basic Phrases]
+$SET_DEF[COLUMN,%COLUMN%]
+
+char* strTable[] =
+{
+   "$CELL[3]",
+   "$CELL[4]",
+   "$CELL[5]",
+   "$CELL[6]",
+   "$CELL[7]",
+   "$CELL[8]",
+   "$CELL[B9]",
+   "$CELL[B10]",
+};
+
