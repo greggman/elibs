@@ -52,7 +52,7 @@ typedef struct
 typedef struct
 {
 	LST_NODE	Node;
-	uint16		LineNo;
+	int 		LineNo;
 } ConfigLine;
 
 typedef struct
@@ -85,11 +85,12 @@ extern void SetINITrimWhiteSpace(BOOL f);	/* Set TRUE to strip leading & trailin
 extern void SetINIStripComments(BOOL f);	/* Set TRUE to strip comments starting w/ <szComment> */
 extern void SetINICommentAnywhere(BOOL f);/* Set TRUE to strip from <szComment> to end of line */
 extern void SetINIMergeSections(BOOL f);	/* Set TRUE to merge lines with same section heading */
+extern void SetINIUndefEnvVarIsError(BOOL f); /* Set TRUE to generate errors if referenced envvars are undefined */
 
 extern void SetINIComment(const char *sz);		/* string to match for a comment. Eg., szComment = "//" */
 extern void SetINISectionMarker(const char *sz);/* lines beginning w/ <szSectionMarker> start a section */
 
-extern uint16 GetINIWarnings(void);	/* returns number of warnings in parsing INI file */
+extern int GetINIWarnings(void);	/* returns number of warnings in parsing INI file */
 
 extern void FreeINI(IniList *pIni);
 extern void PrintINI(IniList *pIniList);
@@ -97,7 +98,7 @@ extern IniList *AppendINI(IniList *pIniList, const char *filename);
 
 extern IniList *CreateINI(const char *pszName);
 extern Section *AddINISection (IniList *pIniList, const char *pszSectionName);
-extern ConfigLine *AddINILine (Section *pst, const char *pszIniLine, uint16 lineNo);
+extern ConfigLine *AddINILine (Section *pst, const char *pszIniLine, int lineNo);
 
 extern void ResetSection(SectionTracker *pst);
 extern SectionTracker *FindSection(SectionTracker *pst, IniList *pIniList, const char *sz);
