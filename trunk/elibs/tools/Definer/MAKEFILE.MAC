@@ -1,0 +1,76 @@
+
+#####################################
+#		Symbol definitions
+#####################################
+Application		=	definer
+DebugFlag		=	1
+ObjectDir		=	:Objects:
+CC				=	{CMN_CC}
+ASM				=	{CMN_ASM}
+LINK			=	{CMN_LINKER}
+LIB				=	{CMN_LIB}
+
+#####################################
+#	Default compiler options
+COptions		= {CMN_CFLAGS}
+
+SOptions		= {CMN_AFLAGS}
+
+LOptions		= {CMN_LFLAGS}
+
+LibOptions		= {CMN_LIBFLAGS}
+
+#####################################
+#		Object files
+#####################################
+
+LIBS = ¶
+		"{Elibs}"echidna:beiff.lib	¶
+		"{Elibs}"echidna:misc.lib	¶
+		"{Elibs}"echidna:mem.lib	¶
+		"{Elibs}"echidna:lds.lib	¶
+		"{SCLibraries}"SCLibc.o		¶
+		"{CLibraries}"Math.o		¶
+		"{Libraries}"Runtime.o		¶
+		"{Libraries}"Interface.o	¶
+		"{Libraries}"ToolLibs.o		¶
+
+# NOTE: Add object files here...
+OBJECTS = ¶
+		"{ObjectDir}{Application}.c.o"	¶
+					
+ODEP = ¶
+		"Version.c.o"				¶
+
+
+#####################################
+#	Default build rules
+#####################################
+All				Ä	{Application}
+
+{ObjectDir}		Ä	:
+
+.c.o			Ä	.c
+	{CC} {DepDir}{Default}.c {COptions} -o {TargDir}{Default}.c.o 
+
+.a.o			Ä	.a
+	{ASM} {DepDir}{Default}.a {SOptions} -o {TargDir}{Default}.a.o 
+	
+	
+#####################################
+#	Target build rules
+#####################################
+{Application}		ÄÄ	 {OBJECTS}
+	bump version.c
+	{CC} version.c {COptions} -o version.c.o
+	{LINK}	{LOptions}					¶
+			{SCLibraries}"SCMainC.a.o"	¶
+			{OBJECTS}					¶
+			{ODEP}						¶
+			{LIBS}						¶
+			-o {Application}
+
+#####################################
+#	Include file dependencies
+#####################################
+

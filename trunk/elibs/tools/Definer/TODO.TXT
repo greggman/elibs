@@ -1,0 +1,13 @@
+Legend:
+	O = todo
+	* = done
+	? = maybe do
+	X = canceled
+-----------------
+O Make all rule args get used when printing body, or do not collect
+	all rule args.
+	Example:
+		const "#define %1 %2" "/* this is a constant*/"
+	Currently the "/* this is a constant*/" string will not be printed
+	when the 'const' rule is executed.
+

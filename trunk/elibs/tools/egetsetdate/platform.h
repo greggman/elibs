@@ -1,0 +1,2 @@
+#include "echidna\platform.h"
+

@@ -1,0 +1,89 @@
+#
+# Name of program.
+#
+PROGRAM   = bump
+
+#
+# Program Modules.
+#
+PDEP =	\
+		$(PROGRAM).obj	\
+
+ODEP =	\
+		version.obj	\
+
+BLA = \
+		$(ELIB)\echidna\memlib\memdbug.obj	\
+
+#
+# Memory Model
+#   s = Small
+#   m = Medium
+#   c = Compact
+#   l = Large
+#   h = Huge
+MDL		= h
+STARTUP	= c0$(MDL).obj
+
+ELDEP =	\
+		echidna\beiff$(MDL).lib	\
+		echidna\lds$(MDL).lib	\
+		echidna\mem$(MDL).lib	\
+		echidna\misc$(MDL).lib	\
+
+LDEP = \
+		c$(MDL).lib
+
+
+
+#
+# Name of linker file
+#
+LINKFILE  = linkfile.lnk
+
+#
+# 'C' compiler and global compiler flags.
+#
+#
+# 'C' compiler and global compiler flags.
+#
+CFLAGS    = $(CMN_CFLAGS) -m$(MDL)
+CCOMPILER = $(CMN_CC) 
+
+#
+# Assembler and global assembler flags.
+#
+ASSEMBLER = $(CMN_ASM)
+AFLAGS    = /mx /zi
+
+#
+# Linker and global linker flags + libraries to like with.
+#
+LINKER    = $(CMN_LINK)
+LFLAGS    = /c /x /v /m
+LIBFILE   = libs.lnk
+
+#
+# Rule for Assembly modules.
+#
+.asm.obj:
+	$(ASSEMBLER) $(AFLAGS) $*.asm
+
+#
+# Rule for 'C' modules.
+#
+.c.obj:
+	$(CCOMPILER) $(CFLAGS) $*.c
+
+#
+# Dependency for program.
+#
+$(PROGRAM).exe: $(PDEP)
+	bump version.c
+	$(CCOMPILER) $(CFLAGS) version.c
+	makescan
+	$(LINKER) $(LFLAGS) @$(LINKFILE), $(PROGRAM).EXE, , @$(LIBFILE)
+	dir $(PROGRAM).EXE
+#
+# extra dependencies
+#
