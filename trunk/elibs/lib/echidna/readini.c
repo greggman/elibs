@@ -35,6 +35,8 @@
         11/18/02 GAT: added filenames to each line (so mkloadob can load binary
                          files relative to file they were referenced from)
 		01/23/03 GAT: added fErrorOnDuplicateSection and Section file/lineno
+        02/01/03 GAT: added nullok
+        02/10/03 GAT: added #if, #elif, #else, #endif, #error
 
 
  *************************************************************************/
@@ -58,6 +60,7 @@
 /**************************** C O N S T A N T S ***************************/
 
 #define MAX_LINE_SIZE	4096
+#define MAX_IF_DEPTH    100
 
 /*------------------------------------------------------------------------*/
 /**# MODULE:READINI_readIni                                               */
@@ -89,7 +92,11 @@ static const char *szSectionEndMarker = "]";
 static const char* currentFilename;
 static int LineCount;
 static char szLine[MAX_LINE_SIZE];
-
+static int ifDepth;
+static int ifFound[MAX_IF_DEPTH];
+static int ifIgnore;
+static const char* ifFilename[MAX_IF_DEPTH];
+static int  ifLineNumber[MAX_IF_DEPTH];
 
 /***************************** R O U T I N E S ****************************/
 
@@ -214,8 +221,10 @@ static char *GetLine (char *line, size_t size, FILE *pFile)
                 char* newstr = MLANG_SubVariables (pch, currentFilename);
                 if (!newstr)
                 {
-                    ErrMess ("file %s : line %d : %s\n", currentFilename, LineCount, GlobalErrMsg);
-                    ClearGlobalError();
+                    // moved to parser
+                    // ErrMess ("file %s : line %d : %s\n", currentFilename, LineCount, GlobalErrMsg);
+                    // ClearGlobalError();
+                    strcpy(line, pch);
                 }
                 else
                 {
@@ -227,8 +236,10 @@ static char *GetLine (char *line, size_t size, FILE *pFile)
 			{
 				if (!EIO_ExpandEVarsWithErrors (line, pch, size, fUndefEnvVarIsError))
                 {
-            		ErrMess ("file %s : line %d : %s\n", currentFilename, LineCount, GlobalErrMsg);
-					ClearGlobalError();
+                    // moved to parser
+            		// ErrMess ("file %s : line %d : %s\n", currentFilename, LineCount, GlobalErrMsg);
+					// ClearGlobalError();
+                    strcpy(line, pch);
                 }
 				ENSURE (strlen(line) < size);
 			}
@@ -440,6 +451,7 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
     char        oldDir[EIO_MAXPATH];
     char        newFilename[EIO_MAXPATH];
     BOOL        fSetDir = FALSE;
+    BOOL        fNew = FALSE;
     const char  *savedFilename;
 	char		*pch;
 	FILE		*pFile;
@@ -474,6 +486,9 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 		{
 			return NULL;
 		}
+        fNew     = TRUE;
+        ifDepth  = 0;
+        ifIgnore = 0;
 	}
 
     /*** add filename to filename list ***/
@@ -509,232 +524,392 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 
 	while ((pch = GetLine(szLine, MAX_LINE_SIZE, pFile)) != NULL)
 	{
-		if (strncmp (pch, szSectionMarker, sectionStartMarkerLen) == 0)
-		{
-            char  secnamebuf[1024];
-            char* secname;
-            char* argStart = NULL;
-            char* argEnd;
-            int   maxlen = sizeof (secnamebuf) - sectionEndMarkerLen;
-            
-			pCurrentList = NULL;
-            
-            if (fParseArgsInSection)
+        BOOL fCont = FALSE;
+        BOOL fCheckErr = !ifIgnore;
+        
+        if (*pch != '#')    // quick check for faster parsing
+        {
+            fCont = TRUE;
+        }
+        else
+        {
+    		if (!strnicmp (pch, "#if", 3) && isspace(pch[3]))
             {
-                char* s = secnamebuf;
-                int   len = 0;
-                
-                secname = secnamebuf;
-                while (len < maxlen && *pch && strncmp(pch, szSectionEndMarker, sectionEndMarkerLen) && *pch != ',')
+    			pch = TrimWhiteSpace (pch + 3);
+    
+                ifDepth++;
+                if (ifDepth >= MAX_IF_DEPTH)
                 {
-                    *s++ = *pch++;
-                    len++;
-                }
-                
-                if (len == maxlen)
-                {
-					ErrMess ("file '%s', line %d: section name > 1024 characters!\n", newFilename, LineCount);
+                    ErrMess ("file '%s', line %d: misplaced #elif .\n", newFilename, LineCount);
     /**/			goto ABORT;
                 }
                 
-                strcpy (s, szSectionEndMarker);
+                ifFound[ifDepth] = FALSE;
                 
-                if (*pch == ',')
+                if (!ifIgnore)
                 {
-                    ++pch;  // skip comma
-                    
-                    // skip whitespace
-                    while (*pch && isspace(*pch)) ++pch;
-                    
-                    // get arg
-                    argStart = pch;
-                    while (*pch && strncmp (pch, szSectionEndMarker, sectionEndMarkerLen)) ++pch;
-                    argEnd   = pch;
-                    
-                    if (pch == argStart)
+	                fCheckErr = TRUE;
+
+                    if (!atol(pch))
                     {
-                        argStart = NULL;
-                    }
-                }
-            }
-            else
-            {
-                secname = pch;
-            }
-
-            pSection = (Section*)LST_Head(&pIniList->SectionList);
-
-   			if (fMergeSections || fErrorOnDuplicateSection)
-            {
-                while (!LST_IsEOList(pSection))
-                {
-                    if ( (fCaseSensitive &&  strcmp(szSectionName(pSection), secname) == 0) ||
-                        (!fCaseSensitive && stricmp(szSectionName(pSection), secname) == 0))
-                    {
-            			if (fMergeSections)
-            			{
-                            pCurrentList = &pSection->LineList;
-                        }
-                        else if (fErrorOnDuplicateSection)
-                        {
-        					ErrMess ("file '%s', line %d: duplicate section (%s), original section in file '%s', line %d.\n", newFilename, LineCount, secname, pSection->Filename, pSection->LineNo);
-                        }
-                        break;
-                    }
-                    pSection = (Section*)LST_Next(pSection);
-                }
-			}
-            
-			if (!pCurrentList)
-			{
-				if ((pSection = AddINISection(pIniList, secname)) == NULL)
-				{
-					ErrMess ("file '%s', line %d: OOM .\n", newFilename, LineCount);
-/**/				goto ABORT;
-                }
-                
-                pSection->Filename = savedFilename;
-                pSection->LineNo   = LineCount;
-                
-                if (argStart)
-                {
-                    char* args = malloc (argEnd - argStart + 1);
-                    strncpy (args, argStart, argEnd - argStart);
-                    args[pch - argStart] = '\0';
-                    
-                    pSection->Args = args;
-                }
-
-				pCurrentList = &pSection->LineList;
-			}
-		}
-		else if (!strnicmp (pch, "#define", 7) && isspace(pch[7]))
-		{
-            char defName[MAX_LINE_SIZE+1];
-            char defValue[MAX_LINE_SIZE];
-            
-			char* equal;
-			pch = TrimWhiteSpace (pch + 7);
-			
-			equal = strpbrk (pch, "= ");
-            if (equal)
-            {
-                strncpy (defName, pch, equal - pch);
-                defName[equal - pch] = '\0';
-                while (*equal && (*equal == '=' || isspace(*equal))) equal++;
-                strcpy(defValue, equal);
-            }
-            else
-            {
-                strcpy(defName, pch);
-                strcpy(defValue, "");
-            }
-
-            if (fUseMacroLanguage)
-            {
-                MLANG_AddVariable (defName, defValue);
-            }
-            else
-            {
-                strcat (defName, "=");
-                strcat (defName, defValue);
-                putenv (defName);
-            }
-		}
-		else if (!strnicmp (pch, "#include", 8) && isspace(pch[8]))
-		{
-			int mode = 0;	// '>' = #include <>, '"' = #include ""
-			
-			pch = TrimWhiteSpace (pch + 8);
-			
-			if (*pch == '<')
-			{
-				mode = '>';
-			}
-			else if (*pch == '"')
-			{
-				mode = '"';
-			}
-			else
-			{
-				ErrMess ("file '%s', line %d: missing quotes/brackets in #include.\n", newFilename, LineCount);
-			}
-			
-			if (mode)
-			{
-				char *newfile;
-				
-				pch++;
-				newfile = pch;
-				
-				while (*pch && *pch != mode) pch++;
-				if (!*pch)
-				{
-					ErrMess ("file '%s', line %d: missing quotes/brackets in #include.\n", newFilename, LineCount);
-				}
-				else if (pch - newfile + 1 > EIO_MAXPATH)
-				{
-					ErrMess ("file '%s', line %d: filename too long in #include \n", newFilename, LineCount);
-				}
-				else
-				{
-					int  fFound = FALSE;
-					char incFilename[EIO_MAXPATH];
-					char fixedfilename[EIO_MAXPATH];
-					
-                    // using fixed as temp here
-					strncpy (fixedfilename, newfile, pch - newfile);
-					fixedfilename[pch - newfile] = '\0';
-                    
-                    // check if it's local
-                    if (EIO_FileExists (fixedfilename))
-                    {
-                        fFound = TRUE;
+                        ifIgnore = ifDepth;
                     }
                     else
                     {
-                        EIO_fnmerge (incFilename, EIO_Path(newFilename), fixedfilename, NULL);
-					
-    				    fFound = EIO_FindInclude (fixedfilename, EIO_INCPATH_INIS, incFilename, filename, TRUE);
+                        ifFound[ifDepth] = TRUE;
+                        ifFilename[ifDepth]   = savedFilename;
+                        ifLineNumber[ifDepth] = LineCount;
+                    }
+                }
+            }
+    		else if (!strnicmp (pch, "#elif", 5) && isspace(pch[5]))
+            {
+    			pch = TrimWhiteSpace (pch + 5);
+                
+                if (ifDepth <= 0)
+                {
+                    ErrMess ("file '%s', line %d: misplaced #elif .\n", newFilename, LineCount);
+    /**/			goto ABORT;
+                }
+    
+                // 4 states
+                
+                // (1) we are not ignoring (which means the last #if or #elif was TRUE
+                if (!ifIgnore)
+                {
+                    ifIgnore = ifDepth;
+                }
+                else
+                {
+                    // (2) we are ignoring but at the same depth
+                    if (ifIgnore == ifDepth)
+                    {
+		                fCheckErr = TRUE;
+
+                        // (2a) this level NOT was already handled
+                        if (!ifFound[ifDepth])
+                        {
+                            if (atol (pch))
+                            {
+                                ifFound[ifDepth] = TRUE;
+                                ifFilename[ifDepth]   = savedFilename;
+                                ifLineNumber[ifDepth] = LineCount;
+    							ifIgnore = 0;
+                            }
+                        }
+                        // (2b) this level was already handled so we just keep ignoreing
+                    }
+                    // (3) we are at a lower depth so we just keep ignore
+                }
+            }
+    		else if (!strnicmp (pch, "#else", 5) && (isspace(pch[5]) || !pch[5]))
+            {
+                if (ifDepth <= 0)
+                {
+                    ErrMess ("file '%s', line %d: misplaced #else .\n", newFilename, LineCount);
+    /**/			goto ABORT;
+                }
+    
+                // 4 states
+                
+                // (1) we are not ignoring (which means the last #if or #elif was TRUE
+                if (!ifIgnore)
+                {
+                    ifIgnore = ifDepth;
+                }
+                else
+                {
+                    // (2) we are ignoring but at the same depth
+                    if (ifIgnore == ifDepth)
+                    {
+		                fCheckErr = TRUE;
+
+                        // (2a) this level NOT was already handled
+                        if (!ifFound[ifDepth])
+                        {
+                            ifFound[ifDepth] = TRUE;
+                            ifFilename[ifDepth]   = savedFilename;
+                            ifLineNumber[ifDepth] = LineCount;
+    						ifIgnore = 0;
+                        }
+                        // (2b) this level was already handled so we just keep ignoreing
+                    }
+                    // (3) we are at a lower depth so we just keep ignore
+                }
+            }
+    		else if (!strnicmp (pch, "#endif", 6) && (isspace(pch[6]) || !pch[6]))
+            {
+                if (ifDepth <= 0)
+                {
+                    ErrMess ("file '%s', line %d: misplaced #endif .\n", newFilename, LineCount);
+    /**/			goto ABORT;
+                }
+    
+                // if we are ignoring but at the same depth we are done ignoring
+                if (ifIgnore == ifDepth)
+                {
+	                fCheckErr = TRUE;
+                    ifIgnore = 0;
+                }
+                
+                ifDepth--;
+            }
+            else
+            {
+                fCont = TRUE;
+            }
+        }
+        
+        if (fCheckErr)
+        {
+            if (GlobalErr)
+            {
+                ErrMess ("file %s : line %d : %s\n", currentFilename, LineCount, GlobalErrMsg);
+                fCont = FALSE;
+            }
+        }
+        ClearGlobalError();
+        
+        if (fCont && !ifIgnore)
+        {
+    		if (strncmp (pch, szSectionMarker, sectionStartMarkerLen) == 0)
+    		{
+                char  secnamebuf[1024];
+                char* secname;
+                char* argStart = NULL;
+                char* argEnd;
+                int   maxlen = sizeof (secnamebuf) - sectionEndMarkerLen;
+                
+    			pCurrentList = NULL;
+                
+                if (fParseArgsInSection)
+                {
+                    char* s = secnamebuf;
+                    int   len = 0;
+                    
+                    secname = secnamebuf;
+                    while (len < maxlen && *pch && strncmp(pch, szSectionEndMarker, sectionEndMarkerLen) && *pch != ',')
+                    {
+                        *s++ = *pch++;
+                        len++;
                     }
                     
-                    if (fFound)
-					{
-                        // save current line count
-                        int oldLineCount = LineCount;
+                    if (len == maxlen)
+                    {
+    					ErrMess ("file '%s', line %d: section name > 1024 characters!\n", newFilename, LineCount);
+        /**/			goto ABORT;
+                    }
+                    
+                    strcpy (s, szSectionEndMarker);
+                    
+                    if (*pch == ',')
+                    {
+                        ++pch;  // skip comma
                         
-						AppendINI(pIniList, fixedfilename);
+                        // skip whitespace
+                        while (*pch && isspace(*pch)) ++pch;
                         
-                        // restore old line count and filename
-                        LineCount = oldLineCount;
-                        currentFilename = newFilename;
-					}
-					else
-					{
-						ErrMess ("File %s, line %d: couldn't open include file %s\n", newFilename, LineCount, fixedfilename);
-					}
-				}            
-			}
-		}
-		else if (!pCurrentList)
-		{
-			WarnMess ("File %s, line %d: No section header.\n", newFilename, LineCount);
-			WarnErrCount++;
-		}
-		else
-		{
-			if ((AddINILine (pSection, pch, LineCount, savedFilename)) == NULL)
-			{
-				ErrMess ("file '%s', line %5d: OOM\n", newFilename, LineCount);
-/**/			goto ABORT;
-			}
-		}
+                        // get arg
+                        argStart = pch;
+                        while (*pch && strncmp (pch, szSectionEndMarker, sectionEndMarkerLen)) ++pch;
+                        argEnd   = pch;
+                        
+                        if (pch == argStart)
+                        {
+                            argStart = NULL;
+                        }
+                    }
+                }
+                else
+                {
+                    secname = pch;
+                }
+    
+                pSection = (Section*)LST_Head(&pIniList->SectionList);
+    
+       			if (fMergeSections || fErrorOnDuplicateSection)
+                {
+                    while (!LST_IsEOList(pSection))
+                    {
+                        if ( (fCaseSensitive &&  strcmp(szSectionName(pSection), secname) == 0) ||
+                            (!fCaseSensitive && stricmp(szSectionName(pSection), secname) == 0))
+                        {
+                			if (fMergeSections)
+                			{
+                                pCurrentList = &pSection->LineList;
+                            }
+                            else if (fErrorOnDuplicateSection)
+                            {
+            					ErrMess ("file '%s', line %d: duplicate section (%s), original section in file '%s', line %d.\n", newFilename, LineCount, secname, pSection->Filename, pSection->LineNo);
+                            }
+                            break;
+                        }
+                        pSection = (Section*)LST_Next(pSection);
+                    }
+    			}
+                
+    			if (!pCurrentList)
+    			{
+    				if ((pSection = AddINISection(pIniList, secname)) == NULL)
+    				{
+    					ErrMess ("file '%s', line %d: OOM .\n", newFilename, LineCount);
+    /**/				goto ABORT;
+                    }
+                    
+                    pSection->Filename = savedFilename;
+                    pSection->LineNo   = LineCount;
+                    
+                    if (argStart)
+                    {
+                        char* args = malloc (argEnd - argStart + 1);
+                        strncpy (args, argStart, argEnd - argStart);
+                        args[pch - argStart] = '\0';
+                        
+                        pSection->Args = args;
+                    }
+    
+    				pCurrentList = &pSection->LineList;
+    			}
+    		}
+    		else if (!strnicmp (pch, "#define", 7) && isspace(pch[7]))
+    		{
+                char defName[MAX_LINE_SIZE+1];
+                char defValue[MAX_LINE_SIZE];
+                
+    			char* equal;
+    			pch = TrimWhiteSpace (pch + 7);
+    			
+    			equal = strpbrk (pch, "= ");
+                if (equal)
+                {
+                    strncpy (defName, pch, equal - pch);
+                    defName[equal - pch] = '\0';
+                    while (*equal && (*equal == '=' || isspace(*equal))) equal++;
+                    strcpy(defValue, equal);
+                }
+                else
+                {
+                    strcpy(defName, pch);
+                    strcpy(defValue, "");
+                }
+    
+                if (fUseMacroLanguage)
+                {
+                    MLANG_AddVariable (defName, defValue);
+                }
+                else
+                {
+                    strcat (defName, "=");
+                    strcat (defName, defValue);
+                    putenv (defName);
+                }
+    		}
+    		else if (!strnicmp (pch, "#error", 6) && isspace(pch[6]))
+            {
+        		ErrMess ("file '%s', line %d: #error %s\n", newFilename, LineCount, pch + 6);
+    /**/		goto ABORT;
+            }
+    		else if (!strnicmp (pch, "#include", 8) && isspace(pch[8]))
+    		{
+    			int mode = 0;	// '>' = #include <>, '"' = #include ""
+    			
+    			pch = TrimWhiteSpace (pch + 8);
+    			
+    			if (*pch == '<')
+    			{
+    				mode = '>';
+    			}
+    			else if (*pch == '"')
+    			{
+    				mode = '"';
+    			}
+    			else
+    			{
+    				ErrMess ("file '%s', line %d: missing quotes/brackets in #include.\n", newFilename, LineCount);
+    			}
+    			
+    			if (mode)
+    			{
+    				char *newfile;
+    				
+    				pch++;
+    				newfile = pch;
+    				
+    				while (*pch && *pch != mode) pch++;
+    				if (!*pch)
+    				{
+    					ErrMess ("file '%s', line %d: missing quotes/brackets in #include.\n", newFilename, LineCount);
+    				}
+    				else if (pch - newfile + 1 > EIO_MAXPATH)
+    				{
+    					ErrMess ("file '%s', line %d: filename too long in #include \n", newFilename, LineCount);
+    				}
+    				else
+    				{
+    					int  fFound = FALSE;
+    					char incFilename[EIO_MAXPATH];
+    					char fixedfilename[EIO_MAXPATH];
+    					
+                        // using fixed as temp here
+    					strncpy (fixedfilename, newfile, pch - newfile);
+    					fixedfilename[pch - newfile] = '\0';
+                        
+                        // check if it's local
+                        if (EIO_FileExists (fixedfilename))
+                        {
+                            fFound = TRUE;
+                        }
+                        else
+                        {
+                            EIO_fnmerge (incFilename, EIO_Path(newFilename), fixedfilename, NULL);
+    					
+        				    fFound = EIO_FindInclude (fixedfilename, EIO_INCPATH_INIS, incFilename, filename, TRUE);
+                        }
+                        
+                        if (fFound)
+    					{
+                            // save current line count
+                            int oldLineCount = LineCount;
+                            
+    						AppendINI(pIniList, fixedfilename);
+                            
+                            // restore old line count and filename
+                            LineCount = oldLineCount;
+                            currentFilename = newFilename;
+    					}
+    					else
+    					{
+    						ErrMess ("File %s, line %d: couldn't open include file %s\n", newFilename, LineCount, fixedfilename);
+    					}
+    				}            
+    			}
+    		}
+    		else if (!pCurrentList)
+    		{
+    			WarnMess ("File %s, line %d: No section header.\n", newFilename, LineCount);
+    			WarnErrCount++;
+    		}
+    		else
+    		{
+    			if ((AddINILine (pSection, pch, LineCount, savedFilename)) == NULL)
+    			{
+    				ErrMess ("file '%s', line %5d: OOM\n", newFilename, LineCount);
+    /**/			goto ABORT;
+    			}
+    		}
+        }
 	}
     
     /*** change current directory back to what it was ***/
     if (fChangeCurrentDir && fSetDir && strlen(oldDir) > 0)
     {
         EIO_ChangeDir (oldDir);
+    }
+    
+    if (ifDepth > 0)
+    {
+        ErrMess ("file '%s', line %5d: #if/#else/#else missing #endif\n", ifFilename[ifDepth], ifLineNumber[ifDepth]);
+/**/	goto ABORT;
     }
 
 	fclose(pFile);
