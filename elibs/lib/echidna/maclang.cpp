@@ -1,14 +1,14 @@
 /*=======================================================================*
  |   file name : mlang.cpp
  |-----------------------------------------------------------------------*
- |   function  : 
+ |   function  :
  |-----------------------------------------------------------------------*
  |   author    : Gregg Tavares
  *=======================================================================*/
- 
+
 /**************************** i n c l u d e s ****************************/
 
-#pragma warning(disable : 4786) // identifier was truncated to '255' characters in the browser information 
+#pragma warning(disable : 4786) // identifier was truncated to '255' characters in the browser information
 
 #include "platform.h"
 #include "switches.h"
@@ -137,19 +137,19 @@ static bool mlang_isfloat (const char* str)
         before++;
         str++;
     }
-    
+
     if (!*str || *str != '.' || !before)
     {
         return false;
     }
-    
+
     str++;
-    
+
     if (*str && isdigit(*str))
     {
         return true;
     }
-    
+
     return false;
 }
 
@@ -171,12 +171,12 @@ typedef vector<string> mlangArgList;
 const char* hack_sprintf (const char* fmt, ...)
 {
     static char buf[100];
-    
+
 	va_list ap;	/* points to each unnamed arg in turn */
 	va_start (ap, fmt);
     vsprintf (buf, fmt, ap);
 	va_end (ap);	/* clean up when done */
-    
+
     return buf;
 }
 
@@ -194,7 +194,7 @@ static void DoMath (string& localSub, mlangArgList& argList, intfunc ifunc, floa
     else
     {
         mlangArgList::const_iterator it = argList.begin();
-    
+
         {
     		string value = *it;
             if (mlang_isfloat (value.c_str()))
@@ -207,12 +207,12 @@ static void DoMath (string& localSub, mlangArgList& argList, intfunc ifunc, floa
         		fIvalue = mlang_atol (value.c_str());
             }
         }
-        
+
         ++it;
         while (it != argList.end())
         {
             string value = *it;
-            
+
             if (mlang_isfloat (value.c_str()))
             {
                 if (fFloat)
@@ -238,7 +238,7 @@ static void DoMath (string& localSub, mlangArgList& argList, intfunc ifunc, floa
             }
             ++it;
         }
-        
+
         if (fFloat)
         {
             localSub = hack_sprintf("%f", fFvalue);
@@ -324,7 +324,9 @@ bool MLANG_SubVariables (string& str, const char* inputPath)
 					bool fquote = false;
 						
 					if (!strcmp(idstr.c_str(), "fquote") ||
-                        !strcmp(idstr.c_str(), "fif")
+                        !strcmp(idstr.c_str(), "fif") ||
+                        !strcmp(idstr.c_str(), "fand") ||
+                        !strcmp(idstr.c_str(), "for")
                         )
 					{
 						fquote = true;
@@ -505,7 +507,7 @@ bool MLANG_SubVariables (string& str, const char* inputPath)
 						if (numArgs > 1)
 						{
 							MLANG_SubVariables (arg0, inputPath);
-                        
+
 							if (mlang_isfloat(arg0.c_str()) ? mlang_atof(arg0.c_str()) : mlang_atol (arg0.c_str()))
 							{
 								localSub = argList[1];
@@ -535,7 +537,7 @@ bool MLANG_SubVariables (string& str, const char* inputPath)
 						{
 							double v1 = mlang_atof (arg0.c_str());
 							double v2 = mlang_atof (argList[1].c_str());
-                        
+
 							localSub = hack_sprintf("%d", v1 == v2);
 						}
 						else
@@ -629,8 +631,9 @@ bool MLANG_SubVariables (string& str, const char* inputPath)
 					else if (!stricmp (idstr.c_str(), "fand"))
 					{
 						int fvalue = true;
-						for (mlangArgList::const_iterator it = argList.begin(); it != argList.end() && fvalue; ++it)
+						for (mlangArgList::iterator it = argList.begin(); it != argList.end() && fvalue; ++it)
 						{
+							MLANG_SubVariables (*it, inputPath);
 							fvalue = fvalue && (mlang_atof(it->c_str()) != 0.0);
 						}
 						
@@ -639,8 +642,9 @@ bool MLANG_SubVariables (string& str, const char* inputPath)
 					else if (!stricmp (idstr.c_str(), "for"))
 					{
 						int fvalue = false;
-						for (mlangArgList::const_iterator it = argList.begin(); it != argList.end() && !fvalue; ++it)
+						for (mlangArgList::iterator it = argList.begin(); it != argList.end() && !fvalue; ++it)
 						{
+							MLANG_SubVariables (*it, inputPath);
 							fvalue = fvalue || (mlang_atof(it->c_str()) != 0.0);
 						}
 						
@@ -749,7 +753,7 @@ bool MLANG_SubVariables (string& str, const char* inputPath)
 								fmt = string("%") + arg0;
 							}
                             int typespec = fmt[(fmt.size() - 1)];
-                            
+
                             if (strchr ("cCdidouxX", typespec))
                             {
     							localSub = hack_sprintf(fmt.c_str(), mlang_atol(argList[1].c_str()));
@@ -791,7 +795,7 @@ bool MLANG_SubVariables (string& str, const char* inputPath)
 						{
     						char filename[EIO_MAXPATH];
                             int fValue;
-                            
+
     						EIO_fnmerge (filename, EIO_Path(inputPath), arg0.c_str(), NULL);
                             fValue = EIO_FileExists (filename);
 							if (!fValue)
@@ -814,7 +818,7 @@ bool MLANG_SubVariables (string& str, const char* inputPath)
 						{
     						char filename[EIO_MAXPATH];
                             bool fFound = FALSE;
-                            
+
     						EIO_fnmerge (filename, EIO_Path(inputPath), arg0.c_str(), NULL);
                             fFound = EIO_FileExists (filename) != 0;
                             if (!fFound)
@@ -827,7 +831,7 @@ bool MLANG_SubVariables (string& str, const char* inputPath)
                                     return false;
                                 }
                             }
-                        
+
                             int fh = EIO_ReadOpen (filename);
                             long len = -1;
                             if (fh < 0)
@@ -872,7 +876,7 @@ bool MLANG_SubVariables (string& str, const char* inputPath)
                         }
                     }
                 }
-                
+
 				// skip last % if there is one
 				if (*s == '%')
 				{
@@ -903,12 +907,12 @@ bool MLANG_SubVariables (string& str, const char* inputPath)
 extern "C" char* MLANG_SubVariables (const char* str, const char* inputPath)
 {
     string localstr (str);
-    
+
     if (MLANG_SubVariables(localstr, inputPath))
     {
 		char* newstr;
         newstr = dupstr (localstr.c_str());
-    
+
         return newstr;
     }
     return NULL;
