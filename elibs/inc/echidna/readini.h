@@ -93,6 +93,8 @@ extern void SetINIStripComments(BOOL f);	/* Set TRUE to strip comments starting 
 extern void SetINICommentAnywhere(BOOL f);/* Set TRUE to strip from <szComment> to end of line */
 extern void SetINIMergeSections(BOOL f);	/* Set TRUE to merge lines with same section heading */
 extern void SetINIUndefEnvVarIsError(BOOL f); /* Set TRUE to generate errors if referenced envvars are undefined */
+extern void SetINIUseMacroLanguage(BOOL f); /* Set TRUE to allow macro language, see docs */
+extern void SetINIStripCPlusPlusComments(BOOL f);  /* Set TRUE to allow CPlusPlus comments, added because I needed both C++ and ASM comments */
 
 extern void SetINIComment(const char *sz);		/* string to match for a comment. Eg., szComment = "//" */
 extern void SetINISectionMarker(const char *sz);/* lines beginning w/ <szSectionMarker> start a section */
