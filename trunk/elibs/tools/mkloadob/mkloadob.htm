@@ -2,7 +2,7 @@
 
 <head>
 <meta http-equiv="Content-Language" content="en-us">
-<meta name="GENERATOR" content="Microsoft FrontPage 5.0">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
 <meta name="ProgId" content="FrontPage.Editor.Document">
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
 <title>MKLOADOB (the Echidna Data Linker)</title>
@@ -279,6 +279,27 @@ sourceforge.net here</a>.</span></p>
   <tr>
     <td class="elist2">#define var value</td>
     <td class="elist2">defines a var that can be referenced as %var%</td>
+  </tr>
+  <tr>
+    <td class="elist2">#if value</td>
+    <td class="elist2">0 = ignore lines until #elif, #else, or #endif</td>
+  </tr>
+  <tr>
+    <td class="elist2">#elif value</td>
+    <td class="elist2">0 = ignore lines until #elif, #else, or #endif</td>
+  </tr>
+  <tr>
+    <td class="elist2">#else</td>
+    <td class="elist2">ignore lines if a previous #if, #elif area was not
+      ignored</td>
+  </tr>
+  <tr>
+    <td class="elist2">#endif</td>
+    <td class="elist2">marks the end of the current #if group</td>
+  </tr>
+  <tr>
+    <td class="elist2">#error msg</td>
+    <td class="elist2">generates an error</td>
   </tr>
 </table>
 <h3>Commands:</h3>
@@ -948,7 +969,55 @@ long=%OBJECTID_CHEST%
 pntr=instance_data_chest_2</pre>
   </blockquote>
 </blockquote>
-<p>&nbsp;</p>
+<ul>
+  <li>You can use the nullok=true options to make it possible to optionally
+    connect data to some structure before you know if it will exist or
+    not.&nbsp; For example, assume you have a program the generates a 3D joint
+    hierarchy from a Maya or 3DSMax file.</li>
+</ul>
+<blockquote>
+  <blockquote>
+    <pre>[chest_bone]
+float=0.1 2.3 4.5 ; translation
+long=2    ; num children
+pntr=chest_children;
+pntr=chest_attachments,nullok=true
+
+[chest_children]
+pntr=left_forearm_bone
+pntr=right_forearm_bone
+
+[left_forearm_bone]
+float=0.1 2.3 4.5 ; translation
+long=0    ; num children
+long=0    ; (null), no children
+pntr=left_forearm_attachments,nullok=true
+
+[right_forearm_bone]
+float=0.1 2.3 4.5 ; translation
+long=2    ; num children
+long=0    ; (null), no children
+pntr=right_forearm_attachments,nullok=true</pre>
+  </blockquote>
+  <p>That program does not need to be aware of IF you are going to later attach
+  something to the joints.&nbsp; Each joint has an *optional* pointer.&nbsp; If
+  you happen to supply it in another file for example it will get connected,
+  otherwise you'll get null.</p>
+</blockquote>
+<ul>
+  <li>Use the macro language with #if / #elif. For example:</li>
+</ul>
+<blockquote>
+  <blockquote>
+    <pre>#if %fexists(myfolder/myfile.dlk)
+  #include &quot;myfolder/myfile.dlk&quot;
+#endif
+
+#if %fnot(%fstricmp(%username,&quot;gregg&quot;))
+  ...
+#endif</pre>
+  </blockquote>
+</blockquote>
 <h2><a name="cyd"></a>Chunkifying <span lang="ja">Y</span>our <span lang="ja">D</span>ata</h2>
 <p>MKLOADOB can separate data into chucks of a specified size. If you 
 don't need chucks specify a really large size and you'll get just one chunk! 

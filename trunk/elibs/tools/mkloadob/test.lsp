@@ -1,4 +1,28 @@
 [start,align=$400]
+#if %fexists(c:\temp\foo)
+    string=-->foo is here<---
+#endif
+#if %fnot(%fexists(c:\temp\foo5))
+    string===>foo5 is NOT<---
+#endif
+#if 0
+    string=!!one!!
+#elif 1
+    string=!!two!!
+    #if 0
+        string=**two-one**
+    #elif 0
+        string=**two-two**
+    #elif 1
+        string=**two-three**
+    #else
+        string=**two-four**
+    #endif
+#elif 0
+    string=!!three!!
+#else
+    string=!!four!!
+#endif
 string=<this is the start>
 align=4
 %fif(%fexists(c:\temp\foo),string=***foo exists***,byte=$DE $AD $BE $EF)
@@ -13,8 +37,15 @@ string=pqr
 byte=1 2 3 4
 insert=another
 insert=another
-#define goober=23
-word=$1%goober%2
+#if 12
+    #define goober=23
+    word=$1%goober%2
+    #if 001
+        #define teststr <!-- did this make it -->
+    #else
+    #endif
+    string=%teststr
+#endif
 long=$ABCDDCBA
 file="testdata.bin"
 long=$FEDCBA98
