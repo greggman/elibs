@@ -450,6 +450,7 @@ extern char	 EIO_EnvSuffix[];
 /****************** F U N C T I O N   P R O T O T Y P E S *****************/
 
 extern int			 EIO_FileExists (const char* filename);
+extern char         *EIO_ExpandEVarsWithErrors (char *newstr, const char* old, size_t maxlen, bool fCheckForErrors);
 extern char			*EIO_ExpandEVars (char *newstr, const char* old, size_t maxlen);
 extern char			*EIO_FixDirSeps (char *str);
 extern int			 EIO_InsureEndSlash (char *str);

@@ -197,6 +197,7 @@ int	 EIO_FileExists (const char* filename)
  * EIO_ExpandEVars
  *
  * SYNOPSIS
+ *		char *EIO_ExpandEVarsWithErrors (char *new, const char* old, size_t maxlen, bool fCheckForErrors)
  *		char *EIO_ExpandEVars (char *new, const char* old, size_t maxlen)
  *
  * PURPOSE
@@ -209,6 +210,7 @@ int	 EIO_FileExists (const char* filename)
  *		#include "switches.h"
  *	
  *		#include <echidna/eio.h>
+ *		#include <echidna/eerrors.h>
  *		#include <stdio.h>
  *	
  *		int main (void)
@@ -218,13 +220,26 @@ int	 EIO_FileExists (const char* filename)
  *
  *			EIO_ExpandEVars (new, original, EIO_MAXPATH);
  *			printf ("Expanded Environment Vars '%s'\n", new);
+ *
+ *			if (!EIO_ExpandEVarsWithErrors (new, original, EIO_MAXPATH, TRUE))
+ *          {
+ *         		printf ("%s\n", GlobalErrMsg);
+ *  			ClearGlobalError();
+ *          }
+ *          else
+ *          {
+ *  			printf ("Expanded Environment Vars '%s'\n", new);
+ *          }
+ *
  *			return 0;
  *		}
  *
  * INPUTS
- *		new:	string pointer to dest
- *		old:	string pointer to src
- *		maxlen:	max number of character to put in dest.
+ *		new:	            string pointer to dest
+ *		old:	            string pointer to src
+ *		maxlen:             max number of character to put in dest.
+ *      fCheckForErrors:    true = return an error (NULL) if a referenced
+ *                          evinronment variable is undefined
  *
  * RESULTS
  *		returns new
@@ -241,10 +256,10 @@ int	 EIO_FileExists (const char* filename)
  * TOPICS
  *		Environment
 */
-char *EIO_ExpandEVars (char *new, const char* old, size_t maxlen)
+char *EIO_ExpandEVarsWithErrors (char *newstr, const char* old, size_t maxlen, bool fCheckForErrors)
 {
 	const char	*evar = NULL;
-	char	*out = new;
+	char	*out = newstr;
 
 	maxlen--;
 	while (maxlen && *old)
@@ -255,7 +270,7 @@ char *EIO_ExpandEVars (char *new, const char* old, size_t maxlen)
 			{
 				if (lchinstr (old[1], "{%%") >= 0)
 				{
-					*new++ = old[1];
+					*newstr++ = old[1];
 					old++;
 					maxlen--;
 				}
@@ -266,7 +281,7 @@ char *EIO_ExpandEVars (char *new, const char* old, size_t maxlen)
 			}
 			else
 			{
-				*new++ = *old;
+				*newstr++ = *old;
 				maxlen--;
 			}
 		}
@@ -285,10 +300,16 @@ char *EIO_ExpandEVars (char *new, const char* old, size_t maxlen)
 				{
 					while (*s && maxlen)
 					{
-						*new++ = *s++;
+						*newstr++ = *s++;
 						maxlen--;
 					}
 				}
+                else if (fCheckForErrors)
+                {
+        			SetGlobalErr (ERR_GENERIC);
+        			GEcatf1 ("no env variable (%s)", evar);
+        			return NULL;
+                }
 
 				*((char *)old) = save;
 						
@@ -297,9 +318,14 @@ char *EIO_ExpandEVars (char *new, const char* old, size_t maxlen)
 		}
 		old++;
 	}
-	*new = '\0';
+	*newstr = '\0';
 
 	return out;
+}
+
+char *EIO_ExpandEVars (char *newstr, const char* old, size_t maxlen)
+{
+    return EIO_ExpandEVarsWithErrors (newstr, old, maxlen, FALSE);
 }
 
 
