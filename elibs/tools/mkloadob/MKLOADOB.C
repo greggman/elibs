@@ -169,8 +169,16 @@
  *			level=			; pointer to another section (same as level=)
  *
  *			long=			; longs (4 bytes each)
+ *			int32=			; longs (4 bytes each)
+ *			uint32=			; longs (4 bytes each)
  *			word=			; words (2 bytes each)
+ *			short=			; words (2 bytes each)
+ *			int16=			; words (2 bytes each)
+ *			uint16=			; words (2 bytes each)
  *			byte=			; bytes (1 byte each)
+ *			char=			; bytes (1 byte each)
+ *			int8=			; bytes (1 byte each)
+ *			uint8=			; bytes (1 byte each)
  *			float=			; floats (4 bytes each)
  *			string=			; string, NO NULL IS INSERTED!!!
  *							;    string=ABC inserts ABC,
@@ -1318,7 +1326,9 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName)
 							part->level = ParseLevel (specFile, arg);
 						}
 					}
-					else if (!stricmp (cmd, "Long"))
+					else if (!stricmp (cmd, "Long") ||
+                             !stricmp (cmd, "int32") ||
+                             !stricmp (cmd, "uint32"))
 					{
 						int	 numargs;
 	
@@ -1332,7 +1342,10 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName)
 						part->string = arg;
 						part->size   = sizeof (uint32) * numargs;
 					}
-					else if (!stricmp (cmd, "Word"))
+					else if (!stricmp (cmd, "Word") ||
+                             !stricmp (cmd, "Short") ||
+                             !stricmp (cmd, "int16") ||
+                             !stricmp (cmd, "uint16"))
 					{
 						//
 						// found a Word part
@@ -1346,7 +1359,10 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName)
 						part->string = arg;
 						part->size   = sizeof (uint16) * numargs;
 					}
-					else if (!stricmp (cmd, "Byte"))
+					else if (!stricmp (cmd, "Byte") ||
+                             !stricmp (cmd, "char") ||
+                             !stricmp (cmd, "uint8") ||
+                             !stricmp (cmd, "int8"))
 					{
 						//
 						// found a Byte part
@@ -1363,7 +1379,7 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName)
 					else if (!stricmp (cmd, "Float"))
 					{
 						//
-						// found a Word part
+						// found a Float part
 						//
 						int	 numargs;
 	
@@ -2884,6 +2900,7 @@ done:
 
 	if (ErrorCount)
 	{
+        EL_printf ("Errors: %d\n", ErrorCount);
 		return EXIT_FAILURE;
 	}
 
