@@ -110,6 +110,7 @@ sub NameNum
 {
    my $man = 0;
    my $help = 0;
+   my $showenc = 0;
    my $sheet      = "1";             # sheet to extract from
    my $column     = undef;           # column to extract from
    my $firstRow   = 3;               # first row to extract from
@@ -118,17 +119,26 @@ sub NameNum
    my $format     = 'c_fullescape';  # format we want
 
    GetOptions(
-      'help|?'     => \$help,
-      'man'        => \$man,
-      'encoding=s' => \$encoding,
-      'format=s'   => \$format,
-      'sheet=s'    => \$sheet,
-      'column=s'   => \$column,
-      'firstrow=i' => \$firstRow,
-      'lastrow=i'  => \$lastRow,
+      'help|?'          => \$help,
+      'man'             => \$man,
+      'showencodings'   => \$showenc,
+      'encoding=s'      => \$encoding,
+      'format=s'        => \$format,
+      'sheet=s'         => \$sheet,
+      'column=s'        => \$column,
+      'firstrow=i'      => \$firstRow,
+      'lastrow=i'       => \$lastRow,
       ) or pod2usage(2);
    pod2usage(1) if $help;
    pod2usage(-exitstatus => 0, -verbose => 2) if $man;
+   if ($showenc)
+   {
+      my @all_encodings = Encode->encodings(":all");
+
+      print "--encodings--\n";
+      map { print $_,"\n"; } @all_encodings;
+      exit 1;
+   }
    if (scalar(@ARGV) > 2)  { failMsg ("too many arguments\n"); }
 
    my ($xlfile, $outfile) = @ARGV;

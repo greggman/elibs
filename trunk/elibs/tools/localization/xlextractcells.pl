@@ -470,16 +470,27 @@ sub DoCommand
 {
    my $man = 0;
    my $help = 0;
+   my $showenc = 0;
 
    GetOptions(
-      'help|?'     => \$help,
-      'man'        => \$man,
-      'define|d=s' => \%g_defines,
-      'encoding=s' => \$g_encoding,
-      'format=s'   => \$g_format,
+      'help|?'        => \$help,
+      'man'           => \$man,
+      'showencodings' => \$showenc,
+      'define|d=s'    => \%g_defines,
+      'encoding=s'    => \$g_encoding,
+      'format=s'      => \$g_format,
       ) or pod2usage(2);
    pod2usage(1) if $help;
    pod2usage(-exitstatus => 0, -verbose => 2) if $man;
+   if ($showenc)
+   {
+      my @all_encodings = Encode->encodings(":all");
+
+      print "--encodings--\n";
+      map { print $_,"\n"; } @all_encodings;
+      exit 1;
+   }
+
    if (scalar(@ARGV) > 2)  { failMsg ("too many arguments\n"); }
 
    my ($tmpltfile, $outfile) = @ARGV;
@@ -581,8 +592,9 @@ Default is utf8.  Common encodings:
    euc-jp   (EUC)
    euc-kr   (Korean EUC)
 
-See perl docs for the module "Encode" for all
-available encodings. http://www.perldoc.com/perl5.8.0/lib/Encode.html
+Use -showencodings to see all available encodings.  See perl docs for
+the module "Encode" for more information.
+http://www.perldoc.com/perl5.8.0/lib/Encode.html
 
 =item B<-define>
 
