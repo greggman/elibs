@@ -54,6 +54,8 @@ extern "C" {
 
 extern int loadTGA32Bit (BlockO32BitPixels *bop, MEMFILE *mf);
 extern int saveTGA32Bit (int fh, BlockO32BitPixels *bop);
+extern int loadTGAGrey8Bit (BlockOGrey8BitPixels *bop, MEMFILE *mf);
+extern int saveTGAGrey8Bit (int fh, BlockOGrey8BitPixels *bop);
 
 #ifdef __cplusplus
 }

@@ -91,9 +91,8 @@ typedef struct TGAHeader
  * SEE ALSO
  *
 */
-static int loadUncompressedTGA (BlockO32BitPixels *blockPtr, MEMFILE *mf)
+static int loadUncompressedTGA (BlockO32BitPixels *blockPtr, MEMFILE *mf, int bpp)
 {
-
 	pixel32* bufferStart;
 	pixel32* buffer;
 
@@ -103,7 +102,9 @@ static int loadUncompressedTGA (BlockO32BitPixels *blockPtr, MEMFILE *mf)
 	long	 bufferSize;
 	long	 bufferWidth;
 	long	 bufferHeight;
+	int		 is8Bit;
 
+	is8Bit       = (bpp == 8);
 	bufferWidth  = blockPtr->width;
 	bufferHeight = blockPtr->height;
 	lineSize     = bufferWidth;
@@ -126,8 +127,16 @@ static int loadUncompressedTGA (BlockO32BitPixels *blockPtr, MEMFILE *mf)
 				uint8	r,g,b;
 
 				b = MEMFILE_getc(mf);
-				g = MEMFILE_getc(mf);
-				r = MEMFILE_getc(mf);
+				if (is8Bit)
+				{
+					g = b;
+					r = b;
+				}
+				else
+				{
+					g = MEMFILE_getc(mf);
+					r = MEMFILE_getc(mf);
+				}
 
 				buffer->red   = r;
 				buffer->green = g;
@@ -168,6 +177,270 @@ static int loadUncompressedTGA (BlockO32BitPixels *blockPtr, MEMFILE *mf)
 	return TRUE;
 }
 // loadUncompressedTGA
+
+/*********************************************************************
+ *
+ * loadUncompressedGrey8BitTGA
+ *
+ * SYNOPSIS
+ *		void  loadUncompressedGrey8BitTGA (BlockOGrey8BitPixels *blockPtr, unsigned char *fileBufferPtr)
+ *
+ * PURPOSE
+ *		
+ *
+ * INPUT
+ *
+ *
+ * EFFECTS
+ *
+ *
+ * RETURN VALUE
+ *
+ *
+ * HISTORY
+ *
+ *
+ * SEE ALSO
+ *
+*/
+static int loadUncompressedGrey8BitTGA (BlockOGrey8BitPixels *blockPtr, MEMFILE *mf)
+{
+
+	uint8* bufferStart;
+	uint8* buffer;
+
+	long	 i;
+	long	 loop;
+	long	 lineSize;
+	long	 bufferSize;
+	long	 bufferWidth;
+	long	 bufferHeight;
+
+	bufferWidth  = blockPtr->width;
+	bufferHeight = blockPtr->height;
+	lineSize     = bufferWidth;
+	bufferSize   = lineSize * bufferHeight;
+	
+	bufferStart  = blockPtr->pixels + bufferSize - lineSize;
+
+	buffer = bufferStart;
+	
+	for (loop = 0; loop < bufferHeight; loop++)
+	{
+		buffer = bufferStart;
+		
+		for (i = 0; i < bufferWidth; i++)
+		{
+			uint8	a;
+
+			a = MEMFILE_getc(mf);
+
+			*buffer = a;
+			buffer++;
+		}
+		
+		bufferStart -= lineSize;
+	}
+	return TRUE;
+}
+// loadUncompressedGrey8BitTGA
+
+/*********************************************************************
+ *
+ * loadCompressedGrey8BitTGA
+ *
+ * SYNOPSIS
+ *		void  loadCompressedGrey8BitTGA (BlockOGrey8BitPixels *blockPtr, uint8 *fileBufferPtr)
+ *
+ * PURPOSE
+ *		
+ *
+ * INPUT
+ *
+ *
+ * EFFECTS
+ *
+ *
+ * RETURN VALUE
+ *
+ *
+ * HISTORY
+ *
+ *
+ * SEE ALSO
+ *
+*/
+int loadCompressedGrey8BitTGA (BlockOGrey8BitPixels *blockPtr, MEMFILE *mf)
+{
+	uint8			a;
+	uint8			i;
+	uint8			count;
+	uint8*			buffer;
+
+	long			pixelCount;
+	long			totalPixels;
+	long			bufferWidth;
+	long			bufferHeight;
+
+	bufferWidth  = blockPtr->width;
+	bufferHeight = blockPtr->height;
+	totalPixels  = bufferWidth * bufferHeight;
+	buffer       = blockPtr->pixels;
+	pixelCount   = 0;
+
+	while (pixelCount < totalPixels)
+	{
+		i = MEMFILE_getc(mf);
+		count = (0x7F & i) + 1;
+		
+		pixelCount += count;
+		
+		if (pixelCount > totalPixels)
+		{
+			SetGlobalErr (ERR_GENERIC);
+			GEcatf ("Pixel overflow in targa decompression");
+			return FALSE;
+		}
+		
+		if (i & 0x80)
+		{
+			// run data
+
+			a = MEMFILE_getc(mf);
+
+			while (count--)
+			{
+				*buffer = a;
+				buffer++;
+			}
+		}
+		else
+		{
+			// dump data
+
+			while (count--)
+			{
+				a = MEMFILE_getc(mf);
+			
+				*buffer = a;
+				buffer++;
+			}
+		}
+	}
+	
+	return flipBuffer (blockPtr->pixels, blockPtr->width, blockPtr->height);
+//	return TRUE;
+}
+// loadCompressedGrey8BitTGA
+
+/*********************************************************************
+ *
+ * loadTGAGrey8Bit
+ *
+ * SYNOPSIS
+ *		void loadTGAGrey8Bit (BlockOGrey8BitPixels *blockPtr, char *fileName)
+ *
+ * PURPOSE
+ *		
+ *
+ * INPUT
+ *
+ *
+ * EFFECTS
+ *
+ *
+ * RETURN VALUE
+ *
+ *
+ * HISTORY
+ *
+ *
+ * SEE ALSO
+ *
+*/
+int loadTGAGrey8Bit (BlockOGrey8BitPixels *blockPtr, MEMFILE *mf)
+{
+	TGAHeader		 tgaHeaderX;
+	TGAHeader		*tgaHeader = &tgaHeaderX;
+	
+	long			bufferWidth;
+	long			bufferHeight;
+
+	MEMFILE_Read(mf, tgaHeader, sizeof (TGAHeader));
+
+	MEMFILE_Seek (mf, tgaHeader->ID, SEEK_CUR); // Skip User Info
+	
+	bufferWidth  = ((long)tgaHeader->widthl  + (long)tgaHeader->widthh * 256L);
+	bufferHeight = ((long)tgaHeader->heightl + (long)tgaHeader->heighth * 256L);
+	
+	{
+		long	bufferSize;
+				
+		bufferSize = bufferWidth * bufferHeight;
+		
+		blockPtr->pixels = (uint8 *) malloc (bufferSize);
+		blockPtr->width  = bufferWidth;
+		blockPtr->height = bufferHeight;
+		
+		if (!blockPtr->pixels)
+		{
+			SetGlobalErr (ERR_GENERIC);
+			GEcatf ("Out of Memory loading tga");
+			goto cleanup;
+		}
+	}
+	
+	switch (tgaHeader->itype)
+	{
+	case 2:
+		if (tgaHeader->bpp != 8)
+		{
+			SetGlobalErr (ERR_GENERIC);
+			GEcatf1 ("Unsupported bit depth (%d)", tgaHeader->bpp);
+			goto cleanup;
+		}
+		else
+		{
+// printf ("load uncompressed tga\n");
+			if (!loadUncompressedGrey8BitTGA (blockPtr, mf))
+			{
+				goto cleanup;
+			}
+		}
+		break;
+	
+	case 10:
+		if (tgaHeader->bpp != 8)
+		{
+			SetGlobalErr (ERR_GENERIC);
+			GEcatf1 ("Unsupported bit depth (%d)", tgaHeader->bpp);
+			goto cleanup;
+		}
+		else
+		{
+// printf ("load compressed tga\n");
+			if (!loadCompressedGrey8BitTGA (blockPtr, mf))
+			{
+				goto cleanup;
+			}
+		}
+		break;
+	default:
+		SetGlobalErr (ERR_GENERIC);
+		GEcatf ("Unsupported TGA file type");
+		goto cleanup;
+	}
+
+	return TRUE;
+
+cleanup:
+	if (blockPtr->pixels)
+	{
+		free (blockPtr->pixels);
+	}
+	return FALSE;
+}
+// loadTGAGrey8Bit
 
 /*********************************************************************
  *
@@ -259,7 +532,7 @@ int flipBuffer (void *buffer, long rowSize, long rows)
  * SEE ALSO
  *
 */
-int loadCompressedTGA (BlockO32BitPixels *blockPtr, MEMFILE *mf)
+int loadCompressedTGA (BlockO32BitPixels *blockPtr, MEMFILE *mf, int bpp)
 {
 	uint8			a;
 	uint8			r;
@@ -270,6 +543,7 @@ int loadCompressedTGA (BlockO32BitPixels *blockPtr, MEMFILE *mf)
 	pixel32*		buffer;
 
 	int				hasAlpha;
+	int				is8Bit;
 
 	long			pixelCount;
 	long			totalPixels;
@@ -283,6 +557,7 @@ int loadCompressedTGA (BlockO32BitPixels *blockPtr, MEMFILE *mf)
 	pixelCount   = 0;
 	hasAlpha     = blockPtr->channels;
 	a            = 255;
+	is8Bit       = (bpp == 8);
 
 	while (pixelCount < totalPixels)
 	{
@@ -303,12 +578,20 @@ int loadCompressedTGA (BlockO32BitPixels *blockPtr, MEMFILE *mf)
 			// run data
 
 			b = MEMFILE_getc(mf);
-			g = MEMFILE_getc(mf);
-			r = MEMFILE_getc(mf);
-
-			if (hasAlpha)
+			if (is8Bit)
 			{
-				a = MEMFILE_getc(mf);
+				g = b;
+				r = b;
+			}
+			else
+			{
+				g = MEMFILE_getc(mf);
+				r = MEMFILE_getc(mf);
+				
+				if (hasAlpha)
+				{
+					a = MEMFILE_getc(mf);
+				}
 			}
 
 			while (count--)
@@ -327,12 +610,21 @@ int loadCompressedTGA (BlockO32BitPixels *blockPtr, MEMFILE *mf)
 			while (count--)
 			{
 				b = MEMFILE_getc(mf);
-				g = MEMFILE_getc(mf);
-				r = MEMFILE_getc(mf);
-			
-				if (hasAlpha)
+
+				if (is8Bit)
 				{
-					a = MEMFILE_getc(mf);
+					r = b;
+					g = b;
+				}
+				else
+				{
+					g = MEMFILE_getc(mf);
+					r = MEMFILE_getc(mf);
+				
+					if (hasAlpha)
+					{
+						a = MEMFILE_getc(mf);
+					}
 				}
 
 				buffer->red   = r;
@@ -460,7 +752,7 @@ int loadTGA32Bit (BlockO32BitPixels *blockPtr, MEMFILE *mf)
 	switch (tgaHeader->itype)
 	{
 	case 2:
-		if (((tgaHeader->bpp != 24) && (tgaHeader->bpp != 32)))
+		if (((tgaHeader->bpp != 24) && (tgaHeader->bpp != 32) && (tgaHeader->bpp != 8)))
 		{
 			SetGlobalErr (ERR_GENERIC);
 			GEcatf1 ("Unsupported bit depth (%d)", tgaHeader->bpp);
@@ -468,8 +760,11 @@ int loadTGA32Bit (BlockO32BitPixels *blockPtr, MEMFILE *mf)
 		}
 		else
 		{
+			// for 8bit to 32bit should I load the 8bit and convert or fix the 32bit to load 8bits?
+			// The first is more work but faster.  The seconds less work but slower
+			//
 // printf ("load uncompressed tga\n");
-			if (!loadUncompressedTGA (blockPtr, mf))
+			if (!loadUncompressedTGA (blockPtr, mf, tgaHeader->bpp))
 			{
 				goto cleanup;
 			}
@@ -477,7 +772,7 @@ int loadTGA32Bit (BlockO32BitPixels *blockPtr, MEMFILE *mf)
 		break;
 	
 	case 10:
-		if (((tgaHeader->bpp != 24) && (tgaHeader->bpp != 32)))
+		if (((tgaHeader->bpp != 24) && (tgaHeader->bpp != 32) && (tgaHeader->bpp != 8)))
 		{
 			SetGlobalErr (ERR_GENERIC);
 			GEcatf1 ("Unsupported bit depth (%d)", tgaHeader->bpp);
@@ -486,7 +781,7 @@ int loadTGA32Bit (BlockO32BitPixels *blockPtr, MEMFILE *mf)
 		else
 		{
 // printf ("load compressed tga\n");
-			if (!loadCompressedTGA (blockPtr, mf))
+			if (!loadCompressedTGA (blockPtr, mf, tgaHeader->bpp))
 			{
 				goto cleanup;
 			}
@@ -611,5 +906,88 @@ BEGINFUNC (saveTGA32Bit)
 	return TRUE;
 
 } ENDFUNC (saveTGA32Bit)
+
+/*************************************************************************
+                               saveTGAGrey8Bit
+ *************************************************************************
+
+   SYNOPSIS
+		int saveTGAGrey8Bit (int fh, BlockOGrey8BitPixels *bop)
+
+   PURPOSE
+  		Saves an Grey8Bit targa
+
+   INPUT
+		fh  :
+		bop :
+
+   OUTPUT
+		None
+
+   EFFECTS
+		None
+
+   RETURNS
+
+
+   SEE ALSO
+
+
+   HISTORY
+		07/15/04 : Created.
+
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+int saveTGAGrey8Bit (int fh, BlockOGrey8BitPixels *bop)
+BEGINFUNC (saveTGAGrey8Bit)
+{
+	static TGAHeader tgaHeader =
+	{
+	0,	//	uint8	ID;				// Byte 0
+	0,	//	uint8	ctype;			// Byte 1
+	3,	//	uint8	itype;			// Byte 2 -- uncompressed 8bit greyscale
+	0,	//	uint8	mincolorl;		// Byte 3
+	0,	//	uint8	mincolorh;		// Byte 4
+	0,	//	uint8	colorsl;		// Byte 5
+	0,	//	uint8	colorsh;		// Byte 6
+	0,	//	uint8	colorsize;		// Byte 7
+	0,	//	uint8	originxl;		// Byte 8
+	0,	//	uint8	originxh;		// Byte 9
+	0,	//	uint8	originyl;		// Byte 10
+	0,	//	uint8	originyh;		// Byte 11
+	0,	//	uint8	widthl;			// Byte 12
+	0,	//	uint8	widthh;			// Byte 13
+	0,	//	uint8	heightl;		// Byte 14
+	0,	//	uint8	heighth;		// Byte 15
+	8,	//	uint8	bpp;			// Byte 16
+	0,	//	uint8	idesc;			// Byte 17
+	};
+
+	uint8 *buffer;
+
+	buffer = (uint8 *)malloc (bop->width * bop->height);
+	if (!buffer)
+	{
+		SetGlobalErr (ERR_GENERIC);
+		GEcatf ("Out of memory saving tga");
+		return FALSE;
+	}
+
+	tgaHeader.widthl = (UINT8)(bop->width % 256);
+	tgaHeader.widthh = (UINT8)(bop->width / 256);
+
+	tgaHeader.heightl = (UINT8)(bop->height % 256);
+	tgaHeader.heighth = (UINT8)(bop->height / 256);
+
+	CHK_Write (fh, &tgaHeader, sizeof (tgaHeader));
+
+	memcpy (buffer, bop->pixels, bop->width * bop->height);
+	flipBuffer (buffer, bop->width * 1, bop->height);
+	CHK_Write (fh, buffer, bop->width * bop->height * 1);
+	free (buffer);
+
+	RETURN TRUE;
+
+} ENDFUNC (saveTGAGrey8Bit)
 
 

@@ -224,7 +224,7 @@ BEGINFUNC (Write32BitPicture)
       long int i;
       long int pixels;
       pixel32 *ppixel32;
-      
+
 		fh = CHK_WriteOpen (filename);
       pixels = pBOP->width * pBOP->height;
       for (i = 0, ppixel32 = pBOP->rgba; i < pixels; i++, ppixel32++)
@@ -419,7 +419,7 @@ UINT8 *ReadRawPalette (const char* filename, int *pNumColors)
 		else if (!stricmp (".pcx", EIO_Ext(filename)))
 		{
 	      BlockO8BitPixels	*pbop8;
-         
+
 			InfoMess (("Loading PCX palette %s\n", filename));
          pbop8 = Read8BitPicture (filename);
          if (pbop8)
@@ -427,7 +427,7 @@ UINT8 *ReadRawPalette (const char* filename, int *pNumColors)
             int i;
             UINT8 *pu8Temp;
             paletteEntry *ppal;
-            
+
    			InfoMess (("Copying PCX palette %s\n", filename));
             for (i = 0, pu8Temp = pu8, ppal = pbop8->palette; i < 256; i++, pu8Temp += 4, ppal++)
             {
@@ -448,9 +448,9 @@ UINT8 *ReadRawPalette (const char* filename, int *pNumColors)
       {
          CHUNKHEADER   chunkheader;
          int result;
-         
+
          /* Read chunks until find pcon chunk */
-         for (;;) 
+         for (;;)
          {
             result = MEMFILE_Read (mf, &chunkheader, sizeof (CHUNKHEADER));
             if (sizeof (CHUNKHEADER) != result || IDPCON == chunkheader.id || IDPCN2 == chunkheader.id)
@@ -460,22 +460,22 @@ UINT8 *ReadRawPalette (const char* filename, int *pNumColors)
             {
                MEMFILE_Seek (mf, chunkheader.Size, SEEK_CUR);
             }
-         } 
-         
+         }
+
          if (sizeof (CHUNKHEADER) == result && chunkheader.id == IDPCON)
          { /* Found pcon chunk */
             int i;
             UINT8 *pu8Temp;
-            
+
             for (i = 0, pu8Temp = pu8; i < 256; i++, pu8Temp += 4)
             {
                int result;
                PCONDATA pcondata;
                result = MEMFILE_Read (mf, &pcondata, sizeof(PCONDATA));
                if (result != sizeof(PCONDATA)) break;
-               pu8Temp[0] = pcondata.Red; 
-               pu8Temp[1] = pcondata.Green; 
-               pu8Temp[2] = pcondata.Blue; 
+               pu8Temp[0] = pcondata.Red;
+               pu8Temp[1] = pcondata.Green;
+               pu8Temp[2] = pcondata.Blue;
                pu8Temp[3] = 255;
             }
             *pNumColors = i;
@@ -484,17 +484,17 @@ UINT8 *ReadRawPalette (const char* filename, int *pNumColors)
          { /* Found pcon chunk */
             int i;
             UINT8 *pu8Temp;
-            
+
             for (i = 0, pu8Temp = pu8; i < 256; i++, pu8Temp += 4)
             {
                int result;
                PCN2DATA pcondata;
                result = MEMFILE_Read (mf, &pcondata, sizeof(PCN2DATA));
                if (result != sizeof(PCN2DATA)) break;
-               pu8Temp[0] = pcondata.Red; 
-               pu8Temp[1] = pcondata.Green; 
-               pu8Temp[2] = pcondata.Blue; 
-               pu8Temp[3] = pcondata.Alpha; 
+               pu8Temp[0] = pcondata.Red;
+               pu8Temp[1] = pcondata.Green;
+               pu8Temp[2] = pcondata.Blue;
+               pu8Temp[3] = pcondata.Alpha;
             }
             *pNumColors = i;
          }
@@ -581,5 +581,156 @@ BEGINFUNC (Write8BitPicture)
 	return TRUE;
 
 } ENDFUNC (Write8BitPicture)
+
+
+
+/*********************************************************************
+ *
+ * ReadGrey8BitPicture
+ *
+ * SYNOPSIS
+ *		BlockOGrey8BitPixels *ReadGrey8BitPicture (const char *filename)
+ *
+ * PURPOSE
+ *		
+ *
+ * INPUT
+ *
+ *
+ * EFFECTS
+ *
+ *
+ * RETURN VALUE
+ *
+ *
+ * HISTORY
+ *
+ *
+ * SEE ALSO
+ *
+*/
+BlockOGrey8BitPixels *ReadGrey8BitPicture (const char* filename)
+{
+	BlockOGrey8BitPixels	*b8 = 0;
+	MEMFILE				*mf;
+
+	mf = MEMFILE_Load (filename);
+	if (mf)
+	{
+		b8 = (BlockOGrey8BitPixels *)calloc(sizeof (BlockOGrey8BitPixels),1);
+	
+		if (!stricmp (".psd", EIO_Ext(filename)))
+		{
+			#if 1
+			InfoMess (("8 Bit Photoshop File not yet supported\n"));
+			#else
+			InfoMess (("Loading Photoshop file %s\n", filename));
+			if (!loadPhotoshopGrey8Bit (b8, mf))
+			{
+				free(b8);
+				b8 = 0;
+			}
+			#endif
+		}
+		else if (!stricmp (".tga", EIO_Ext(filename)))
+		{
+			#if 1
+			InfoMess (("8 Bit Targa File not yet supported\n"));
+			#else
+			InfoMess (("Loading Targa file %s\n", filename));
+			if (!loadTGAGrey8Bit (b8, mf))
+			{
+				free(b8);
+				b8 = 0;
+			}
+			#endif
+		}
+		else
+		{
+			b8 = 0;
+			SetGlobalErr (ERR_GENERIC);
+			GEcatf1 ("Unsupported file type '%s'", filename);
+		}
+
+		MEMFILE_Close (mf);
+	}
+	else
+	{
+		SetGlobalErr (ERR_GENERIC);
+		GEcatf1 ("Trouble reading file '%s'", filename);
+	}
+
+	if (b8)
+	{
+		InfoMess (("Width = %d, Height = %d\n", b8->width, b8->height));
+	}
+
+	return b8;
+}
+// ReadGrey8BitPicture
+
+void FreeGrey8BitPicture (BlockOGrey8BitPixels *pBOP)
+{
+	if (pBOP->pixels)
+	{
+		free (pBOP->pixels);
+	}
+
+	free (pBOP);
+}
+
+/*************************************************************************
+                            WriteGrey8BitPicture
+ *************************************************************************
+
+   SYNOPSIS
+		int WriteGrey8BitPicture (const char *filename, BlockOGrey8BitPixels *pBOP)
+
+   PURPOSE
+
+
+   INPUT
+		char :
+		pBOP :
+
+   OUTPUT
+		None
+
+   EFFECTS
+		None
+
+   RETURNS
+
+
+   SEE ALSO
+
+
+   HISTORY
+		07/15/96 : Created.
+
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+int WriteGrey8BitPicture (const char *filename, BlockOGrey8BitPixels *pBOP)
+BEGINFUNC (WriteGrey8BitPicture)
+{
+	int	fh;
+
+	if (!stricmp(".tga", EIO_Ext(filename)))
+	{
+		fh = CHK_WriteOpen (filename);
+		saveTGAGrey8Bit (fh, pBOP);
+		CHK_Close (fh);
+	}
+	else
+	{
+		SetGlobalErr (ERR_GENERIC);
+		GEcatf1 ("Unsupported 8 bit save format '%s'", filename);
+		return FALSE;
+	}
+
+	return TRUE;
+
+} ENDFUNC (WriteGrey8BitPicture)
+
 
 
