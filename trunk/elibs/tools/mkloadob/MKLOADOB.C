@@ -215,7 +215,7 @@
  *                          ;      
  *                          ;         [mysection]
  *                          ;         byte=1
- *                          ;         pad=4
+ *                          ;         align=4
  *                          ;         long=$12345678
  *                          ;         
  *                          ;      You will get 3 bytes of padding after the first byte BUT
@@ -224,7 +224,20 @@
  *                          ;      above it's possible the section will not start at a 4 byte
  *                          ;      boundry and therefore neither will the long
  *                          ;         
- *
+ *          pad=            ; pad with N bytes
+ *                          ;
+ *                          ;           pad=24 ; insert 24 bytes (value 0)
+ *                          ;
+ *          secalign=       ; align the start of the current section
+ *                          ; can appear anywhere in the section so for example
+ *                          ;
+ *                          ;         [mysection]
+ *                          ;         byte=1
+ *                          ;         long=$12345678
+ *                          ;         secalign=16
+ *                          ;
+ *                          ;      My section will start at a 16 byte boundary
+ *                          ;
  *			path=			; set the path for loading binary files		 
  *							; files encountered after this line will be loaded from here
  *							; NOTE: Files are parsed from the TOP section to each connecting section
@@ -322,6 +335,7 @@ typedef struct
 	LST_LIST*		partsList;
 	long			numParts;
 	long			size;
+    long            alignment;  // non zero = align to boundary
 	struct FileContents	*fc;
 }
 Level;
@@ -335,6 +349,7 @@ typedef struct FileContents
 	long		 Size;
 	long		 Offset;
 	long		 PadSize;
+    long         Alignment;
 	struct FileContents	*SameAs;
 	Level		*Level;
 
@@ -361,6 +376,8 @@ PositionNode;
 #define	PART_BINC			9
 #define PART_RUNTIMEFILE	10
 #define PART_ALIGN          11
+#define PART_PAD            12
+#define PART_SECALIGN       13
 
 typedef struct
 {
@@ -1324,7 +1341,7 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLin
 						
 						strcpy (line, arg);
 						fname = TrimWhiteSpaceAndQuotes (line);
-
+                        
                         if (GetConfigFilename(cl))
                         {
     						EIO_fnmerge (filename, EIO_Path(GetConfigFilename(cl)), fname, NULL);
@@ -1414,6 +1431,34 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLin
                         }
 						part->type   = PART_ALIGN;
 						part->size   = pad;
+					}
+					else if (!stricmp (cmd, "pad"))
+					{
+						//
+						// found pad part
+						//
+                        long padding = EL_atol(arg);
+                        
+						part->type   = PART_PAD;
+						part->size   = padding;
+					}
+					else if (!stricmp (cmd, "secalign"))
+					{
+						//
+						// found secalign part
+						//
+                        long alignment = EL_atol(arg);
+                        
+                        if (level->alignment != 0 && level->alignment != alignment)
+                        {
+            				ErrMess ("File %s, Line %d: multiple section alignments (secalign=)\n", GetConfigFilename(cl), GetConfigLineNo (cl));
+                        }
+                        else
+                        {
+                            level->alignment = alignment;
+                        }
+                        part->type = PART_SECALIGN;
+                        part->size = 0;
 					}
 					else if (!stricmp (cmd, "Long") ||
                              !stricmp (cmd, "int32") ||
@@ -2159,6 +2204,8 @@ int main(int argc, char **argv)
 	SetINIMergeSections(FALSE);
 	SetINICaseSensitive(FALSE);
     SetINIUndefEnvVarIsError(TRUE);
+    SetINIUseMacroLanguage(TRUE);
+    SetINIStripCPlusPlusComments(TRUE);
 
 	newargs = argparse (argc, argv, Template);
 
@@ -2347,8 +2394,9 @@ int main(int argc, char **argv)
 					PositionNode	*pos;
 
 					newfc = CHK_CreateNode (sizeof (FileContents), LST_NodeName(level), "FileContents");
-					newfc->Level = level;
-					level->fc    = newfc;
+					newfc->Level     = level;
+                    newfc->Alignment = level->alignment;
+					level->fc        = newfc;
 
 					pos   = CHK_CreateNode (sizeof (PositionNode), NULL, "PositionNode");
 
@@ -2520,8 +2568,14 @@ int main(int argc, char **argv)
 						long			 endAddress;
 
 						fc = pos->fc;
-
+                        
 						endAddress = curAddress + fc->PadSize;
+                        
+                        // align this section if we need to
+                        if (fc->Alignment && curAddress % fc->Alignment)
+                        {
+                            endAddress = roundUp(curAddress, fc->Alignment) - curAddress;
+                        }
 
 						if ((curAddress + ChunkSize - 1) / ChunkSize == (endAddress + ChunkSize - 1) / ChunkSize)
 						{
@@ -2546,6 +2600,10 @@ int main(int argc, char **argv)
 					LST_Remove (pos);
 					LST_AddTail (PosList, pos);
 
+                    if (fc->Alignment)
+                    {
+                        curAddress = roundUp (curAddress, fc->Alignment);
+                    }
 					fc->Offset  = curAddress;
 					curAddress += fc->PadSize;
 				}
@@ -2683,7 +2741,10 @@ int main(int argc, char **argv)
 			#endif
             
             // pad header to padsize
-            WritePadding (fh, BytesWritten % PadSize);
+            if (BytesWritten % PadSize)
+            {
+                WritePadding (fh, PadSize - BytesWritten % PadSize);
+            }
 
 			//---------------------------------------------
 			// write files
@@ -2696,8 +2757,15 @@ int main(int argc, char **argv)
 				{
 					FileContents	*fc;
 					long			 offset;
+                    
+					fc = pos->fc;
+                    
+                    // align this section if we need to
+                    if (fc->Alignment && BytesWritten % fc->Alignment)
+                    {
+                        WritePadding (fh, fc->Alignment - BytesWritten % fc->Alignment);
+                    }
 
-					fc     = pos->fc;
 					offset = FilePosition(fc);
 
 					if (offset != BytesWritten)
@@ -2872,6 +2940,11 @@ int main(int argc, char **argv)
 									}
                                     break;
 								case PART_ALIGN:
+									{
+                                        WritePadding (fh, part->size);
+									}
+									break;
+								case PART_PAD:
 									{
                                         WritePadding (fh, part->size);
 									}

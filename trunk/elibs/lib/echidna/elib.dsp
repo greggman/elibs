@@ -45,7 +45,7 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /I "$(ELIBS)\inc" /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D _EL_PLAT_WIN32__=1 /YX /FD /c
+# ADD CPP /nologo /W3 /GX /O2 /I "$(ELIBS)\inc" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D _EL_PLAT_WIN32__=1 /YX /FD /c
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
 BSC32=bscmake.exe
@@ -68,7 +68,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /Z7 /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /I "$(ELIBS)\inc" /nologo /W3 /GX /Z7 /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D _EL_PLAT_WIN32__=1 /YX /FD /c
+# ADD CPP /nologo /W3 /GX /Z7 /Od /I "$(ELIBS)\inc" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D _EL_PLAT_WIN32__=1 /YX /FD /c
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
 BSC32=bscmake.exe
@@ -91,7 +91,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "elib___Win32_MFC_Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /Z7 /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D _EL_PLAT_WIN32__=1 /YX /FD /c
-# ADD CPP /I "$(ELIBS)\inc" /nologo /MDd /W3 /GX /Z7 /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D _EL_PLAT_WIN32__=1 /D "_AFXDLL" /YX /FD /c
+# ADD CPP /nologo /MDd /W3 /GX /Z7 /Od /I "$(ELIBS)\inc" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D _EL_PLAT_WIN32__=1 /D "_AFXDLL" /YX /FD /c
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409 /d "_AFXDLL"
 BSC32=bscmake.exe
@@ -114,7 +114,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "elib___Win32_MFC_Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W3 /GX /Z7 /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D _EL_PLAT_WIN32__=1 /D "_AFXDLL" /YX /FD /c
-# ADD CPP /I "$(ELIBS)\inc" /nologo /MD /W3 /GX /Z7 /O2 /D "WIN32" /D "_WINDOWS" /D _EL_PLAT_WIN32__=1 /D "_AFXDLL" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /Z7 /O2 /I "$(ELIBS)\inc" /D "WIN32" /D "_WINDOWS" /D _EL_PLAT_WIN32__=1 /D "_AFXDLL" /YX /FD /c
 # ADD BASE RSC /l 0x409 /d "_AFXDLL"
 # ADD RSC /l 0x409 /d "_AFXDLL"
 BSC32=bscmake.exe
@@ -137,7 +137,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "elib___Win32_MultiThread_DLL_Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D _EL_PLAT_WIN32__=1 /YX /FD /c
-# ADD CPP /I "$(ELIBS)\inc" /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D _EL_PLAT_WIN32__=1 /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "$(ELIBS)\inc" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D _EL_PLAT_WIN32__=1 /YX /FD /c
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
 BSC32=bscmake.exe
@@ -160,7 +160,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "elib___Win32_MultiThread_DLL_Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /Z7 /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D _EL_PLAT_WIN32__=1 /YX /FD /c
-# ADD CPP /I "$(ELIBS)\inc" /nologo /MDd /W3 /GX /Z7 /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D _EL_PLAT_WIN32__=1 /YX /FD /c
+# ADD CPP /nologo /MDd /W3 /GX /Z7 /Od /I "$(ELIBS)\inc" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D _EL_PLAT_WIN32__=1 /YX /FD /c
 # ADD BASE RSC /l 0x409
 # ADD RSC /l 0x409
 BSC32=bscmake.exe
@@ -223,6 +223,10 @@ SOURCE=.\hash.c
 # Begin Source File
 
 SOURCE=.\listapi.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\maclang.cpp
 # End Source File
 # Begin Source File
 

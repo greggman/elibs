@@ -52,6 +52,7 @@
 #include "echidna/readini.h"
 #include "echidna/eerrors.h"
 #include "echidna/eio.h"
+#include "echidna/maclang.h"
 
 /**************************** C O N S T A N T S ***************************/
 
@@ -74,6 +75,8 @@ static BOOL fMergeSections = TRUE;
 static BOOL fExpandEVars = TRUE;
 static BOOL fPreprocess  = TRUE;
 static BOOL fUndefEnvVarIsError = FALSE;
+static BOOL fUseMacroLanguage = FALSE;
+static BOOL fStripCPlusPlusComments = FALSE;
 
 static const char *szComment = ";";
 static const char *szSectionMarker = "[";
@@ -130,6 +133,15 @@ void SetINISectionMarker(const char *sz)
 	szSectionMarker = sz;
 }
 
+void SetINIUseMacroLanguage(BOOL f)
+{
+	fUseMacroLanguage = f;
+}
+
+void SetINIStripCPlusPlusComments(BOOL f)
+{
+	fStripCPlusPlusComments = f;
+}
 
 int GetINIWarnings(void)
 {
@@ -176,7 +188,21 @@ static char *GetLine (char *line, size_t size, FILE *pFile)
 
 			LineCount++;
 
-			if (fExpandEVars)
+            if (fUseMacroLanguage)
+            {
+                char* newstr = MLANG_SubVariables (pch, currentFilename);
+                if (!newstr)
+                {
+                    ErrMess ("file %s : line %d : %s\n", currentFilename, LineCount, GlobalErrMsg);
+                    ClearGlobalError();
+                }
+                else
+                {
+                    strncpy (line, newstr, size);
+    				ENSURE (strlen(line) < size);
+                }
+            }
+			else if (fExpandEVars)
 			{
 				if (!EIO_ExpandEVarsWithErrors (line, pch, size, fUndefEnvVarIsError))
                 {
@@ -200,6 +226,16 @@ static char *GetLine (char *line, size_t size, FILE *pFile)
 			chCnt = strlen(pch);
 			if (chCnt && pch[--chCnt] == '\n')
 				pch[chCnt] = 0;
+
+            if (fStripCPlusPlusComments)
+            {
+				char *pch2;
+
+                if ((pch2 = strstr(pch, "//")) != NULL)
+                {
+                    *pch2 = 0;
+                }
+            }            
 
 			if (fStripComments)
 			{
@@ -463,18 +499,36 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 		}
 		else if (!strnicmp (pch, "#define", 7) && isspace(pch[7]))
 		{
+            char defName[MAX_LINE_SIZE+1];
+            char defValue[MAX_LINE_SIZE];
+            
 			char* equal;
 			pch = TrimWhiteSpace (pch + 7);
 			
-			equal = strchr (pch, '=');
-			if (!equal)
-			{
-				ErrMess ("file '%s', line %d: no '=' in #define\n", filename, LineCount);
-			}
-			else
-			{
-				putenv (pch);
-			}
+			equal = strpbrk (pch, "= ");
+            if (equal)
+            {
+                strncpy (defName, pch, equal - pch);
+                defName[equal - pch] = '\0';
+                while (*equal && (*equal == '=' || isspace(*equal))) equal++;
+                strcpy(defValue, equal);
+            }
+            else
+            {
+                strcpy(defName, pch);
+                strcpy(defValue, "");
+            }
+
+            if (fUseMacroLanguage)
+            {
+                MLANG_AddVariable (defName, defValue);
+            }
+            else
+            {
+                strcat (defName, "=");
+                strcat (defName, defValue);
+                putenv (defName);
+            }
 		}
 		else if (!strnicmp (pch, "#include", 8) && isspace(pch[8]))
 		{
