@@ -484,7 +484,7 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 					}
 					else
 					{
-						ErrMess ("couldn't open include file newfilename");
+						ErrMess ("couldn't open include file %s\n", newfilename);
 					}
 				}            
 			}
