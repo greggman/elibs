@@ -1,6 +1,8 @@
 [start,align=$400]
 string=<this is the start>
 align=4
+%fif(%fexists(c:\temp\foo),string=***foo exists***,byte=$DE $AD $BE $EF)
+%fif(%fexists(c:/temp/foo5),string=***foo5 exists***,byte=$DE $AD $BE $EF)
 pntr=goobersnot
 file=testdata.bin,align=128
 string=abc
