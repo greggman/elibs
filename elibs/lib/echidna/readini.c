@@ -32,6 +32,8 @@
 		06/20/01 GAT: made it so FindNextINILine, if no = is part of the search, then looks for
 		              search\s*= and skips whitespace following the = (think perl regular expressions)
 		05/08/02 GAT: added #define and #include
+        11/18/02 GAT: added filenames to each line (so mkloadob can load binary
+                         files relative to file they were referenced from)
 
 
  *************************************************************************/
@@ -254,13 +256,14 @@ static char *GetLine (char *line, size_t size, FILE *pFile)
  * SEE ALSO
  *
 */
-ConfigLine *AddINILine (Section *pst, const char *pszIniLine, int lineNo)
+ConfigLine *AddINILine (Section *pst, const char *pszIniLine, int lineNo, const char* filename)
 {
 	ConfigLine	*pLine;
 
 	if ((pLine = (ConfigLine*)LST_CreateNode (sizeof (ConfigLine), pszIniLine)) != NULL)
 	{
 		pLine->LineNo = lineNo;
+        pLine->Filename = filename;
 		LST_AddTail(&pst->LineList, pLine);
 	}
 
@@ -337,10 +340,13 @@ IniList *CreateINI (const char *name)
 {
 	IniList	*pIniList;
 
-	if ((pIniList = (IniList *) LST_CreateList(name)) == NULL)
+	if ((pIniList = (IniList *) calloc(sizeof (IniList),1)) == NULL)
 	{
 		ErrMess ("OOM INI list.\n");
 	}
+    
+    LST_InitList (&pIniList->SectionList);
+    LST_InitList (&pIniList->FileList);
 
 	return pIniList;
 } // CreateINI
@@ -374,6 +380,7 @@ IniList *CreateINI (const char *name)
 */
 IniList *AppendINI(IniList *pIniList, const char *filename)
 {
+    const char  *savedFilename;
 	char		*pch;
 	FILE		*pFile;
 
@@ -384,7 +391,7 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 	WarnErrCount = 0;
     
     currentFilename = filename;
-
+    
 	if ((pFile = fopen (filename, "r")) == NULL)
 	{
 		ErrMess ("Couldn't open configuration file '%s'\n", filename);
@@ -398,6 +405,27 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 			return NULL;
 		}
 	}
+    
+    /*** add filename to filename list ***/
+    
+    {
+        LST_NODE*   nd;
+        
+        nd = LST_FindIName (LST_Head(&pIniList->FileList), filename);
+        if (!nd)
+        {
+            nd = LST_CreateNode (sizeof (LST_NODE), filename);
+            if (!nd)
+            {
+                ErrMess ("OOM file '%s'\n", filename);
+/**/			goto ABORT;
+            }
+            LST_AddTail (&pIniList->FileList, nd);
+        }
+        
+        savedFilename = LST_NodeName(nd);
+    }        
+    
 
 	/*** Read Config File ***/
 
@@ -409,7 +437,7 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 
 			if (fMergeSections)
 			{
-				pSection = (Section*)LST_Head(pIniList);
+				pSection = (Section*)LST_Head(&pIniList->SectionList);
 
 				while (!LST_IsEOList(pSection))
 				{
@@ -426,7 +454,7 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 			{
 				if ((pSection = AddINISection(pIniList, pch)) == NULL)
 				{
-					ErrMess ("OOM file '%s', line %d.\n", filename, LineCount);
+					ErrMess ("file '%s', line %d: OOM .\n", filename, LineCount);
 /**/				goto ABORT;
 				}
 
@@ -441,7 +469,7 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 			equal = strchr (pch, '=');
 			if (!equal)
 			{
-				ErrMess ("no '=' in #define in file '%s', line %d.\n", filename, LineCount);
+				ErrMess ("file '%s', line %d: no '=' in #define\n", filename, LineCount);
 			}
 			else
 			{
@@ -464,7 +492,7 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 			}
 			else
 			{
-				ErrMess ("missing quotes/brackets in #include in file '%s', line %d.\n", filename, LineCount);
+				ErrMess ("file '%s', line %d: missing quotes/brackets in #include.\n", filename, LineCount);
 			}
 			
 			if (mode)
@@ -477,11 +505,11 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 				while (*pch && *pch != mode) pch++;
 				if (!*pch)
 				{
-					ErrMess ("missing quotes/brackets in #include in file '%s', line %d.\n", filename, LineCount);
+					ErrMess ("file '%s', line %d: missing quotes/brackets in #include.\n", filename, LineCount);
 				}
 				else if (pch - newfile + 1 > EIO_MAXPATH)
 				{
-					ErrMess ("filename too long in #include in file '%s', line %d.\n", filename, LineCount);
+					ErrMess ("file '%s', line %d: filename too long in #include \n", filename, LineCount);
 				}
 				else
 				{
@@ -489,8 +517,10 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 					char newfilename[EIO_MAXPATH];
 					char fixedfilename[EIO_MAXPATH];
 					
-					strncpy (newfilename, newfile, pch - newfile);
-					newfilename[pch - newfile] = '\0';
+                    // using fixed as temp here
+					strncpy (fixedfilename, newfile, pch - newfile);
+					fixedfilename[pch - newfile] = '\0';
+                    EIO_fnmerge (newfilename, EIO_Path(filename), fixedfilename, NULL);
 					
 					if (EIO_FindInclude (fixedfilename, EIO_INCPATH_INIS, newfilename, filename, TRUE))
 					{
@@ -505,7 +535,7 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 					}
 					else
 					{
-						ErrMess ("couldn't open include file %s\n", newfilename);
+						ErrMess ("File %s, line %d: couldn't open include file %s\n", filename, LineCount, newfilename);
 					}
 				}            
 			}
@@ -517,9 +547,9 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 		}
 		else
 		{
-			if ((AddINILine (pSection, pch, LineCount)) == NULL)
+			if ((AddINILine (pSection, pch, LineCount, savedFilename)) == NULL)
 			{
-				ErrMess ("OOM file '%s', line %5d.\n", filename, LineCount);
+				ErrMess ("file '%s', line %5d: OOM\n", filename, LineCount);
 /**/			goto ABORT;
 			}
 		}
@@ -593,7 +623,7 @@ SectionTracker *FindSection(SectionTracker *pst, IniList *pIniList, const char *
 			sz = sectionName;
 		}
 
-		pSection = (Section*)LST_Head(pIniList);
+		pSection = (Section*)LST_Head(&pIniList->SectionList);
 
 		while (!LST_IsEOList(pSection))
 		{
@@ -716,8 +746,11 @@ void FreeINI(IniList *pIniList)
 
 			LST_DeleteNode(pSection);
 		}
+        LST_EmptyList(&pIniList->SectionList);
+    	LST_EmptyList(&pIniList->FileList);
+        
+        free (pIniList);
 	}
-	LST_DeleteList(pIniList);
 }
 
 /*------------------------------------------------------------------------*/
@@ -755,7 +788,7 @@ void PrintINI(IniList *pIniList)
 	{
 		Section *pSection;
 
-		pSection = (Section*)LST_Head(pIniList);
+		pSection = (Section*)LST_Head(&pIniList->SectionList);
 
 		while (!LST_IsEOList(pSection))
 		{

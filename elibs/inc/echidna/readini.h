@@ -41,7 +41,12 @@ extern "C" {
 
 /******************************** T Y P E S *******************************/
 
-typedef LST_LIST IniList;
+typedef struct
+{
+    LST_LIST SectionList;
+    LST_LIST FileList;
+}
+IniList;
 
 typedef struct
 {
@@ -53,6 +58,7 @@ typedef struct
 {
 	LST_NODE	Node;
 	int 		LineNo;
+    const char* Filename;
 } ConfigLine;
 
 typedef struct
@@ -70,6 +76,7 @@ typedef struct
 #define szConfigLine LST_NodeName
 
 #define GetConfigLineNo(configline)	((configline)->LineNo)
+#define GetConfigFilename(configline)	((configline)->Filename)
 #define	GetCurrentSectionLine(section)	GetConfigLineNo(((section)->clCurrentLine))
 #define ReadINI(filename)				AppendINI(NULL,(filename))
 
@@ -98,7 +105,8 @@ extern IniList *AppendINI(IniList *pIniList, const char *filename);
 
 extern IniList *CreateINI(const char *pszName);
 extern Section *AddINISection (IniList *pIniList, const char *pszSectionName);
-extern ConfigLine *AddINILine (Section *pst, const char *pszIniLine, int lineNo);
+extern ConfigLine *AddINILine (Section *pst, const char *pszIniLine, int lineNo, const char* filename);
+//extern ConfigLine *AddINILine (Section *pst, const char *pszIniLine, int lineNo);
 
 extern void ResetSection(SectionTracker *pst);
 extern SectionTracker *FindSection(SectionTracker *pst, IniList *pIniList, const char *sz);
