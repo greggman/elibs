@@ -258,6 +258,10 @@ SOURCE=.\readpcx.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\readpic.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\readtga.c
 # End Source File
 # Begin Source File
