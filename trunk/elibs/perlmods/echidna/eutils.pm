@@ -3,31 +3,31 @@ use strict;
 use warnings;
 
 #  ************************************************************************
-#                                                                         
-#                                 UTILS.PM                                
-#                                                                         
+#
+#                                EUTILS.PM
+#
 #  ************************************************************************
-#  
-#                          Copyright 2001 Echidna                        
-#  
-#  
+#
+#                          Copyright 2001 Echidna
+#
+#
 #    DESCRIPTION
 #  	
-#  
+#
 #    PROGRAMMERS
 #  	Gregg Tavares
-#  
+#
 #    TABS : 9
-#  
-#  
+#
+#
 #    HISTORY
 #	09/15/01 GAT: Created.
-#  
-#  
+#
+#
 
-package echidna::utils;
+package echidna::eutils;
 require Exporter;
- 
+
 use Getopt::Long;
 use Pod::Usage;
 use Text::ParseWords;
@@ -82,7 +82,7 @@ use echidna::nocasehash;
     our %globalvars;
     our $error_count;
     our $warn_count;
-    
+
 $error_count = 0;
 $warn_count  = 0;
 
@@ -98,7 +98,7 @@ sub errormsg
 {
    $error_count++;
 
-   print "ERROR:";   
+   print "ERROR:";
    print @_;
 }
 
@@ -108,7 +108,7 @@ sub errormsg
 sub warnmsg
 {
    $warn_count++;
-   
+
    print "WARNING:";
    print @_;
 }
@@ -155,8 +155,8 @@ sub dumphash
       my $key;
       my $msg = $_[0];
       my $hashref = $_[1];
-    
-      print $_[0], "\n";  
+
+      print $_[0], "\n";
       for $key (keys %$hashref)
       {
          print "key:", $key, ":", $_[1]->{$key}, "\n";
@@ -173,7 +173,7 @@ sub dumparray
    {
       my $ii;
       my $array = $_[1];
-      
+
       if (!defined ($array))
       {
          print $_[0], "undefined", (defined ($_[2]) ? $_[3] : "\n");
@@ -181,7 +181,7 @@ sub dumparray
       else
       {
          print $_[0], (defined ($_[2]) ? "" : "\n");
-         
+
          for ($ii = 0; $ii < scalar (@{$array}); $ii++)
          {
             if (defined ($_[2]))
@@ -201,12 +201,12 @@ sub dumparray
 # print an error with filename and line number
 #
 # This is a function to keep the format consistent
-# 
+#
 sub line_error
 {
    my $filename   = shift(@_);
    my $linenumber = shift(@_);
-   
+
    errormsg ($filename, ":line ", $linenumber, ": ", @_);
 }
 
@@ -214,12 +214,12 @@ sub line_error
 # print an warning with filename and line number
 #
 # This is a function to keep the format consistent
-# 
+#
 sub line_warn
 {
    my $filename   = shift(@_);
    my $linenumber = shift(@_);
-   
+
    warnmsg ($filename, ":line ", $linenumber, ": ", @_);
 }
 
@@ -227,12 +227,12 @@ sub line_warn
 # print an fail with filename and line number
 #
 # This is a function to keep the format consistent
-# 
+#
 sub line_fail
 {
    my $filename   = shift(@_);
    my $linenumber = shift(@_);
-   
+
    failmsg ($filename, ":line ", $linenumber, ": ", @_);
 }
 
@@ -242,7 +242,7 @@ sub line_fail
 sub parse_error
 {
    my $context = shift(@_);
-   
+
    line_error ($context->{'filename'}, $context->{'linenumber'}, "(", $context->{'keyword'}, ") ", @_);
 }
 
@@ -252,7 +252,7 @@ sub parse_error
 sub parse_warn
 {
    my $context = shift(@_);
-   
+
    line_warn ($context->{'filename'}, $context->{'linenumber'}, "(", $context->{'keyword'}, ") ", @_);
 }
 
@@ -262,7 +262,7 @@ sub parse_warn
 sub parse_fail
 {
    my $context = shift(@_);
-   
+
    failmsg ($context->{'filename'}, $context->{'linenumber'}, "(", $context->{'keyword'}, ")", @_);
    exit 0;
 }
@@ -272,7 +272,7 @@ sub parse_fail
 sub cmd_execute
 {
    my $commandline = $_[0];
-   
+
    system ($commandline) == 0 || die "system ", $commandline, " failed: $?";
 }
 
@@ -283,7 +283,7 @@ sub copy_a_file
 {
    my $src = $_[0];
    my $dst = $_[1];
-   
+
    copy ($src,$dst) == 1 || die ("could not copy (", $src, ")->(", $dst, ") | ", $!);
 }
 
@@ -293,7 +293,7 @@ sub copy_a_file
 sub isdigits
 {
    my $check = $_[0];
-   
+
    return ($check =~ /^\d+$/);
 }
 
@@ -305,7 +305,7 @@ sub split_string
 {
    my $str  = $_[0];
    my @args = ();
-   
+
    if (defined ($str) && $str cmp "")
    {
       ((defined $+) ? push(@args, $+) : 0) while $str =~ m{
@@ -315,7 +315,7 @@ sub split_string
       }gx;
       push(@args, undef) if substr($str,-1,1) eq ',';
    }
-   
+
    return @args;
 }
 
@@ -327,9 +327,9 @@ sub split_string
 sub labelfy
 {
    my $str = $_[0];
-   
+
    $str =~ s/[^A-Z0-9-_]/_/gs;
-   
+
    return $str;
 }
 
@@ -349,7 +349,7 @@ sub eio_fnsplit
    my $filename;
    my $name;
    my $ext;
-   
+
    # get the path if there is one
    if ($filespec =~ /^(.*)(?:\\|\/)([^\\\/]+)$/)
    {
@@ -361,7 +361,7 @@ sub eio_fnsplit
       $path = "";
       $filename = $filespec;
    }
-   
+
    # get the ext if there is one
    if ($filename =~ /^(.*)\.([^\.]+)$/)
    {
@@ -374,7 +374,7 @@ sub eio_fnsplit
       $ext  = "";
    }
 
-   return ($path, $name, $ext);   
+   return ($path, $name, $ext);
 }
 
 #
@@ -401,7 +401,7 @@ sub eio_filename
    my $path;
    my $name;
    my $ext;
-   
+
    ($path,$name,$ext) = eio_fnsplit($_[0]);
    return $name . $ext;
 }
@@ -440,11 +440,11 @@ sub eio_fnmerge
    my $path = $_[0];
    my $name = $_[1];
    my $ext  = $_[2];
-   
-   return (($path cmp "") ? 
-             ($path . 
-               ((substr ($path, -1) =~ /\\|\//) ? 
-                  '' : 
+
+   return (($path cmp "") ?
+             ($path .
+               ((substr ($path, -1) =~ /\\|\//) ?
+                  '' :
                   '/'))
              : "")
           . $name . (defined $ext ? $ext : "");
