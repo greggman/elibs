@@ -152,6 +152,8 @@ sub NameNum
       failMsg ("bad column specifier\n");
    }
 
+   print "extracting column ($column) from ($xlfile) to ($outfile)\n";
+
    # open the output file
    my $outfh = IO::Handle->new();
    if (!open($outfh, ">" . $outfile))
@@ -318,6 +320,7 @@ xlextractcolumn [options] template outfile
  Options:
    -help           brief help message
    -man            full documentation
+   -showencodings  show all available encodings
    -encoding <enc> output encoding (see full docs)
    -format         format for output (see full docs)
    -sheet          sheet to extract from, can be name or number (def: 1)
