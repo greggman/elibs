@@ -1,0 +1,136 @@
+@charset "jis";
+/* this @charset is for mozilla's bug */
+
+pre, p, blockquote { line-height:125%; }
+blockquote p { text-indent:1em; margin:0.7em; }
+ul, ol, dl {line-height:125%; }
+div.block1 {
+        border-left:   #698b69 1px solid;
+        border-bottom: #698b69 1px solid;
+        border-top:    #698b69 1px solid;
+        border-right:  #698b69 1px solid;
+}
+body,td
+{
+    font-family: Courrier;
+    color: #f5deb3;
+    background-color: #2f4f4f;
+    margin-left: 3em;
+    margin-right: 3em;
+}
+A         {  }
+A:link    { color: #FF8C00; /* color: #fa8072; */ }
+A:visited { color: #daa520; }
+A:active  { color: #daa520; }
+A:hover   { color: #f5deb3; background-color: #698b69; }
+
+h1, h2, h3, h4, h5, h6
+{
+	font-family: verdana, arial, helvetica, Sans-Serif;
+/* 	background-color: #698b69; */
+        padding: .3em;
+}
+
+h1 {
+	background-color: #698b69;
+}
+h2 {
+        background-color: #3f5f5f;
+        border-left:   #698b69 1em solid;
+        border-bottom: #698b69 2px solid;
+        border-top:    #698b69 2px solid;
+        border-right:  #698b69 2px solid;
+}
+h3, h4, h5, h6 {
+        border-left:   #698b69 0.9em solid;
+        border-bottom: #698b69 1px solid;
+        border-top:    #698b69 1px solid;
+        border-right:  #698b69 1px solid;
+/*         background-color: #2f4f4f; */
+/*         border-left:   #698b69 1em solid; */
+/*         border-bottom: #698b69 1px solid; */
+/*         border-top:    #698b69 1px solid; */
+/*         border-right:  #698b69 1px solid; */
+}
+
+dt {
+	font-weight: bold;
+	margin-top: 1em;
+	margin-left: 1em;
+}
+
+pre {
+	border-top:    #000000 2px dashed;
+	border-bottom: #000000 2px dashed;
+	border-left:   #000000 2px dashed;
+	border-right:  #000000 2px dashed;
+	padding: 1em;
+	margin-left: 1em;
+	margin-right: 2em;
+	white-space: pre;
+	background-color: #2f4f4f;
+	color: #add8e6;
+}
+
+img {
+	border: none;
+	vertical-align: middle;
+}
+
+em {
+	font-style:italic;
+}
+
+strong {
+         font-weight:bold;
+         color: #ff4500;
+}
+
+address {
+	font-style:normal;
+	font-family:Verdana;
+/*	font-size:10pt; */
+}
+
+table {
+	margin:auto;
+	padding:1px;
+	text-align:left;
+	background-color: #698b69;
+}
+
+td {
+	border: 1px solid #698b69;
+    background-color: #3f5f5f;
+	padding: 10px;
+	margin: 1px;
+}
+th{
+    background-color: #545454;
+    font-weight:bold;
+	padding: 5px;
+	margin: 1px;
+}
+th.incap {
+   background-color:#2f4f4f;
+   padding: 1em;
+}
+
+kbd,samp,code,var {
+        color:#DEB887;
+}
+
+cite{
+        color:#BDB76B;
+}
+
+pre, blockquote{
+        color:#BDB76B;
+        border-left:      #3f5f5f 3px dashed;
+        border-right:     #3f5f5f 3px dashed;
+        border-top:       #3f5f5f 3px dashed;
+        border-bottom:    #3f5f5f 3px dashed;
+        padding:          .5em;
+}
+
+hr { color:#000000; }
