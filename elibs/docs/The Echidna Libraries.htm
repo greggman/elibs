@@ -7,17 +7,23 @@
 </head>
 
 <body>
-<font FACE="Arial" SIZE="4"><b>
-
-<h1>The Echidna Libraries</h1>
-</b></font>
+<h1>The Echidna Libraries</h1></font>
 
 <hr>
-<font SIZE="2">
 
-<p><a href="http://sourceforge.net/projects/elibs/">Jump to the code</a>.</p>
+<ul>
+  <li><a href="http://sourceforge.net/projects/elibs/">Jump to the code</a></li>
+  <li><a href="#what">What is this?</a></li>
+  <li><a href="#interesting">Tell me the interesting bits.</a></li>
+  <li><a href="#utilities">Utilities and Tools</a></li>
+  <li><a href="#arguments">Command line argument system</a></li>
+  <li><a href="#reason">Reasons for going open source</a></li>
+  <li><a href="#instructions">Compiling / Setup Instructions</a></li>
+  <li><a href="#disclaimer">Disclaimer</a></li>
+  <li><a href="#download">Download</a></li>
+</ul>
 
-<p>In 1990 my friends and I started a company called Echidna. At that time we created some
+<p><a name="what"></a>In 1990 my friends and I started a company called Echidna. At that time we created some
 libraries of routines that we all shared. We needed to create titles for both the Amiga
 and the PC and so we wanted to create a set of libraries that would allows us to write the
 game once and just use a different version of the libraries for the game to run on a
@@ -97,10 +103,58 @@ ahead and use them and don&#146;t worry about it.</p>
 
 <p>You are free to download them and see if there is anything useful in them that you
 would like to use. Please do not ask us to support them. That is not why they are here.</p>
-</font><font FACE="Arial"><b>
+<b>
 
-<h3>Utilities</h3>
-</b></font><font SIZE="2">
+<h3><a name="interesting"></a>What's Interesting here?</h3>
+</b>
+
+<p>These tools and libraries started in the early 1990 so some parts of it are 
+more relevant to today then others.&nbsp; The parts you might find interesting</p>
+
+<h4>Most Interesting:</h4>
+
+<ul>
+  <li>The Echidna Data Linker.&nbsp; Links together complex data for easy 
+  loading into a game</li>
+  <li>The GF tools, gfxinout, gfshrink, gfpal.&nbsp; These 3 tools can for 
+  example make mips for textures and palletize them including having on palette 
+  across mips.&nbsp; Sample a thousand images, make a one palette for all of 
+  them, then remap all the images to use that palette.</li>
+  <li>File format functions.&nbsp; In the libraries there are functions for 
+  reading various graphic formats. .PCX, .PSD, .PIC, .TGA, .IFF.&nbsp; Check out 
+  the functions in READGFX.H</li>
+</ul>
+
+<h4>Mildly Interesting:</h4>
+
+<ul>
+  <li>EIO.c / EIO.h&nbsp; this part of the libraries deals with IO across 
+  platforms including path manipulation, copying files, reading folders.&nbsp; 
+  As there is no consistent standard we wrote our own so our tools can be 
+  platform independent.</li>
+  <li>Definer.&nbsp; A solution for having to the problem of having separate 
+  header files for 2 different languages but that have to remain in sync.&nbsp; 
+  For example keeping your constants in sync and available to both C and 
+  assembly.</li>
+</ul>
+
+<h4>Less Interesting</h4>
+
+<ul>
+  <li>Cutbytes.&nbsp; It's a simple program but sometimes when you are trying to 
+  hack something apart it can be easier to just cut it up using a simple tool 
+  like this.</li>
+  <li>Argparse.c/Argparse.h.&nbsp; It's our solution to argument parsing.&nbsp; 
+  Handles multiple arguments per field and passing the arguments in by files.</li>
+  <li>Maclang.cpp/Maclang.h.&nbsp; A simple text based macro expansion language 
+  that can be applied to any string.</li>
+  <li>Readini.c/Readini.h.&nbsp; Functions to read windows style .ini files.&nbsp; 
+  Can make it easy to make configuration files for example.</li>
+  <li>Ensure.c/Ensure.h&nbsp; For examples of making your own printf and 
+  printing it's results to the VC++ debugger's output pane.</li>
+</ul>
+
+<h3><a name="utilities"></a>Utilities</h3>
 
 <p>There are also several utilities written with these libraries that we find useful.
 Consider them the same as the libraries. They are also copyrighted freeware. Use them if
@@ -306,9 +360,8 @@ permission.</p>
     </font></td>
   </tr>
 </table>
-<font FACE="Arial"><b>
 
-<h3>Arguments and Response files</b></font><font SIZE="2">:</h3>
+<h3><a name="arguments"></a>Arguments and Response files:</h3>
 
 <p>All utilities that use the echidna argument parsing functions can take response files.
 If you use an @ sign on the command line the tool will read each line in that file as part
@@ -381,10 +434,8 @@ file it might need to look like this:
 <blockquote>
   <p>Imageprocess @response.arp myoutfile</p>
 </blockquote>
-</font><font FACE="Arial"><b>
 
 <h3>Notes about utilities and libraries</h3>
-</b></font><font SIZE="2">
 
 <p>As we are usually using these libraries on someone else&#146;s behalf as well as ours
 we expect that minor updates to them will not be considered proprietary to the company we
@@ -397,10 +448,8 @@ INI_GetLine etc. If we start using a new platform expect us to add support to th
 libraries. If we run into another image format that we have to read/write expect it to get
 added. Now that we are using C++ expect C++ classes for strings, lists, maps, arrays etc.
 (unless someone can teach me STL :-)</p>
-</font><font FACE="Arial"><b>
 
-<h3>What are the benefits of proprietary utilities vs the costs?</h3>
-</b></font><font SIZE="2">
+<h3><a name="reason"></a>What are the benefits of proprietary utilities vs the costs?</h3>
 
 <p>Well that depends on what your goals are. For most game companies that goal should be
 to make great games (and with the least amount of money). I worked for at least one
@@ -446,10 +495,8 @@ existing libraries and utilities. If we kept them proprietary then we couldn&#14
 them. That would hurt nobody but us. Since it is not practical for us to market, sell and
 support these tools, we are not losing money by making them free but we are allowing
 ourselves to work more efficiently wherever we are.</p>
-</font><font FACE="Arial"><b>
 
-<h3>Instructions:</h3>
-</b></font><font SIZE="2">
+<h3><a name="instructions"></a>Instructions:</h3>
 
 <p>These are very brief and probably incomplete.</p>
 
@@ -522,7 +569,6 @@ it to set the following switches.</p>
     mechanism in eerrors.h. Setting this to 1 turns the messages from those errors off.</font></td>
   </tr>
 </table>
-<font SIZE="2">
 
 <p>To build the libraries:</p>
 
@@ -535,17 +581,13 @@ settings in VC++. To build any of the utilities you will need to also put
 &#150;f makefile.sgi&#146;</p>
 
 <p>That&#146;s about it. The rest, you&#146;re on your own.</p>
-</font><font FACE="Arial"><b>
 
-<h3>Disclaimer:</h3>
-</b></font><font SIZE="2">
+<h3><a name="disclaimer"></a>Disclaimer:</h3>
 
 <p>We make no guarantees that these libraries and utilities do anything useful or even
 work for that matter. If you choose to use them you do so completely at your own risk. </p>
-</font><font FACE="Arial"><b>
 
 <h3>Echidna is:</h3>
-</b></font><font SIZE="2">
 
 <dir>
   <dir>
@@ -557,7 +599,7 @@ work for that matter. If you choose to use them you do so completely at your own
 </dir>
 </font>
 
-<h3><font face="Arial">Downloads:</font></h3>
+<h3><a name="download"></a>Downloads:</h3>
 
 <p>The latest versions are available on Sourceforge.net
 <a href="http://sourceforge.net/projects/elibs/">here</a>.</p>
