@@ -3,7 +3,7 @@
  *
  *  COPYRIGHT (c) 1986 Echidna.
  * PROGRAMMER : Gregg A. Tavares
- *    VERSION : 00.002
+ *    VERSION : 00.004
  *    CREATED : 01/29/92
  *   MODIFIED : 12/13/93
  *       TABS : 05 09
