@@ -1,5 +1,16 @@
-[start]
+[start,align=$400]
+string=<this is the start>
+align=4
+pntr=goobersnot
+file=testdata.bin,align=128
+string=abc
+insert=other
+string=jkl
+insert=another
+string=pqr
 byte=1 2 3 4
+insert=another
+insert=another
 #define goober=23
 word=$1%goober%2
 long=$ABCDDCBA
@@ -24,4 +35,14 @@ long=$FEDCBA98
 
 ; path=			; set the path for loading binary files
 
+[other]
+string=def
+string=ghi
+
+[another]
+string=mno
+
+
+[goobersnot,align=256]
+string=hello
 
