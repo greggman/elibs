@@ -432,7 +432,17 @@ uint8			 ZeroData[256] = { 0, };
 
 /***************************** R O U T I N E S ****************************/
 
-Level* ParseLevel (IniList *specFile, char *levelName);
+Level* ParseLevel (IniList *specFile, char *levelName, ConfigLine* pCL);
+
+const char* LocalGetConfigFilename (ConfigLine* pCL)
+{
+    return pCL != NULL ? GetConfigFilename (pCL) : "*mainfile*";
+}
+
+int LocalGetConfigLineNo (ConfigLine* pCL)
+{
+    return pCL != NULL ? GetConfigLineNo (pCL) : 0;
+}
 
 /*************************************************************************
                                hashGetLong                               
@@ -1198,12 +1208,9 @@ FileContents* AddUnloadedFile (char *filename)
   
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-FileContents* AddFile (char* fname)
+FileContents* AddFile (char* filename)
 {
-	char			 filename[EIO_MAXPATH];
 	FileContents*	 fc;
-	
-	EIO_fnmerge (filename, inputPath, fname, NULL);
 	
 	// check if something is loaded with the same name
 	fc = FindFileContentsByName (filename);
@@ -1238,7 +1245,7 @@ Level* FindLevel (char *levelName)
 }
 // FindLevel
 
-bool ParseSection (Level* level, IniList* specFile, char* sectionName)
+bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLine* pCLForErrorOnly)
 {
 	SectionTracker		 secx;
 	SectionTracker		*sec = &secx;
@@ -1247,7 +1254,7 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName)
 	sec = FindSection (sec, specFile, sectionName);
 	if (!sec)
 	{
-		ErrMess ("Couldn't find Section %s\n", sectionName);
+		ErrMess ("File %s, Line %d: Couldn't find Section %s\n", LocalGetConfigFilename(pCLForErrorOnly), LocalGetConfigLineNo (pCLForErrorOnly), sectionName);
 		return FALSE;
 	}
     
@@ -1255,7 +1262,7 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName)
     if (INI_IsSectionUsed(sec))
     {
         INI_markSectionAsUnused(sec);
-		ErrMess ("Infinate loop in section %s\n", sectionName);
+		ErrMess ("File %s, Line %d: Infinite loop in section %s\n", LocalGetConfigFilename(pCLForErrorOnly), LocalGetConfigLineNo (pCLForErrorOnly), sectionName);
         return FALSE;
     }
 
@@ -1274,7 +1281,7 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName)
 
 			if (strlen(LST_NodeName(cl)) > MAX_LINE)
 			{
-				ErrMess ("Line# %d to long\n", GetConfigLineNo (cl));
+				ErrMess ("File %s, Line %d to long\n", GetConfigFilename(cl), GetConfigLineNo (cl));
 			}
 			else
 			{
@@ -1298,17 +1305,33 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName)
 					if (!stricmp (cmd, "Data") ||
 						!stricmp (cmd, "File"))
 					{
-						char*			 fname;
-						
-						strcpy (line, arg);
-						fname = TrimWhiteSpaceAndQuotes (line);
-
 						//
 						// found a data part
 						//
 	
+						char*			 fname;
+						char			 filename[EIO_MAXPATH];
+                        bool             fFound = FALSE;
+						
+						strcpy (line, arg);
+						fname = TrimWhiteSpaceAndQuotes (line);
+
+                        if (GetConfigFilename(cl))
+                        {
+    						EIO_fnmerge (filename, EIO_Path(GetConfigFilename(cl)), fname, NULL);
+                            fFound = EIO_FileExists (filename);
+                        }
+                        if (!fFound)
+                        {
+    						EIO_fnmerge (filename, inputPath, fname, NULL);
+                            if (!EIO_FileExists (filename))
+                            {
+                                ErrMess ("File %s, Line %d: could not open file (%s)\n", GetConfigFilename(cl), GetConfigLineNo (cl), fname);
+                            }
+                        }
+                        
 						part->type   = PART_DATA;
-						part->fc     = AddFile (fname);
+						part->fc     = AddFile (filename);
 						part->size   = sizeof (void *);
 					}
 					else if (!stricmp (cmd, "load"))
@@ -1339,11 +1362,11 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName)
 							if (!pLocalSec) { FailMess ("OOM: sec for runtime file"); }
 							
 							sprintf (localline, "string=%s", fname);
-							if (!AddINILine (pLocalSec, "long=0",  1)) { FailMess ("OOM: line 1 for runtime file"); }
-							if (!AddINILine (pLocalSec, localline, 2)) { FailMess ("OOM: line 2 for runtime file"); }
-							if (!AddINILine (pLocalSec, "byte=0",  3)) { FailMess ("OOM: line 3 for runtime file"); }
+							if (!AddINILine (pLocalSec, "long=0",  1, NULL)) { FailMess ("OOM: line 1 for runtime file"); }
+							if (!AddINILine (pLocalSec, localline, 2, NULL)) { FailMess ("OOM: line 2 for runtime file"); }
+							if (!AddINILine (pLocalSec, "byte=0",  3, NULL)) { FailMess ("OOM: line 3 for runtime file"); }
 							
-							part->level = ParseLevel (specFile, secname);
+							part->level = ParseLevel (specFile, secname, cl);
 						}
 	
 						part->type   = PART_RUNTIMEFILE;
@@ -1361,7 +1384,7 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName)
 						part->level = FindLevel (arg);
 						if (!part->level)
 						{
-							part->level = ParseLevel (specFile, arg);
+							part->level = ParseLevel (specFile, arg, cl);
 						}
 					}
 					else if (!stricmp (cmd, "align"))
@@ -1465,11 +1488,24 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName)
 						char*			 fname;
 						int				 fh;
 						long			 size;
+                        bool             fFound = FALSE;
 						
 						strcpy (line, arg);
 						fname = TrimWhiteSpaceAndQuotes (line);
 
-						EIO_fnmerge (filename, inputPath, fname, NULL);
+                        if (GetConfigFilename(cl))
+                        {
+    						EIO_fnmerge (filename, EIO_Path(GetConfigFilename(cl)), fname, NULL);
+                            fFound = EIO_FileExists (filename);
+                        }
+                        if (!fFound)
+                        {
+    						EIO_fnmerge (filename, inputPath, fname, NULL);
+                            if (!EIO_FileExists (filename))
+                            {
+                                ErrMess ("File %s, Line %d: could not open file (%s)\n", GetConfigFilename(cl), GetConfigLineNo (cl), fname);
+                            }
+                        }
 						
 						fh   = CHK_ReadOpen (filename);
 						size = CHK_FileLength (fh);
@@ -1495,11 +1531,11 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName)
                         
                     	sprintf (subSectionName, "[%s]", arg);
     
-                        status = ParseSection (level, specFile, subSectionName);
+                        status = ParseSection (level, specFile, subSectionName, cl);
                     }
 					else
 					{
-						ErrMess ("Unknown specFile line #%d:'%s'\n", GetConfigLineNo (cl), LST_NodeName (cl));
+						ErrMess ("File %s, Line %d: Unknown specFile '%s'\n", GetConfigFilename(cl), GetConfigLineNo (cl), LST_NodeName (cl));
 					}
 					level->size += part->size;
 				}
@@ -1537,7 +1573,7 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName)
  * SEE ALSO
  *
 */
-Level* ParseLevel (IniList *specFile, char *levelName)
+Level* ParseLevel (IniList *specFile, char *levelName, ConfigLine* pCL)
 {
 	Level				*level;
 	char				 sectionName[MAX_NAME_LEN];
@@ -1552,7 +1588,7 @@ Level* ParseLevel (IniList *specFile, char *levelName)
 	LST_InitList (level->partsList);
 	LST_AddTail (LevelList, level);
 
-    if (!ParseSection (level, specFile, sectionName))
+    if (!ParseSection (level, specFile, sectionName, pCL))
     {
         // todo: this is sloppy.  I don't cleanup here. but since I got an error
         //       I'm not going to finish anyway so ...
@@ -2244,7 +2280,7 @@ int main(int argc, char **argv)
 				}
 				files++;
 			}
-			ParseLevel (specFile, topSection);
+			ParseLevel (specFile, topSection, NULL);
 		}
 
 		//---------------------------------------------
