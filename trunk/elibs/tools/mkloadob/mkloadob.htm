@@ -48,7 +48,7 @@ possible.</p>
   <li>Load all your data from ONE FILE!!!</li>
 </ul>
 <blockquote>
-  <p>There are two steps to this.&nbsp; One, for a single stage, attempt to load 
+  <p>There are two steps to this.&nbsp; One, for a single stage/level, attempt to load 
   all the data for that stage from one file directly into memory.&nbsp; No 
   loading one model from one file and a different model from a different file.&nbsp; 
   Even if that means putting some of the same models, textures or sounds on the 
@@ -61,7 +61,7 @@ possible.</p>
 </blockquote>
 <ul>
   <li>Load your data in chucks no smaller than 1 DVD hardware sector.&nbsp; In 
-  otherwords, if on your platform a DVD hardware sector holds 2048 bytes of data 
+  other words, if on your platform a DVD hardware sector holds 2048 bytes of data 
   then ALWAYS LOAD A MULTIPLE OF 2048 bytes.&nbsp; Never load less even if you 
   have to pad the file.</li>
 </ul>
@@ -81,12 +81,12 @@ possible.</p>
   chunk is usually some kind of ID followed by the length of the chunk after 
   which follows the next chunk.&nbsp; That is NOT a good format for a game.&nbsp; 
   That's a great format for a tool or an application but not for a game because 
-  parsing takes time.&nbsp; More time than not parsing.&nbsp; In game, anything 
+  parsing takes time.&nbsp; More time than not parsing.&nbsp; In a game, anything 
   which takes more time is BAD.&nbsp; Don't do it!</li>
 </ul>
 <p>It's this last step that I'm here to help you with.&nbsp; In the early 1990s 
 my friends and I wrote a tool to deal with this.&nbsp; Since about 1997 we have 
-made it free but without docs it's been unlikely that anybody has used it let 
+made it freely available but without docs it's been unlikely that anybody has used it let 
 alone even found it, until now!</p>
 <h2>The Data Linker</h2>
 <p>It's what we call a Data Linker because it takes a bunch of data an links it 
@@ -95,6 +95,62 @@ back from the days of DOS.&nbsp; If you are curious, MKLOADOB stands for MaKe
 LOAD OBject.</p>
 <p>It takes a bunch of spec files of the form below and generates a hierarchical 
 binary file with pointers.</p>
+<h2>Example:</h2>
+<p>Here's a short example.&nbsp; Let's say you want to have level structure that 
+is an instances where an instance is a model pointer, a position and a y 
+rotation.&nbsp; Here's the C/C++ structure for what I'm talking about</p>
+<blockquote>
+<pre>struct Instance
+{
+	float   transx;
+	float   transy;
+	float   transz;
+	float   rotationy;
+	Model*	pModel;
+};
+
+struct Level
+{
+	int       numInstances;
+	Instance* pInstances;
+};</pre>
+</blockquote>
+<p>Now lets make a small level with a ground model, a house model and 2 trees of 
+the same model using the data linker</p>
+<blockquote>
+  <pre>[start]
+long=4	; number of models
+pntr=modeltable
+
+[modeltable]
+float=0.0 0.0 0.0   ; translation for ground
+float=0.0           ; rotation for ground
+file=ground.3d      ; model file for ground
+
+float=5.0 0.0 3.0   ; translation for house
+float=45.0          ; rotation for house
+file=house.3d       ; model file for house
+
+float=-4.0 0.0 -2.0 ; translation for tree1
+float=30.0          ; rotation for tree1
+file=tree.3d        ; model file for tree
+
+float=-2.0 0.0 -4.0 ; translation for tree2
+float=225.0	    ; rotation for tree2
+file=tree.3d        ; model file for tree</pre>
+</blockquote>
+<p>You pass this file to the data linker and you'll get a binary file that you 
+can load directly into memory and with only a few lines of code all your 
+pointers will already be pointing at your data.&nbsp; No need to hand load and 
+hand parse stuff.</p>
+<p>Above notice on the third line that says &quot;pntr=&quot;.&nbsp; This line generates a 
+pointer to a section that matches the name after the '='.&nbsp; You can have as 
+many pointers as you need/want.&nbsp; They can be nested to any level.&nbsp; 
+Also notice that the file tree.3d is referenced twice.&nbsp; In this case the 
+file tree.3d would be stored inside the binary file that the data linker creates 
+but there would be two pointers pointing to that data.</p>
+<h2>Loading Your Data</h2>
+<p>&nbsp;</p>
 <h2>Data Linker File Format</h2>
 <p>The format of the data linker files is as follows</p>
 <h3>Preprocessor commands:</h3>
@@ -804,6 +860,9 @@ starts so:</p>
   </li>
   <li>endfor</li>
 </ul>
+
+<h3>Loading Chunkified Data</h3>
+<p>&nbsp;</p>
 
 </body>
 
