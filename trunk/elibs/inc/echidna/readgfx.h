@@ -86,6 +86,13 @@ typedef struct BlockO8BitPixels
 	uint8			*pixels;
 } BlockO8BitPixels;
 
+typedef struct BlockOGrey8BitPixels
+{
+	long			 width;
+	long			 height;
+	uint8			*pixels;
+} BlockOGrey8BitPixels;
+
 /***************************** G L O B A L S *****************************/
 
 /****************************** M A C R O S ******************************/
@@ -95,9 +102,15 @@ typedef struct BlockO8BitPixels
 extern BlockO32BitPixels *Read32BitPicture (const char* filename);
 extern int Write32BitPicture (const char* filename, BlockO32BitPixels *pBOP);
 extern void Free32BitPicture (BlockO32BitPixels *pBOP);
+
 extern BlockO8BitPixels *Read8BitPicture (const char* filename);
 extern int Write8BitPicture (const char* filename, BlockO8BitPixels *pBOP);
 extern void Free8BitPicture (BlockO8BitPixels *pBOP);
+
+extern BlockOGrey8BitPixels *ReadGrey8BitPicture (const char* filename);
+extern int WriteGrey8BitPicture (const char* filename, BlockOGrey8BitPixels *pBOP);
+extern void FreeGrey8BitPicture (BlockOGrey8BitPixels *pBOP);
+
 extern int flipBuffer (void *buffer, long rowSize, long rows);
 
 extern UINT8 *ReadRawPalette (const char *filename, int *pNumColors);
