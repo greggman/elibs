@@ -323,7 +323,9 @@ bool MLANG_SubVariables (string& str, const char* inputPath)
 					const char *argStart;
 					bool fquote = false;
 						
-					if (!strcmp(idstr.c_str(), "fquote"))
+					if (!strcmp(idstr.c_str(), "fquote") ||
+                        !strcmp(idstr.c_str(), "fif")
+                        )
 					{
 						fquote = true;
 					}
@@ -502,15 +504,19 @@ bool MLANG_SubVariables (string& str, const char* inputPath)
 					{
 						if (numArgs > 1)
 						{
+							MLANG_SubVariables (arg0, inputPath);
+                        
 							if (mlang_isfloat(arg0.c_str()) ? mlang_atof(arg0.c_str()) : mlang_atol (arg0.c_str()))
 							{
 								localSub = argList[1];
+    							MLANG_SubVariables (localSub, inputPath);
 							}
 							else
 							{
 								if (numArgs == 3)
 								{
 									localSub = argList[2];
+        							MLANG_SubVariables (localSub, inputPath);
 								}
 								else if (numArgs > 3)
 								{
@@ -613,7 +619,7 @@ bool MLANG_SubVariables (string& str, const char* inputPath)
 						{
 							double v1 = mlang_atof (arg0.c_str());
 							
-							localSub = hack_sprintf("%d", v1 != 0.0);
+							localSub = hack_sprintf("%d", v1 == 0.0);
 						}
 						else
 						{
