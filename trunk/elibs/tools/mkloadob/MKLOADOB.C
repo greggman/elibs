@@ -192,6 +192,26 @@
  *							[section1]
  *							path=dir\subdir
  *							file=file1.bin		; loads dir\subdir\file1.bin
+ *
+ *          insert=         ; inserts another section here (not a pointer, the actual section
+ *                          ; so for example this:
+ *
+ *                          [start]
+ *                          byte=1 2 3
+ *                          insert=othersection
+ *                          byte=7 8 9
+ *
+ *                          [othersection]
+ *                          byte=4
+ *                          byte=5 6
+ *
+ *                          ; is the same as this
+ *
+ *                          [start]
+ *                          byte=1 2 3
+ *                          byte=4
+ *                          byte=5 6
+ *                          byte=7 8 9
  *							
  *
  *
@@ -228,8 +248,9 @@
 
 #define	PRELOAD_VERSION	0x01010101
 
-#define MAX_LINE	256
-#define	MAX_ARGS	128
+#define MAX_LINE	    1024
+#define	MAX_ARGS	    128
+#define MAX_NAME_LEN    1024
 
 #define	BUF_SIZE	(512*1024)
 
@@ -364,6 +385,8 @@ char			*topSection = "Start";
 uint8			 ZeroData[256] = { 0, };
 
 /***************************** R O U T I N E S ****************************/
+
+Level* ParseLevel (IniList *specFile, char *levelName);
 
 /*************************************************************************
                                hashGetLong                               
@@ -1161,7 +1184,7 @@ FileContents* AddFile (char* fname)
 
 Level* FindLevel (char *levelName)
 {
-	char				 sectionName[256];
+	char				 sectionName[MAX_NAME_LEN];
 
 	sprintf (sectionName, "[%s]", levelName);
 
@@ -1169,55 +1192,29 @@ Level* FindLevel (char *levelName)
 }
 // FindLevel
 
-/*********************************************************************
- *
- * ParseLevel
- *
- * SYNOPSIS
- *		Level *ParseLevel (IniList *specFile, char *levelName)
- *
- * PURPOSE
- *		
- *
- * INPUT
- *
- *
- * EFFECTS
- *
- *
- * RETURN VALUE
- *
- *
- * HISTORY
- *
- *
- * SEE ALSO
- *
-*/
-Level* ParseLevel (IniList *specFile, char *levelName)
+bool ParseSection (Level* level, IniList* specFile, char* sectionName)
 {
-	char				 sectionName[256];
 	SectionTracker		 secx;
 	SectionTracker		*sec = &secx;
-	Level				*level;
-
-	if (Verbose)	EL_printf ("Parsing Level [%s]\n", levelName);
-
-	sprintf (sectionName, "[%s]", levelName);
-
+    bool status = TRUE;
+    
 	sec = FindSection (sec, specFile, sectionName);
 	if (!sec)
 	{
 		ErrMess ("Couldn't find Section %s\n", sectionName);
-		return NULL;
+		return FALSE;
 	}
+    
+    // check for a loop
+    if (INI_IsSectionUsed(sec))
+    {
+        INI_markSectionAsUnused(sec);
+		ErrMess ("Infinate loop in section %s\n", sectionName);
+        return FALSE;
+    }
 
-	level = CHK_CreateNode (sizeof (Level), sectionName, sectionName);
+    INI_markSectionAsUsed(sec);
 
-	level->partsList = &level->partsListX;
-	LST_InitList (level->partsList);
-	LST_AddTail (LevelList, level);
-	
 	{
 		ConfigLine		*cl;
 
@@ -1409,7 +1406,7 @@ Level* ParseLevel (IniList *specFile, char *levelName)
 						part->string = CHK_dupstr(filename);
 						part->size   = size;
 					}
-					else if (!stricmp (cmd, "Path="))
+					else if (!stricmp (cmd, "Path"))
 					{
 						//
 						// found a Path part
@@ -1419,6 +1416,14 @@ Level* ParseLevel (IniList *specFile, char *levelName)
 					//	level->size += 0;
 						inputPath = part->string;
 					}
+                    else if (!stricmp (cmd, "Insert"))
+                    {
+                    	char subSectionName[MAX_NAME_LEN];
+                        
+                    	sprintf (subSectionName, "[%s]", arg);
+    
+                        status = ParseSection (level, specFile, subSectionName);
+                    }
 					else
 					{
 						ErrMess ("Unknown specFile line #%d:'%s'\n", GetConfigLineNo (cl), LST_NodeName (cl));
@@ -1428,6 +1433,59 @@ Level* ParseLevel (IniList *specFile, char *levelName)
 			}
 		}
 	}
+
+    INI_markSectionAsUnused(sec);
+    
+    return status;
+}
+
+/*********************************************************************
+ *
+ * ParseLevel
+ *
+ * SYNOPSIS
+ *		Level *ParseLevel (IniList *specFile, char *levelName)
+ *
+ * PURPOSE
+ *		
+ *
+ * INPUT
+ *
+ *
+ * EFFECTS
+ *
+ *
+ * RETURN VALUE
+ *
+ *
+ * HISTORY
+ *
+ *
+ * SEE ALSO
+ *
+*/
+Level* ParseLevel (IniList *specFile, char *levelName)
+{
+	Level				*level;
+	char				 sectionName[MAX_NAME_LEN];
+
+	if (Verbose)	EL_printf ("Parsing Level [%s]\n", levelName);
+
+	sprintf (sectionName, "[%s]", levelName);
+
+	level = CHK_CreateNode (sizeof (Level), sectionName, sectionName);
+
+	level->partsList = &level->partsListX;
+	LST_InitList (level->partsList);
+	LST_AddTail (LevelList, level);
+
+    if (!ParseSection (level, specFile, sectionName))
+    {
+        // todo: this is sloppy.  I don't cleanup here. but since I got an error
+        //       I'm not going to finish anyway so ...
+        
+        return NULL;
+    }
 
 	return level;
 }
@@ -2690,7 +2748,7 @@ int main(int argc, char **argv)
 						{
 							long	part;
 
-							part = min (pad, 256);
+							part = min (pad, sizeof(ZeroData));
 							MK_Write (fh, ZeroData, part);
 							pad -= part;
 						}
@@ -2721,7 +2779,7 @@ int main(int argc, char **argv)
 							{
 								long	part;
 
-								part = min (pad, 256);
+								part = min (pad, sizeof(ZeroData));
 								MK_Write (fh, ZeroData, part);
 								pad -= part;
 							}
@@ -2782,7 +2840,7 @@ int main(int argc, char **argv)
 						{
 							long	part;
 
-							part = min (pad, 256);
+							part = min (pad, sizeof(ZeroData));
 							MK_Write (fh, ZeroData, part);
 							pad -= part;
 						}
