@@ -83,21 +83,21 @@ typedef void *(*LST_OpOnListFunc)(void *);
 #define LST_Prev(node)		((LST_NODE *)(((LST_NODE *)(node))->minNode.nd_prev))
 #define LST_IsEOList(node)	(((LST_NODE *)(node))->minNode.nd_next == NULL)
 #define LST_IsSOList(node)	(((LST_NODE *)(node))->minNode.nd_prev == NULL)
-#define LST_Head(list)		((LST_NODE *)(((LST_LIST *)(list))->minList.lst_head))
-#define LST_Tail(list)		((LST_NODE *)(((LST_LIST *)(list))->minList.lst_tailPred))
-#define LST_IsEmpty(list)	(((LST_LIST *)(list))->minList.lst_tailPred == ((LST_NODE *)(list)))
+#define LST_Head(elist)		((LST_NODE *)(((LST_LIST *)(elist))->minList.lst_head))
+#define LST_Tail(elist)		((LST_NODE *)(((LST_LIST *)(elist))->minList.lst_tailPred))
+#define LST_IsEmpty(elist)	(((LST_LIST *)(elist))->minList.lst_tailPred == ((LST_NODE *)(elist)))
 
 #define	LST_DeleteNode(nd)		LST_privDeleteNode((LST_NODE *)(nd))
-#define	LST_InitList(list)		LST_privInitList((LST_LIST *)(list))
-#define LST_EmptyList(list)		LST_privEmptyList((LST_LIST *)(list))
-#define LST_DeleteList(list)	LST_privDeleteList((LST_LIST *)(list))
+#define	LST_InitList(elist)		LST_privInitList((LST_LIST *)(elist))
+#define LST_EmptyList(elist)		LST_privEmptyList((LST_LIST *)(elist))
+#define LST_DeleteList(elist)	LST_privDeleteList((LST_LIST *)(elist))
 #define LST_InsertBefore(n1,n2)	LST_privInsertBefore((LST_NODE *)(n1), (LST_NODE *)(n2))
 #define LST_InsertAfter(n1,n2)	LST_privInsertAfter((LST_NODE *)(n1), (LST_NODE *)(n2))
 #define	LST_Remove(node)		LST_privRemove((LST_NODE *)(node))
-#define LST_AddHead(list,node)	LST_privAddHead((LST_LIST *)(list), (LST_NODE *)(node))
-#define	LST_RemHead(list)		LST_privRemHead((LST_LIST *)(list))
-#define	LST_AddTail(list,node)	LST_privAddTail((LST_LIST *)(list), (LST_NODE *)(node))
-#define LST_RemTail(list)		LST_privRemTail((LST_LIST *)(list))
+#define LST_AddHead(elist,node)	LST_privAddHead((LST_LIST *)(elist), (LST_NODE *)(node))
+#define	LST_RemHead(elist)		LST_privRemHead((LST_LIST *)(elist))
+#define	LST_AddTail(elist,node)	LST_privAddTail((LST_LIST *)(elist), (LST_NODE *)(node))
+#define LST_RemTail(elist)		LST_privRemTail((LST_LIST *)(elist))
 
 // macros below do NOT work on LST_MINNODE or LST_MINLIST
 
@@ -112,8 +112,8 @@ typedef void *(*LST_OpOnListFunc)(void *);
 #define	LST_FindName(nd,nm)			LST_Find_A_Name((LST_NODE*)(nd),(nm),0)
 #define	LST_FindIName(nd,nm)		LST_Find_A_Name((LST_NODE*)(nd),(nm),1)
 
-#define	LST_AddSorted(list,node)	LST_privAddSorted((LST_LIST *)(list), (LST_NODE*)(node))
-#define	LST_AddSortedI(list,node)	LST_privAddSortedI((LST_LIST *)(list), (LST_NODE*)(node))
+#define	LST_AddSorted(elist,node)	LST_privAddSorted((LST_LIST *)(elist), (LST_NODE*)(node))
+#define	LST_AddSortedI(elist,node)	LST_privAddSortedI((LST_LIST *)(elist), (LST_NODE*)(node))
 
 #define	LST_MoveListBeforeNode(lst,nd)	LST_privMoveListBeforeNode((LST_LIST*)(lst), (LST_NODE*)(nd))
 #define	LST_MoveListAfterNode(lst,nd)	LST_privMoveListAfterNode((LST_LIST*)(lst), (LST_NODE*)(nd))
@@ -121,19 +121,19 @@ typedef void *(*LST_OpOnListFunc)(void *);
 /************************** P R O T O T Y P E S **************************/
 
 extern void LST_privDeleteNode (LST_NODE *node);
-extern void LST_privInitList (LST_LIST *list);
-extern void LST_privEmptyList (LST_LIST *list);
-extern LST_LIST* LST_privDeleteList (LST_LIST *list);
+extern void LST_privInitList (LST_LIST *eelist);
+extern void LST_privEmptyList (LST_LIST *eelist);
+extern LST_LIST* LST_privDeleteList (LST_LIST *eelist);
 extern void LST_privInsertBefore (LST_NODE *oldnode, LST_NODE *newnode);
 extern void LST_privInsertAfter (LST_NODE *oldnode, LST_NODE *newdnode);
 extern void LST_privRemove (LST_NODE *node);
-extern void LST_privAddHead (LST_LIST *list, LST_NODE *node);
-extern LST_NODE* LST_privRemHead (LST_LIST *list);
-extern void LST_privAddTail (LST_LIST *list, LST_NODE *node);
-extern LST_NODE* LST_privRemTail (LST_LIST *list);
+extern void LST_privAddHead (LST_LIST *eelist, LST_NODE *node);
+extern LST_NODE* LST_privRemHead (LST_LIST *eelist);
+extern void LST_privAddTail (LST_LIST *eelist, LST_NODE *node);
+extern LST_NODE* LST_privRemTail (LST_LIST *eelist);
 extern int LST_OpOnList (void *node, LST_OpOnListFunc func);
-extern void LST_privMoveListBeforeNode (LST_LIST* list, LST_NODE* node);
-extern void LST_privMoveListAfterNode (LST_LIST* list, LST_NODE* node);
+extern void LST_privMoveListBeforeNode (LST_LIST* eelist, LST_NODE* node);
+extern void LST_privMoveListAfterNode (LST_LIST* eelist, LST_NODE* node);
 
 
 // functions below do NOT work on LST_MINNODE or LST_MINLIST
@@ -141,12 +141,12 @@ extern void LST_privMoveListAfterNode (LST_LIST* list, LST_NODE* node);
 extern LST_LIST* LST_CreateList (const char *name);
 extern LST_NODE* LST_CreateNode (size_t size, const char *name);
 
-extern void LST_InsertPriFIFO (LST_LIST *list, LST_NODE *node);
-extern void LST_InsertPriLIFO (LST_LIST *list, LST_NODE *node);
+extern void LST_InsertPriFIFO (LST_LIST *eelist, LST_NODE *node);
+extern void LST_InsertPriLIFO (LST_LIST *eelist, LST_NODE *node);
 
 extern LST_NODE	*LST_Find_A_Name (LST_NODE *node, const char *str, int fInsensitive);
-extern void LST_privAddSorted (LST_LIST* list, LST_NODE* node);
-extern void LST_privAddSortedI (LST_LIST* list, LST_NODE* node);
+extern void LST_privAddSorted (LST_LIST* eelist, LST_NODE* node);
+extern void LST_privAddSortedI (LST_LIST* eelist, LST_NODE* node);
 
 #ifdef __cplusplus
 }
