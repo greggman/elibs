@@ -1,0 +1,56 @@
+
+#####################################
+#		Symbol definitions
+#####################################
+PROGRAM			=	cutbytes
+CC			=	$(cmn_cc)
+ASM			=	$(cmn_asm)
+LINK			=	$(cmn_link)
+LIB			=	$(cmn_lib)
+
+
+#####################################
+#	Default compiler options
+#####################################
+CFLAGS		= $(cmn_cflags)
+AFLAGS		= $(cmn_aflags)
+LFLAGS		= $(cmn_lflags)
+LIBFLAGS	= $(cmn_libflags)
+
+#####################################
+#		Object files
+#####################################
+
+
+# NOTE: Add object files here...
+OBJECTS = \
+ $(PROGRAM).o
+
+ODEP = \
+ version.o
+
+LIBS = \
+ $(elibs)/echidna/beiff.lib \
+ $(elibs)/echidna/misc.lib \
+ $(elibs)/echidna/mem.lib \
+ $(elibs)/echidna/lds.lib
+
+#
+#	Default build rules
+#
+
+.c.o:
+	$(CC) $*.c $(CFLAGS) -o $*.o 
+	
+#####################################
+#	Target build rules
+#####################################
+$(PROGRAM):	$(OBJECTS)
+	bump version.c
+	$(CC) version.c $(CFLAGS) -o version.o
+	$(LINK) -o $(PROGRAM) $(LFLAGS) $(OBJECTS) $(ODEP) $(LIBS)
+
+#####################################
+#	Include file dependencies
+#####################################
+

@@ -1,0 +1,274 @@
+Documentation for DEFINER.EXE
+------------------------------
+Definer was born of the desire to have C and Assembly source files share
+the same "include" file for constants that they both shared.  This way
+you would only have to find and modify one file if the constants changed.
+
+Definer lets the programmer specify the constants in one file from
+which it will create the appropriate C and Assemlby language include
+files.  In your MAKE file you would have your program.exe depend on
+the on the include files and have a rule that reruns definer on the
+source file when they need to be updated. For example, if your source
+file was called const.def you would put the following two lines in
+your make file:
+
+.def.h:
+	DEFINER $*.def
+
+And you would add the dependency for the include files to your program
+dependency line:
+
+program.exe: source.h program.obj
+
+
+So far I've described Definer as if all it does is make C and Assembly
+include files from some intermediate format.  But Definer was not
+written in a hardwired fashion to do only what I've described in the
+examples.  Definer has a very simple format for the source file (I recommend
+you use the extension ".DEF" on your Definer source files).  It interprets
+the data in the source file based on a configuration file which you
+create, so it can be reconfigured to write data for most any language format.
+
+The Source file (.DEF)
+----------------------
+The remainder of this document uses the following notation for describing
+sytax:
+	notation		explanation
+	------			---------------
+	A				The letter "A"
+	'A'				The letter "A"
+	<X>				A variable called 'A' to be filled in.
+	{}				0 or more of the stuff inside the braces.
+	[]				0 or 1 of the stuff inside the braces.
+
+The are only two kind of things in a source file:
+
+	1) output file lines
+	2) rule use lines
+
+There is only one reserved word in the source 'language' of definer:
+
+	output
+
+The format of an output file line is as follows:
+	
+	output <output filename> [<format tag>]
+
+The format tag is the name of an output format.  The definition for the
+output format is in the configuration file.  If no output format is 
+specified, then the extension of the file name (including the period)
+will be used as the format tag.  If there is no format tag specified
+and the filename has no extension then it is and error.
+
+The format of rule use line is as follows:
+
+	<rule name> {<arg>}
+
+The source file can have any number of output file lines and any
+number of rule use lines.  The information in the rule use lines will
+be written to each of the files named in the output file lines
+according to the formats specified.
+
+
+The Configuration File (.CFG)
+-----------------------------
+Example cofiguration file:
+
+; this is a comment
+		; so is this
+
+[output=c .h]
+	"/*"
+	" * @udname"
+	" * Created by DEFINER.EXE version @ver"
+	" * Source: @sname"
+	" * Date:   @month/@day/@yr"
+	" * Time:   @hr:@02min @mer"
+	" *"
+	" * !IMPORTANT!:  Do not modify this file directly."
+	" *   If you want to change it, modify @usname and this file will"
+	" *   be regenerated with the new values."
+	" *"
+	" */\n"
+	"#include <exec/types.h>"
+	""
+	"#ifndef @usbase_H"
+	"#define @usbase_H"
+	""
+	<body>
+	""
+	"#endif /* @usbase_H */"
+
+	rem		"/* %* */"	; %* means all remainineg args (text to end of line)
+	remon	"/* %*"		; starting after the last arg used. 
+	remin	" * %*"
+	remof	"%* */"
+
+	const	"#define %1 %*"
+[end]
+
+
+[output= asm .inc]
+	";*"
+	";* @udname"
+	";* Created by DEFINER.EXE version @ver"
+	";* Source: @sname%"
+	";* Date:   @day/month/yr"
+	";* Time:   @hr:@02min @mer"
+	";*"
+	";* !IMPORTANT!:  Do not modify this file directly."
+	";*   If you want to change it, modify @usname and this file will"
+	";*   be regenerated with the new values."
+	";*\n"
+	<body>
+
+	rem		";* %*"		; %* means all remainineg args (text to end of line).
+	remon	";* %*"		; starting after the last arg used. 
+	remin	";* %*"
+	remof	";* %*"
+
+	const	"%1 equ %*"
+
+End of example.
+
+The file consists of one or more output sections. An output section starts
+with the line:
+
+	'['output=<format tag>{<format tag>}']'
+
+An output section ends with the start of the next section or with the
+end of file or with the line:
+
+	'['end']'
+
+
+Inside an ouput section there are three kinds of lines:
+	
+	1) output text line
+	2) <command> line
+	3) rule definition line
+
+An output text line is a line enclosed in quotes.  It will be written
+to the output file. 
+
+A <command> line tells Definer to do something special.  Right now there
+is only one command: body.  The <body> command causes Definer to emit
+the rule use lines from the source file according to the instructions
+in the matching rule definition lines in the output configuration.
+
+A rule definition line tells how to write the args from the rule use lines
+in the source file.  The format is:
+
+	<rule name> "<rule string>"
+
+The rule string is written to the ouput file with every occurrence of:
+
+	%<number>
+
+replaced by the corresponding arg in the rule use line.  The numbering
+starts at 1.  Occurences of:
+
+	%*
+ 
+are replaced with all the remaining args from the rule use line following
+the last arg replaced.
+
+Note: you can put a 'u' or a 'l' after the '%' to force upper or lower case
+      output of args
+
+String Interpretation
+----------------------
+
+The text in the output lines and rule use lines of the source file and
+the text in the output text lines and rule definition lines
+may contain printf type escape chars (e.g. '\n' '\t') and they
+will be correctly interpreted before being written to the output file. These
+lines may also contain special format sequences that begin with an 
+'at' symbol (@) to include information that Definer knows about, such as
+date, time, file names, command line args etc. 
+
+The format of the @ escape sequences is similar to the printf % escape
+sequences except that the types are multicharacter labels:
+
+	@[flags][width][.prec]type
+
+	flags:
+		u	All uppercase
+		l	All lowercase
+
+	type		explanation
+	--------	----------------------------------------
+	spath		Source file path. 
+	sbase		Source file base name.
+	sext 		Source file 3 char extension.
+	sname		Source file <base>[.<ext>].
+
+	dpath		Destination file path. 
+	dbase		Destination file base name.
+	dext 		Destination file 3 char extension.
+	dname		Destination file <base>[.<ext>].
+
+	day			Day number 01..31
+	nday		Name of day (e.g. Monday, Tuesday, ... )
+	month		month number 01..12
+	nmonth		Name of month (e.g. January, February, ...)
+	year		Year number (e.g. 1991).
+	yr			Abbreviated year number (e.g. 91)
+
+ 	hour		Military hour number 00..23
+ 	hr			Meridian hour number 01..12 
+	min			Minute 00..59
+	sec			Secound 00.59
+	mer			Meridian "a.m." or "p.m.".
+
+	ver			Version number of define.exe (e.g. 1.00)
+	env<name>	DOS environment variable 'name'.
+	env[name]	DOS environment variable 'name'. Do not interpret escape 
+				sequences.
+	arg<n>		Commandline argument.  The nth arg after the definer source
+					file name on the command line.
+	arg[n]		Commandline argument.  The nth arg after the definer source
+					file name on the command line. Do not interpret escape 
+					sequences.
+
+Like in printf strings if you want to get the escape character you use
+a double escape sequence:
+
+	"@@"  becomes "@"
+
+The width and prec fields operate just like in printf.
+
+	examples				What it might print
+	--------				-------------------
+	"@env<TMP>"				d:\tmp\
+	"@nday"					Monday
+	"@u.3nday"				MON
+	"@hr:@min @mer"			03:01 a.m.
+	"@1hr:min@.1merm"		3:01am
+	"@hour@min hours"		1501 hours
+	"@sname"				raster.def
+	"@sbase\t@sext"			raster	def
+
+
+
+Command Line Switches
+---------------------
+The command line may contain extra arguments at the end that will be passed
+to the source file and configuration file.  The source and configuration
+file access these args throught the escape sequence "@arg<n>" where 'n' is
+the number of the arg to substitute.  The number of the args starts at 1 like
+in DOS batch files.
+
+Type:
+
+	definer ?
+
+at the command line for up to date command line switch info.
+
+
+File Searching
+---------------
+Definer looks for the configuration file in the current directory. If
+it is not there, then it searches the path for the directory that has
+definer.exe and uses the configuration file in that directory.
+

@@ -1,0 +1,22 @@
+Format
+
+Table
+#
+
+
+-----
+
+TableName	Suffix1	Format1 Suffix2 Format2
+
+-----
+
+[TABLES]
+WorldTable	LO <%s HI >%s BANK (~%s)*2
+DarkTable	""	%s
+
+[DATA]
+GTstLevel 0
+GBadThing 0
+
+[TABLES]
+

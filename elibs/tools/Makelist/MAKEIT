@@ -1,0 +1,4 @@
+#! /bin/csh -f -e -x
+make -f makefile.sgi
+cp makelist ..
+#
