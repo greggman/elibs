@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding = "shift_jis"?>
+<?xml version="1.0" encoding="shift_jis"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
@@ -21,7 +21,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(ELIBS)\inc"
+				AdditionalIncludeDirectories="$(LIB_BOOST),$(ELIBS)\inc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_EL_PLAT_WIN32__=1"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
@@ -70,7 +70,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="$(ELIBS)\inc"
+				AdditionalIncludeDirectories="$(LIB_BOOST),$(ELIBS)\inc"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_EL_PLAT_WIN32__=1"
 				StringPooling="TRUE"
 				RuntimeLibrary="4"
@@ -119,7 +119,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(ELIBS)\inc"
+				AdditionalIncludeDirectories="$(LIB_BOOST),$(ELIBS)\inc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_EL_PLAT_WIN32__=1"
 				RuntimeLibrary="5"
 				UsePrecompiledHeader="2"
@@ -168,7 +168,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="$(ELIBS)\inc"
+				AdditionalIncludeDirectories="$(LIB_BOOST),$(ELIBS)\inc"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_EL_PLAT_WIN32__=1"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -219,7 +219,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="$(ELIBS)\inc"
+				AdditionalIncludeDirectories="$(LIB_BOOST),$(ELIBS)\inc"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_EL_PLAT_WIN32__=1"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -268,7 +268,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(ELIBS)\inc"
+				AdditionalIncludeDirectories="$(LIB_BOOST),$(ELIBS)\inc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_EL_PLAT_WIN32__=1"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
@@ -1278,6 +1278,9 @@
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions=""/>
 			</FileConfiguration>
+		</File>
+		<File
+			RelativePath=".\readpic.c">
 		</File>
 		<File
 			RelativePath="readtga.c">
