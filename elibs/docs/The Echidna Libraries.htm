@@ -132,10 +132,9 @@ more relevant to today then others.&nbsp; The parts you might find interesting</
   platforms including path manipulation, copying files, reading folders.&nbsp; 
   As there is no consistent standard we wrote our own so our tools can be 
   platform independent.</li>
-  <li>Definer.&nbsp; A solution for having to the problem of having separate 
-  header files for 2 different languages but that have to remain in sync.&nbsp; 
-  For example keeping your constants in sync and available to both C and 
-  assembly.</li>
+  <li>Definer.&nbsp; A solution to the problem of having separate header files 
+  for 2 or more different languages but that have to remain in sync.&nbsp; For 
+  example keeping your constants in sync and available to both C and assembly.</li>
 </ul>
 
 <h4>Less Interesting</h4>
@@ -145,7 +144,8 @@ more relevant to today then others.&nbsp; The parts you might find interesting</
   hack something apart it can be easier to just cut it up using a simple tool 
   like this.</li>
   <li>Argparse.c/Argparse.h.&nbsp; It's our solution to argument parsing.&nbsp; 
-  Handles multiple arguments per field and passing the arguments in by files.</li>
+  Handles multiple arguments per field and passing the arguments in by files to 
+  get around the limits some system have with long command lines.</li>
   <li>Maclang.cpp/Maclang.h.&nbsp; A simple text based macro expansion language 
   that can be applied to any string.</li>
   <li>Readini.c/Readini.h.&nbsp; Functions to read windows style .ini files.&nbsp; 
