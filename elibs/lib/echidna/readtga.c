@@ -80,7 +80,7 @@ typedef struct TGAHeader
  *      void  loadUncompressedTGA (BlockO32BitPixels *blockPtr, unsigned char *fileBufferPtr)
  *
  * PURPOSE
- *      
+ *
  *
  * INPUT
  *
@@ -115,19 +115,19 @@ static int loadUncompressedTGA (BlockO32BitPixels *blockPtr, MEMFILE *mf, int bp
     bufferHeight = blockPtr->height;
     lineSize     = bufferWidth;
     bufferSize   = lineSize * bufferHeight;
-    
+
     bufferStart  = blockPtr->rgba + bufferSize - lineSize;
 
     buffer = bufferStart;
-    
+
     if (!blockPtr->channels)
     {
         // No Alpha / Uncompressed
-        
+
         for (loop = 0; loop < bufferHeight; loop++)
         {
             buffer = bufferStart;
-            
+
             for (i = 0; i < bufferWidth; i++)
             {
                 uint8   r,g,b;
@@ -150,18 +150,18 @@ static int loadUncompressedTGA (BlockO32BitPixels *blockPtr, MEMFILE *mf, int bp
                 buffer->alpha = 255;
                 buffer++;
             }
-            
+
             bufferStart -= lineSize;
         }
     }
     else
     {
         // Alpha / Uncompressed
-        
+
         for (loop = 0; loop < bufferHeight; loop++)
         {
             buffer = bufferStart;
-            
+
             for (i = 0; i < bufferWidth; i++)
             {
                 uint8   r,g,b,a;
@@ -183,6 +183,7 @@ static int loadUncompressedTGA (BlockO32BitPixels *blockPtr, MEMFILE *mf, int bp
 
     if (idesc & TGA_IDESC_VFLIP)
     {
+		return flipBuffer (blockPtr->rgba, blockPtr->width * 4, blockPtr->height);
     }
 
     return TRUE;
@@ -197,7 +198,7 @@ static int loadUncompressedTGA (BlockO32BitPixels *blockPtr, MEMFILE *mf, int bp
  *      void  loadUncompressedGrey8BitTGA (BlockOGrey8BitPixels *blockPtr, unsigned char *fileBufferPtr)
  *
  * PURPOSE
- *      
+ *
  *
  * INPUT
  *
@@ -231,15 +232,15 @@ static int loadUncompressedGrey8BitTGA (BlockOGrey8BitPixels *blockPtr, MEMFILE 
     bufferHeight = blockPtr->height;
     lineSize     = bufferWidth;
     bufferSize   = lineSize * bufferHeight;
-    
+
     bufferStart  = blockPtr->pixels + bufferSize - lineSize;
 
     buffer = bufferStart;
-    
+
     for (loop = 0; loop < bufferHeight; loop++)
     {
         buffer = bufferStart;
-        
+
         for (i = 0; i < bufferWidth; i++)
         {
             uint8   a;
@@ -249,7 +250,7 @@ static int loadUncompressedGrey8BitTGA (BlockOGrey8BitPixels *blockPtr, MEMFILE 
             *buffer = a;
             buffer++;
         }
-        
+
         bufferStart -= lineSize;
     }
 
@@ -272,7 +273,7 @@ static int loadUncompressedGrey8BitTGA (BlockOGrey8BitPixels *blockPtr, MEMFILE 
  *      void  loadCompressedGrey8BitTGA (BlockOGrey8BitPixels *blockPtr, uint8 *fileBufferPtr)
  *
  * PURPOSE
- *      
+ *
  *
  * INPUT
  *
@@ -311,16 +312,16 @@ int loadCompressedGrey8BitTGA (BlockOGrey8BitPixels *blockPtr, MEMFILE *mf, uint
     {
         i = MEMFILE_getc(mf);
         count = (0x7F & i) + 1;
-        
+
         pixelCount += count;
-        
+
         if (pixelCount > totalPixels)
         {
             SetGlobalErr (ERR_GENERIC);
             GEcatf ("Pixel overflow in targa decompression");
             return FALSE;
         }
-        
+
         if (i & 0x80)
         {
             // run data
@@ -340,7 +341,7 @@ int loadCompressedGrey8BitTGA (BlockOGrey8BitPixels *blockPtr, MEMFILE *mf, uint
             while (count--)
             {
                 a = MEMFILE_getc(mf);
-            
+
                 *buffer = a;
                 buffer++;
             }
@@ -353,7 +354,7 @@ int loadCompressedGrey8BitTGA (BlockOGrey8BitPixels *blockPtr, MEMFILE *mf, uint
     }
     else
     {
-        return flipBuffer (blockPtr->pixels, blockPtr->width, blockPtr->height);
+		return flipBuffer (blockPtr->pixels, blockPtr->width, blockPtr->height);
     }
 }
 // loadCompressedGrey8BitTGA
@@ -366,7 +367,7 @@ int loadCompressedGrey8BitTGA (BlockOGrey8BitPixels *blockPtr, MEMFILE *mf, uint
  *      void loadTGAGrey8Bit (BlockOGrey8BitPixels *blockPtr, char *fileName)
  *
  * PURPOSE
- *      
+ *
  *
  * INPUT
  *
@@ -387,26 +388,26 @@ int loadTGAGrey8Bit (BlockOGrey8BitPixels *blockPtr, MEMFILE *mf)
 {
     TGAHeader        tgaHeaderX;
     TGAHeader       *tgaHeader = &tgaHeaderX;
-    
+
     long            bufferWidth;
     long            bufferHeight;
 
     MEMFILE_Read(mf, tgaHeader, sizeof (TGAHeader));
 
     MEMFILE_Seek (mf, tgaHeader->ID, SEEK_CUR); // Skip User Info
-    
+
     bufferWidth  = ((long)tgaHeader->widthl  + (long)tgaHeader->widthh * 256L);
     bufferHeight = ((long)tgaHeader->heightl + (long)tgaHeader->heighth * 256L);
-    
+
     {
         long    bufferSize;
-                
+
         bufferSize = bufferWidth * bufferHeight;
-        
+
         blockPtr->pixels = (uint8 *) malloc (bufferSize);
         blockPtr->width  = bufferWidth;
         blockPtr->height = bufferHeight;
-        
+
         if (!blockPtr->pixels)
         {
             SetGlobalErr (ERR_GENERIC);
@@ -414,7 +415,7 @@ int loadTGAGrey8Bit (BlockOGrey8BitPixels *blockPtr, MEMFILE *mf)
             goto cleanup;
         }
     }
-    
+
     switch (tgaHeader->itype)
     {
     case 2:
@@ -433,7 +434,7 @@ int loadTGAGrey8Bit (BlockOGrey8BitPixels *blockPtr, MEMFILE *mf)
             }
         }
         break;
-    
+
     case 10:
         if (tgaHeader->bpp != 8)
         {
@@ -475,7 +476,7 @@ cleanup:
  *      void  flipBuffer (void *buffer, long rowSize, long rows)
  *
  * PURPOSE
- *      
+ *
  *
  * INPUT
  *
@@ -498,9 +499,9 @@ int flipBuffer (void *buffer, long rowSize, long rows)
     uint8   *temp;
     uint8   *firstRow;
     uint8   *lastRow;
-            
+
     long     count;
-    
+
     temp = (uint8 *)malloc (rowSize);
     if (!temp)
     {
@@ -508,24 +509,24 @@ int flipBuffer (void *buffer, long rowSize, long rows)
         GEcatf ("Out of memory loading tga");
         return FALSE;
     }
-    
+
     firstRow = (uint8 *) buffer;
     lastRow  = firstRow + rowSize * (rows - 1);
-    
+
     count = (rows + 1) / 2;
-    
+
     while (count)
     {
         memcpy (temp, lastRow, rowSize);
         memcpy (lastRow, firstRow, rowSize);
         memcpy (firstRow, temp, rowSize);
-        
+
         firstRow += rowSize;
         lastRow  -= rowSize;
-        
+
         count--;
     }
-    
+
     free (temp);
 
     return TRUE;
@@ -540,7 +541,7 @@ int flipBuffer (void *buffer, long rowSize, long rows)
  *      void  loadCompressedTGA (BlockO32BitPixels *blockPtr, uint8 *fileBufferPtr)
  *
  * PURPOSE
- *      
+ *
  *
  * INPUT
  *
@@ -588,16 +589,16 @@ int loadCompressedTGA (BlockO32BitPixels *blockPtr, MEMFILE *mf, int bpp, uint8 
     {
         i = MEMFILE_getc(mf);
         count = (0x7F & i) + 1;
-        
+
         pixelCount += count;
-        
+
         if (pixelCount > totalPixels)
         {
             SetGlobalErr (ERR_GENERIC);
             GEcatf ("Pixel overflow in targa decompression");
             return FALSE;
         }
-        
+
         if (i & 0x80)
         {
             // run data
@@ -612,7 +613,7 @@ int loadCompressedTGA (BlockO32BitPixels *blockPtr, MEMFILE *mf, int bpp, uint8 
             {
                 g = MEMFILE_getc(mf);
                 r = MEMFILE_getc(mf);
-                
+
                 if (hasAlpha)
                 {
                     a = MEMFILE_getc(mf);
@@ -645,7 +646,7 @@ int loadCompressedTGA (BlockO32BitPixels *blockPtr, MEMFILE *mf, int bpp, uint8 
                 {
                     g = MEMFILE_getc(mf);
                     r = MEMFILE_getc(mf);
-                
+
                     if (hasAlpha)
                     {
                         a = MEMFILE_getc(mf);
@@ -660,9 +661,15 @@ int loadCompressedTGA (BlockO32BitPixels *blockPtr, MEMFILE *mf, int bpp, uint8 
             }
         }
     }
-    
-    return flipBuffer (blockPtr->rgba, blockPtr->width * 4, blockPtr->height);
-//  return TRUE;
+
+    if (idesc & TGA_IDESC_VFLIP)
+	{
+		return TRUE;
+	}
+	else
+	{
+		return flipBuffer (blockPtr->rgba, blockPtr->width * 4, blockPtr->height);
+	}
 }
 // loadCompressedTGA
 
@@ -675,7 +682,7 @@ int loadCompressedTGA (BlockO32BitPixels *blockPtr, MEMFILE *mf, int bpp, uint8 
  *      void loadTGA32Bit (BlockO32BitPixels *blockPtr, char *fileName)
  *
  * PURPOSE
- *      
+ *
  *
  * INPUT
  *
@@ -696,15 +703,15 @@ int loadTGA32Bit (BlockO32BitPixels *blockPtr, MEMFILE *mf)
 {
     TGAHeader        tgaHeaderX;
     TGAHeader       *tgaHeader = &tgaHeaderX;
-    
+
     long            alphachannels;
     long            bufferWidth;
     long            bufferHeight;
 
     MEMFILE_Read(mf, tgaHeader, sizeof (TGAHeader));
-    
 
-    #if 0   
+
+    #if 0
     if (tgaHeader->idesc & 0xf0)
     {
         SetGlobalErr (ERR_GENERIC);
@@ -739,7 +746,7 @@ int loadTGA32Bit (BlockO32BitPixels *blockPtr, MEMFILE *mf)
     #endif
 
     MEMFILE_Seek (mf, tgaHeader->ID, SEEK_CUR); // Skip User Info
-    
+
     if (tgaHeader->bpp == 32)
     {
         alphachannels = TRUE;
@@ -748,19 +755,19 @@ int loadTGA32Bit (BlockO32BitPixels *blockPtr, MEMFILE *mf)
     {
         alphachannels = FALSE;
     }
-        
+
     bufferWidth  = ((long)tgaHeader->widthl  + (long)tgaHeader->widthh * 256L);
     bufferHeight = ((long)tgaHeader->heightl + (long)tgaHeader->heighth * 256L);
-    
+
     {
         long    bufferSize;
-                
+
         bufferSize = bufferWidth * bufferHeight * 4;
-        
+
         blockPtr->rgba   = (pixel32 *) malloc (bufferSize);
         blockPtr->width  = bufferWidth;
         blockPtr->height = bufferHeight;
-        
+
         if (alphachannels)
         {
             blockPtr->channels   = 1;
@@ -773,7 +780,7 @@ int loadTGA32Bit (BlockO32BitPixels *blockPtr, MEMFILE *mf)
             goto cleanup;
         }
     }
-    
+
     switch (tgaHeader->itype)
     {
     case 2:
@@ -795,7 +802,7 @@ int loadTGA32Bit (BlockO32BitPixels *blockPtr, MEMFILE *mf)
             }
         }
         break;
-    
+
     case 10:
         if (((tgaHeader->bpp != 24) && (tgaHeader->bpp != 32) && (tgaHeader->bpp != 8)))
         {
