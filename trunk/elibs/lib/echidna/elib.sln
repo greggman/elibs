@@ -13,8 +13,8 @@ Global
 	GlobalSection(ProjectDependencies) = postSolution
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
-		{091250E1-C9C5-452A-AD6E-6159984334AB}.Debug.ActiveCfg = Debug|Win32
-		{091250E1-C9C5-452A-AD6E-6159984334AB}.Debug.Build.0 = Debug|Win32
+		{091250E1-C9C5-452A-AD6E-6159984334AB}.Debug.ActiveCfg = multi-threaded release|Win32
+		{091250E1-C9C5-452A-AD6E-6159984334AB}.Debug.Build.0 = multi-threaded release|Win32
 		{091250E1-C9C5-452A-AD6E-6159984334AB}.MFC Debug.ActiveCfg = MFC Debug|Win32
 		{091250E1-C9C5-452A-AD6E-6159984334AB}.MFC Debug.Build.0 = MFC Debug|Win32
 		{091250E1-C9C5-452A-AD6E-6159984334AB}.MFC Release.ActiveCfg = MFC Release|Win32

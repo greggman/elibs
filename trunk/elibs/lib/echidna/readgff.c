@@ -140,9 +140,10 @@ int loadGFF32Bit (BlockO32BitPixels *pbop, MEMFILE *mf)
 BEGINFUNC (loadGFF32Bit)
 {
    BOOL fSuccess;
-   BOOL fFoundGGFF, fFoundRGBA, fFoundPNDX, fFoundPCON;
+   BOOL fFoundGGFF, fFoundRGBA, fFoundPNDX, fFoundPCON, fFoundPCN2;
    UINT8 *ppndx;
    PCONDATA *ppcon;
+   PCN2DATA *ppcn2;
    RGBADATA *prgba;
 
    pbop->rgba = NULL;
@@ -152,8 +153,9 @@ BEGINFUNC (loadGFF32Bit)
    fFoundRGBA = FALSE;
    fFoundPNDX = FALSE;
    fFoundPCON = FALSE;
+   fFoundPCN2 = FALSE;
 
-   while (!fFoundGGFF || !(fFoundRGBA || (fFoundPNDX && fFoundPCON)))
+   while (!fFoundGGFF || !(fFoundRGBA || (fFoundPNDX && (fFoundPCON || fFoundPCN2))))
    {
       long len;
       CHUNKHEADER chunkheader; 
@@ -193,10 +195,17 @@ BEGINFUNC (loadGFF32Bit)
          ppcon = (PCONDATA *)mf->curPtr;
          fFoundPCON = TRUE;
       }
+      else if (chunkheader.id == IDPCN2)
+      {
+         //printf("Found PCN2\n");
+         ENSURE_F (!fFoundPCN2, ("Multiple PCN2 chunks in file"));
+         ppcn2 = (PCN2DATA *)mf->curPtr;
+         fFoundPCN2 = TRUE;
+      }
 
    } // while
 
-   fSuccess = (fFoundGGFF && fFoundRGBA || (fFoundPNDX && fFoundPCON));
+   fSuccess = (fFoundGGFF && fFoundRGBA || (fFoundPNDX && (fFoundPCON | fFoundPCN2)));
    if (fSuccess)
    {
       UINT32   Size;
@@ -229,7 +238,7 @@ BEGINFUNC (loadGFF32Bit)
             p32->alpha = prgba->Alpha;
          }
       }
-      else
+      else if (fFoundPCON)
       {
          int i;
          pixel32 *p32;
@@ -247,6 +256,26 @@ BEGINFUNC (loadGFF32Bit)
             p32->green =   ppconEntry->Green;
             p32->blue =   ppconEntry->Blue;
             p32->alpha = (ppconEntry->Constraint & GFF_PCON_TRANSPARENT) ? 0 : 0xFF;
+         }
+      }
+      else // fFoundPCON2
+      {
+         int i;
+         pixel32 *p32;
+
+         for (
+            i = pbop->width * pbop->height,
+               p32 = pbop->rgba;
+            i;
+            i--, p32++, ppndx++
+         )
+         {
+            PCN2DATA *ppcn2Entry;
+            ppcn2Entry = ppcn2 + *ppndx;
+            p32->red =   ppcn2Entry->Red;
+            p32->green =   ppcn2Entry->Green;
+            p32->blue =   ppcn2Entry->Blue;
+            p32->alpha =  ppcn2Entry->Alpha;
          }
       }
    }

@@ -148,6 +148,7 @@ extern "C" {
 #define IDGGFF IDOF4CHARS('G','G', 'F', 'F')
 #define IDRGBA IDOF4CHARS('R','G', 'B', 'A')
 #define IDPCON IDOF4CHARS('P','C', 'O', 'N')
+#define IDPCN2 IDOF4CHARS('P','C', 'N', '2')    // pcon + alpha
 #define IDPNDX IDOF4CHARS('P','N', 'D', 'X')
 #define IDINVP IDOF4CHARS('I','N', 'V', 'P')
 
@@ -181,6 +182,13 @@ typedef struct {
    UINT8 Constraint;
 } PCONDATA;
 
+typedef struct {
+   UINT8 Red;
+   UINT8 Green;
+   UINT8 Blue;
+   UINT8 Alpha;
+   UINT8 Constraint;
+} PCN2DATA;
 
 typedef struct {
    UINT8 ColorIndex;
@@ -214,6 +222,11 @@ typedef struct {
 
 typedef struct {
    CHUNKHEADER Header;
+   PCN2DATA    Data;
+} CHUNKPCN2;
+
+typedef struct {
+   CHUNKHEADER Header;
    INVPDATA    Data;
 } CHUNKINVP;
 
@@ -230,6 +243,7 @@ typedef struct {
       CHUNKGGFF *pchunkggff;    // Pointer to GGFF Chunk if present.
       CHUNKRGBA *pchunkrgba;    // Pointer to RBBA Chunk if present.
       CHUNKPCON *pchunkpcon;    // Pointer to PCON Chunk if present.
+      CHUNKPCN2 *pchunkpcn2;    // Pointer to PCN2 Chunk if present.
       CHUNKINVP *pchunkinvp;    // Pointer to PCON Chunk if present.
 } GFF;
 

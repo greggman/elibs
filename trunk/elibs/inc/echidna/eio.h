@@ -462,6 +462,7 @@ extern char			*EIO_Name (const char* filespec);
 extern char			*EIO_Ext (const char* filespec);
 extern char			*EIO_Filename (const char* filespec);
 extern char			*EIO_CurrentDir (char *path);
+extern int			 EIO_ChangeDir (char *path);
 extern void			 EIO_FreeDirTracker (DirTracker *dt);
 extern int			 EIO_GetNextPath (DirTracker *dt);
 extern DirTracker	*EIO_GetFirstPath (void);

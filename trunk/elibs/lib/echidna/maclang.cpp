@@ -779,6 +779,29 @@ bool MLANG_SubVariables (string& str, const char* inputPath)
                             return false;
 						}
                     }
+					else if (!stricmp (idstr.c_str(), "fexists"))
+					{
+						if (numArgs == 1)
+						{
+    						char filename[EIO_MAXPATH];
+                            int fValue;
+                            
+    						EIO_fnmerge (filename, EIO_Path(inputPath), arg0.c_str(), NULL);
+                            fValue = EIO_FileExists (filename);
+							if (!fValue)
+                            {
+            					EIO_fnmerge (filename, NULL, arg0.c_str(), NULL);
+                                fValue = EIO_FileExists (filename);
+                            }
+    						localSub = hack_sprintf("%d", fValue);
+						}
+						else
+						{
+							SetGlobalErr (ERR_GENERIC);
+                            GEcatf ("wrong number of args for fexists");
+                            return false;
+						}
+					}
 					else if (!stricmp (idstr.c_str(), "ffilelength"))
 					{
 						if (numArgs == 1)
