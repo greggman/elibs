@@ -24,258 +24,7 @@
  *		just one chunk!  Note: no piece of data or any tables can be larger
  *		than a single chunk.
  *
- *      What's the point?
- *
- *      1) You want to spool music from the CD and STILL be able to load
- *         in real time.  Load one chuck at a time (giving the machine
- *		   time to grab more music between chucks
- *
- *      2) You want to be able to LOAD and later FREE multiple levels
- *         in the same memory space without having to worry about
- *         garbage collection and fragmination.  You do this by storing
- *         the level in chunks using this program.
- *
- *         At runtime you allocation say 200 chunks of memory.  You can
- *         then load each chunk from on of these files into any of those
- *         200 chunks in any order since all pointers are chuck relative.
- *
- *         The beginning of the file contains a pointer field for each
- *         chunk that ends in NULL.  So if there are 4 chunks the start
- *         of the very first chunk would be
- *
- *         $FFFFFFFF	; space for pointer for chunk 0
- *         $FFFFFFFF	; space for pointer for chunk 1
- *         $FFFFFFFF	; space for pointer for chunk 2
- *         $FFFFFFFF	; space for pointer for chunk 3
- *         $00000000	; end marker
- *		   $????????	; pointer to start of data
- *
- *		   As you load each chunk you can record it's address in memory
- *         in that table.
- *
- *		   When you are finish you can go and fix up all the pointers in
- *		   your data something like this
- *
- *		   long* chunktable;   : address of first chunk
- *         long  relpntr;      : a pointer you've gotten out of the data
- *         void* pntr;         : actuall address in memory
- *
- *		   pntr = chunktable[relpntr & (LOAD_CHUNK_MASK >> LOAD_CHUNK_SHIFT)] + (relpntr & LOAD_CHUCK_OFFSET_MASK)
- *
- *		   It is assumed that no pointer may be at an ODD address
- *		   therefore all pointers in the file have their low bit set
- *         (0x00000001).  This is so as you fix up the pointers you
- *         know if the pointer has already been fixed up.  This is
- *         important because if you are fixing up the pointers by
- *         walking the data yourself.
- *
- *         so for example if you have this
- *
- *         [start]
- *         pntr=section1
- *         pntr=section1
- *
- *         [section1]
- *         file=myfile.bin
- *
- *		   As you walk your data you will encounter 2 pointers to section1.
- *         When you find the first one you would go fix up section1.
- *         When you find the second one you would go to fix up section1
- *         and if you didn't know the pointers were already fixed up
- *         you'd fix them again and mess them up.
- *
- *         Optionally you can write out a fixup table.  This is a list of
- *         relative pointers too ALL other pointers in the file followed by
- *		   a null/0
- *
- *         There are currently two problems with this method.
- *
- *         1) The fixup pointers must all fit in the first chunk
- *
- *         2) the fixup pointers are included in the file so that
- *            it would be hard to use the memory they take up after
- *            you are done with them.
- *
- * NOTES
- *      *) When using the multiple chunk method each chunk is padded to
- *      be one full chunk long.  If you are only using one chunk
- *      you probably want to use -NOPAD option to not pad since you will
- *      specify an arbitarily large chunk.
- *
- *      BUT, at the same time you probably want your in game loader
- *      to be as simple as possible like for example never having to
- *      load less than a full sector of data from the CD/DVD.  In that
- *      case use the -SECTORSIZE option to specify the size of a sector on the CD/
- *      DVD.  This is pretty much only useful if you are using ONE chunk.
- *      
- *      Why is that important? Because many DVD/CD libraries will read
- *		direclty to user memory if they can read an entire sector but if
- *      they have to read less than an entire sector they must first
- *      load it to their own buffer then copy the part you wanted to
- *      user memory.  That's clearly slower than directly reading it.
- *
- *		*) Loading a multi-chunk file would look something like this:
- *	
- *			Get length of entire file and divide by the chunk size
- *			to get the number of chunks
- *		
- *			for each chunk
- *	
- *				Load a chunk, record the address of the loaded chunk
- *				in the corresponding long word in the first chunk.
- *	
- *			endfor
- *	
- *			//
- *			// now all the blocks are loaded and you know where the
- *			// data offset table starts so
- *			//
- *	
- *			for each non-zero data offset
- *	
- *				look up the correct block address
- *				add the block offset
- *				store in the data offset
- *	
- *			endfor
- *	
- *      Preprocessor commands:
- *
- *          #include "filename" ; includes another linker file
- *          #define var=value   ; defines a var that can be references as %var%
- *
- *          note: these are implemented in the ReadINI module in the echidna libs
- *
- * 		Commands:
- *
- *          IMPORTANT!!!
- *
- *          data fields are not automatically aligned.  In other words
- *
- *          [mysection]
- *          byte=1
- *          long=2
- *
- *          Will result in a long starting at a 1 byte offset from the
- *          start of mysection
- *
- *          The reason is this allows you to use the data linker to make
- *          unaligned data.  If you want aligned data you need to use
- *          the align= option
- *
- *			file=			; pointer to a file						: quotes are optional
- *			data=			; pointer to a file (same as file=)		: quotes are optional
- *			load=			; pointer to a file loaded at runtime	: quotes are optional 
- *									
- *                            note: this will actually start as a pointer to a filename with
- *                                  with the POSITIONFLAG_ISFILE set to tell your loader that
- *                                    you need to load the file 
- *									
- *									since mkloadob excepts variables both as environment vars
- *									and as #define var=value, the expected usage of load= is as follows
- *									
- *										#define objectload=load
- *										;#define objectload=file
- *										#define weaponsload=load
- *										;#define weaponsload=file
- *										
- *										%objectload%="myobject1.ob"
- *										%objectload%="myobject2.ob"
- *										%weaponload%="myweapon1.foo"
- *										%weaponload%="myweapon2.foo"
- *									
- *									this way you can comment turn on/off individual files
- *									or file types throughout.
- *
- *			pntr=			; pointer to another section
- *			level=			; pointer to another section (same as level=)
- *
- *			long=			; longs (4 bytes each)
- *			int32=			; longs (4 bytes each)
- *			uint32=			; longs (4 bytes each)
- *			word=			; words (2 bytes each)
- *			short=			; words (2 bytes each)
- *			int16=			; words (2 bytes each)
- *			uint16=			; words (2 bytes each)
- *			byte=			; bytes (1 byte each)
- *			char=			; bytes (1 byte each)
- *			int8=			; bytes (1 byte each)
- *			uint8=			; bytes (1 byte each)
- *			float=			; floats (4 bytes each)
- *			string=			; string, NO NULL IS INSERTED!!!
- *							;    string=ABC inserts ABC,
- *							;    string="ABC" inserts "ABC" (including the quotes!!!)
- *			binc=           ; binary file to include here
- *							;    quotes are optional
- *			align=			; boundry to align to (no arg or 0 = default)
- *                          ; NOTE: THIS ALIGNS BASED ON THE START OF THE SECTION
- *                          ;       NOT MEMORY.
- *                          ;      
- *                          ;     In otherwords, if you have section like this
- *                          ;      
- *                          ;         [mysection]
- *                          ;         byte=1
- *                          ;         align=4
- *                          ;         long=$12345678
- *                          ;         
- *                          ;      You will get 3 bytes of padding after the first byte BUT
- *                          ;      the section will be placed based on the -PADSIZE option.
- *                          ;      If -PADSIZE is set to a non multiple of 4 in the example
- *                          ;      above it's possible the section will not start at a 4 byte
- *                          ;      boundry and therefore neither will the long
- *                          ;         
- *          pad=            ; pad with N bytes
- *                          ;
- *                          ;           pad=24 ; insert 24 bytes (value 0)
- *                          ;
- *          secalign=       ; align the start of the current section
- *                          ; can appear anywhere in the section so for example
- *                          ;
- *                          ;         [mysection]
- *                          ;         byte=1
- *                          ;         long=$12345678
- *                          ;         secalign=16
- *                          ;
- *                          ;      My section will start at a 16 byte boundary
- *                          ; 
- *                          ; NOTE: the boundry is relative to the address of the particular
- *                          ; block this section ends up being placed in.  The boundry of
- *                          ; block is up the loader in the program you are using this data.
- *                          ;
- *			path=			; set the path for loading binary files		 
- *							; files encountered after this line will be loaded from here
- *							; NOTE: Files are parsed from the TOP section to each connecting section
- *							;       so for example
- *
- *							[start]
- *							pntr=section1
- *							file=file3.bin		; load dir\subdir\file2.bin
- *							
- *							[section1]
- *							path=dir\subdir
- *							file=file1.bin		; loads dir\subdir\file1.bin
- *
- *          insert=         ; inserts another section here (not a pointer, the actual section
- *                          ; so for example this:
- *
- *                          [start]
- *                          byte=1 2 3
- *                          insert=othersection
- *                          byte=7 8 9
- *
- *                          [othersection]
- *                          byte=4
- *                          byte=5 6
- *
- *                          ; is the same as this
- *
- *                          [start]
- *                          byte=1 2 3
- *                          byte=4
- *                          byte=5 6
- *                          byte=7 8 9
- *							
- *
+ *      See Docs: mkloadob.htm
  *
  *
  * HISTORY
@@ -1601,12 +1350,12 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLin
                         char*            comma;
 						char			 filename[EIO_MAXPATH];
                         bool             fFound = FALSE;
+                        bool             fNullOK = FALSE;   // If TRUE, file does not exists make this pointer NULL instead of an error
                         long             alignment = 1;
 						
 						strcpy (line, arg);
-						fname = TrimWhiteSpaceAndQuotes (line);
                         
-                        if ((comma = strchr (fname, ',')) != NULL)
+                        if ((comma = strchr (line, ',')) != NULL)
                         {
 							NamedPairs* np;
                             char* value;
@@ -1629,9 +1378,15 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLin
                                     alignment = newAlignment;
                                 }
                             }
+                            if (NP_GetValueForName(np, "nullok", &value))
+                            {
+                                fNullOK = (tolower(value[0]) == 't') || (value[0] == '1') || (tolower(value[0] == 'y'));
+                            }
                             
                             NP_Free (np);
                         }
+                        
+						fname = TrimWhiteSpaceAndQuotes (line);
                         
                         if (GetConfigFilename(cl))
                         {
@@ -1641,15 +1396,25 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLin
                         if (!fFound)
                         {
     						EIO_fnmerge (filename, inputPath, fname, NULL);
-                            if (!EIO_FileExists (filename))
+                            fFound = EIO_FileExists (filename);
+                            if (!fFound && !fNullOK)
                             {
                                 ErrMess ("File %s, Line %d: could not open file (%s)\n", GetConfigFilename(cl), GetConfigLineNo (cl), fname);
                             }
                         }
                         
-						part->type   = PART_DATA;
-						part->fc     = AddFile (filename, alignment);
-						part->size   = sizeof (void *);
+                        if (fFound)
+                        {
+    						part->type   = PART_DATA;
+    						part->fc     = AddFile (filename, alignment);
+    						part->size   = sizeof (void *);
+                        }
+                        else
+                        {
+    						part->type   = PART_LONG;
+    						part->string = "0";
+    						part->size   = sizeof (uint32);
+                        }
 					}
 					else if (!stricmp (cmd, "load"))
 					{
@@ -1685,7 +1450,7 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLin
 							
 							part->level = ParseLevel (specFile, secname, cl);
 						}
-	
+
 						part->type   = PART_RUNTIMEFILE;
 						part->size   = sizeof (void *);
 					}
@@ -1695,13 +1460,59 @@ bool ParseSection (Level* level, IniList* specFile, char* sectionName, ConfigLin
 						//
 						// found a level part
 						//
-						part->type   = PART_LEVEL;
+                        char* comma;
+                        char* otherSecName = arg;
+                        bool  fNullOK = FALSE;   // If TRUE, section does not exists make this pointer NULL instead of an error
+                        
+						strcpy (line, arg);
+                        if ((comma = strchr (line, ',')) != NULL)
+                        {
+							NamedPairs* np;
+                            char* value;
+
+                            *comma++ = '\0';
+                            
+                            np = NP_SplitNamedPairs (comma, ',', '=');
+                            if (!np)
+                            {
+                				ErrMess ("File %s, Line %d OOM\n", GetConfigFilename(cl), GetConfigLineNo (cl));
+                                return FALSE;
+                            }
+                            
+                            if (NP_GetValueForName(np, "nullok", &value))
+                            {
+                                fNullOK = (tolower(value[0]) == 't') || (value[0] == '1') || (tolower(value[0] == 'y'));
+                            }
+                            
+                            NP_Free (np);
+                        }
+                        
+						otherSecName = TrimWhiteSpaceAndQuotes (line);
+                        
+                        part->type   = PART_LEVEL;
 						part->size   = sizeof (void *);
 	
-						part->level = FindLevel (arg);
+						part->level = FindLevel (otherSecName);
 						if (!part->level)
 						{
-							part->level = ParseLevel (specFile, arg, cl);
+	                            // check if level exists
+                            SectionTracker	 othersecx;
+                            SectionTracker	*othersec = &othersecx;
+                            
+                            char otherSectionName[MAX_NAME_LEN];
+                            sprintf (otherSectionName, "[%s]", otherSecName);
+                            
+                            othersec = FindSection (othersec, specFile, otherSectionName);
+                            if (!othersec && fNullOK)
+                            {
+                                part->type   = PART_LONG;
+                                part->string = "0";
+                                part->size   = sizeof (uint32);
+                            }
+                            else
+                            {
+    							part->level = ParseLevel (specFile, otherSecName, cl);
+                            }
 						}
 					}
 					else if (!stricmp (cmd, "align"))
