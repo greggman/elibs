@@ -34,6 +34,7 @@
 		05/08/02 GAT: added #define and #include
         11/18/02 GAT: added filenames to each line (so mkloadob can load binary
                          files relative to file they were referenced from)
+		01/23/03 GAT: added fErrorOnDuplicateSection and Section file/lineno
 
 
  *************************************************************************/
@@ -77,9 +78,12 @@ static BOOL fPreprocess  = TRUE;
 static BOOL fUndefEnvVarIsError = FALSE;
 static BOOL fUseMacroLanguage = FALSE;
 static BOOL fStripCPlusPlusComments = FALSE;
+static BOOL fErrorOnDuplicateSection = FALSE;
+static BOOL fParseArgsInSection = FALSE;
 
 static const char *szComment = ";";
 static const char *szSectionMarker = "[";
+static const char *szSectionEndMarker = "]";
 
 static const char* currentFilename;
 static int LineCount;
@@ -91,6 +95,11 @@ static char szLine[MAX_LINE_SIZE];
 void SetINICaseSensitive(BOOL f)
 {
 	fCaseSensitive = f;
+}
+
+void SetINIParseArgsInSection(BOOL f)
+{
+	fParseArgsInSection = f;
 }
 
 void SetINISaveBlankLines(BOOL f)
@@ -141,6 +150,12 @@ void SetINIUseMacroLanguage(BOOL f)
 void SetINIStripCPlusPlusComments(BOOL f)
 {
 	fStripCPlusPlusComments = f;
+}
+
+
+void SetINIErrorOnDuplicateSection(BOOL f)
+{
+	fErrorOnDuplicateSection = f;
 }
 
 int GetINIWarnings(void)
@@ -419,6 +434,8 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
     const char  *savedFilename;
 	char		*pch;
 	FILE		*pFile;
+    size_t      sectionStartMarkerLen = strlen (szSectionMarker);
+    size_t      sectionEndMarkerLen   = strlen (szSectionEndMarker);
 
 	LST_LIST	*pCurrentList = NULL;
 	Section		*pSection = NULL;
@@ -467,32 +484,101 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 
 	while ((pch = GetLine(szLine, MAX_LINE_SIZE, pFile)) != NULL)
 	{
-		if (strncmp (pch, szSectionMarker, strlen(szSectionMarker)) == 0)
+		if (strncmp (pch, szSectionMarker, sectionStartMarkerLen) == 0)
 		{
+            char  secnamebuf[1024];
+            char* secname;
+            char* argStart = NULL;
+            char* argEnd;
+            int   maxlen = sizeof (secnamebuf) - sectionEndMarkerLen;
+            
 			pCurrentList = NULL;
+            
+            if (fParseArgsInSection)
+            {
+                char* s = secnamebuf;
+                int   len = 0;
+                
+                secname = secnamebuf;
+                while (len < maxlen && *pch && strncmp(pch, szSectionEndMarker, sectionEndMarkerLen) && *pch != ',')
+                {
+                    *s++ = *pch++;
+                    len++;
+                }
+                
+                if (len == maxlen)
+                {
+					ErrMess ("file '%s', line %d: section name > 1024 characters!\n", filename, LineCount);
+    /**/			goto ABORT;
+                }
+                
+                strcpy (s, szSectionEndMarker);
+                
+                if (*pch == ',')
+                {
+                    ++pch;  // skip comma
+                    
+                    // skip whitespace
+                    while (*pch && isspace(*pch)) ++pch;
+                    
+                    // get arg
+                    argStart = pch;
+                    while (*pch && strncmp (pch, szSectionEndMarker, sectionEndMarkerLen)) ++pch;
+                    argEnd   = pch;
+                    
+                    if (pch == argStart)
+                    {
+                        argStart = NULL;
+                    }
+                }
+            }
+            else
+            {
+                secname = pch;
+            }
 
-			if (fMergeSections)
-			{
-				pSection = (Section*)LST_Head(&pIniList->SectionList);
+            pSection = (Section*)LST_Head(&pIniList->SectionList);
 
-				while (!LST_IsEOList(pSection))
-				{
-					if ( (fCaseSensitive &&  strcmp(szSectionName(pSection), pch) == 0) ||
-						(!fCaseSensitive && stricmp(szSectionName(pSection), pch) == 0))
-					{
-						pCurrentList = &pSection->LineList;
-						break;
-					}
-					pSection = (Section*)LST_Next(pSection);
-				}
+   			if (fMergeSections || fErrorOnDuplicateSection)
+            {
+                while (!LST_IsEOList(pSection))
+                {
+                    if ( (fCaseSensitive &&  strcmp(szSectionName(pSection), secname) == 0) ||
+                        (!fCaseSensitive && stricmp(szSectionName(pSection), secname) == 0))
+                    {
+            			if (fMergeSections)
+            			{
+                            pCurrentList = &pSection->LineList;
+                        }
+                        else if (fErrorOnDuplicateSection)
+                        {
+        					ErrMess ("file '%s', line %d: duplicate section (%s), original section in file '%s', line %d.\n", filename, LineCount, secname, pSection->Filename, pSection->LineNo);
+                        }
+                        break;
+                    }
+                    pSection = (Section*)LST_Next(pSection);
+                }
 			}
+            
 			if (!pCurrentList)
 			{
-				if ((pSection = AddINISection(pIniList, pch)) == NULL)
+				if ((pSection = AddINISection(pIniList, secname)) == NULL)
 				{
 					ErrMess ("file '%s', line %d: OOM .\n", filename, LineCount);
 /**/				goto ABORT;
-				}
+                }
+                
+                pSection->Filename = filename;
+                pSection->LineNo   = LineCount;
+                
+                if (argStart)
+                {
+                    char* args = malloc (argEnd - argStart + 1);
+                    strncpy (args, argStart, argEnd - argStart);
+                    args[pch - argStart] = '\0';
+                    
+                    pSection->Args = args;
+                }
 
 				pCurrentList = &pSection->LineList;
 			}
@@ -684,7 +770,7 @@ SectionTracker *FindSection(SectionTracker *pst, IniList *pIniList, const char *
 			if ( (fCaseSensitive &&  strcmp(szSectionName(pSection), sz) == 0) ||
 				(!fCaseSensitive && stricmp(szSectionName(pSection), sz) == 0))
 			{
-				pst->ltSection = &pSection->LineList;
+				pst->ltSection = pSection;
 				pst->clCurrentLine = (ConfigLine *) pst->ltSection;
 				pResult = pst;
 				break;
@@ -797,6 +883,10 @@ void FreeINI(IniList *pIniList)
 		while ((pSection = (Section*)LST_RemTail(pIniList)) != NULL)
 		{
 			LST_EmptyList(&pSection->LineList);
+            if (pSection->Args)
+            {
+                free ((void*)pSection->Args);
+            }
 
 			LST_DeleteNode(pSection);
 		}
@@ -935,7 +1025,7 @@ ConfigLine *GetNextINILine(SectionTracker *pst)
 {
 	if (pst->clCurrentLine == (ConfigLine *) pst->ltSection)
 	{
-		pst->clCurrentLine = (ConfigLine*)LST_Head(pst->ltSection);
+		pst->clCurrentLine = (ConfigLine*)LST_Head(&pst->ltSection->LineList);
 	}
 	else
 	{

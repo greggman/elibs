@@ -52,6 +52,9 @@ typedef struct
 {
 	LST_NODE	Node;
 	LST_LIST	LineList;
+	int 		LineNo;     // where this section started
+    const char* Filename;   // file this section started (note: if you have MergeSections on then of course this might not tell you the whole story
+    const char* Args;       // part after the ',' if fParseArgsInSection is true
 } Section;
 
 typedef struct
@@ -63,7 +66,7 @@ typedef struct
 
 typedef struct
 {
-	LST_LIST *ltSection;
+	Section    *ltSection;
 	ConfigLine *clCurrentLine;
 } SectionTracker;
 
@@ -78,11 +81,12 @@ typedef struct
 #define GetConfigLineNo(configline)	((configline)->LineNo)
 #define GetConfigFilename(configline)	((configline)->Filename)
 #define	GetCurrentSectionLine(section)	GetConfigLineNo(((section)->clCurrentLine))
+#define GetSectionArgs(sectiontracker)  ((sectiontracker)->ltSection->Args)
 #define ReadINI(filename)				AppendINI(NULL,(filename))
 
-#define INI_IsSectionUsed(sectionTracker)  ((sectionTracker)->ltSection->type != 0)
-#define INI_markSectionAsUsed(sectionTracker)  ((sectionTracker)->ltSection->type = 1)
-#define INI_markSectionAsUnused(sectionTracker)  ((sectionTracker)->ltSection->type = 0)
+#define INI_IsSectionUsed(sectionTracker)  ((sectionTracker)->ltSection->LineList.type != 0)
+#define INI_markSectionAsUsed(sectionTracker)  ((sectionTracker)->ltSection->LineList.type = 1)
+#define INI_markSectionAsUnused(sectionTracker)  ((sectionTracker)->ltSection->LineList.type = 0)
 
 /****************** F U N C T I O N   P R O T O T Y P E S *****************/
 
@@ -95,6 +99,8 @@ extern void SetINIMergeSections(BOOL f);	/* Set TRUE to merge lines with same se
 extern void SetINIUndefEnvVarIsError(BOOL f); /* Set TRUE to generate errors if referenced envvars are undefined */
 extern void SetINIUseMacroLanguage(BOOL f); /* Set TRUE to allow macro language, see docs */
 extern void SetINIStripCPlusPlusComments(BOOL f);  /* Set TRUE to allow CPlusPlus comments, added because I needed both C++ and ASM comments */
+extern void SetINIErrorOnDuplicateSection(BOOL f); /* set TRUE to cause error if more than one section with same name */
+extern void SetINIParseArgsInSection(BOOL f);   /* set to TRUE to make [sectionname,arg=foo] get parsed */
 
 extern void SetINIComment(const char *sz);		/* string to match for a comment. Eg., szComment = "//" */
 extern void SetINISectionMarker(const char *sz);/* lines beginning w/ <szSectionMarker> start a section */
