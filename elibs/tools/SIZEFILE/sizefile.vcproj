@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding = "shift_jis"?>
+<?xml version="1.0" encoding="shift_jis"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.00"
+	Version="7.10"
 	Name="sizefile"
 	SccProjectName=""
 	SccLocalPath="">
@@ -21,6 +21,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="$(elibs)/inc"
 				PreprocessorDefinitions="WIN32,_DEBUG,_CONSOLE,_EL_PLAT_WIN32__=1"
 				RuntimeLibrary="5"
 				UsePrecompiledHeader="2"
@@ -40,6 +41,7 @@
 				OutputFile=".\Debug/sizefile.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="$(elibs)/lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\Debug/sizefile.pdb"
 				SubSystem="1"/>
@@ -59,7 +61,13 @@
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
 				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
@@ -72,6 +80,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="$(elibs)/inc"
 				PreprocessorDefinitions="WIN32,NDEBUG,_CONSOLE"
 				StringPooling="TRUE"
 				RuntimeLibrary="4"
@@ -92,6 +101,7 @@
 				OutputFile=".\Release/sizefile.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="$(elibs)/lib"
 				ProgramDatabaseFile=".\Release/sizefile.pdb"
 				SubSystem="1"/>
 			<Tool
@@ -110,9 +120,17 @@
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
 				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 	</Configurations>
+	<References>
+	</References>
 	<Files>
 		<File
 			RelativePath=".\Sizefile.c">
