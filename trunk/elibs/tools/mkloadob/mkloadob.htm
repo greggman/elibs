@@ -153,8 +153,7 @@ file=tree.3d        ; model file for tree</pre>
 </blockquote>
 <p>You pass this file to the data linker and you'll get a binary file that you 
 can load directly into memory and with only a few lines of code all your 
-pointers will already be pointing at your data.&nbsp; No need to hand load and 
-hand parse stuff.</p>
+pointers will already be pointing at your data.</p>
 <p>Above notice the third line that says &quot;pntr=&quot;.&nbsp; This line generates a 
 pointer to a section that matches the name after the '='.&nbsp; You can have as 
 many pointers as you need/want.&nbsp; They can be nested to any level and they
@@ -164,7 +163,14 @@ file tree.3d would be stored only once inside the binary file that the data link
 but there would be two pointers pointing to that data.</p>
 <p><span lang="ja">For a real game, most of the time we would not write data 
 linker files by hand.&nbsp; We would make our tools generate data linker files 
-and then let the data linker pull it all together.</span></p>
+and then let the data linker pull it all together.&nbsp; There's n</span>o need 
+to hand load and hand parse stuff<span lang="ja"> which is another huge 
+advantage.&nbsp; Most games that use individual files or chunky formats end up 
+reading a few bytes at a time and *parsing* the data, reading the size of this 
+or that, allocating bits of memory at time etc..&nbsp; That's a lot of work.&nbsp; 
+Many loaders are hundreds of lines long.&nbsp; Using the a data linker removes 
+all that code.&nbsp; Less code = faster development, faster loading, more 
+memory, less bugs.</span></p>
 <h2>Running the Data Linker</h2>
 <p>A typical command line might look like this</p>
 <blockquote>
