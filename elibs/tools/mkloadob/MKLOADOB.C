@@ -2482,6 +2482,7 @@ int main(int argc, char **argv)
     SetINIUseMacroLanguage(TRUE);
     SetINIStripCPlusPlusComments(TRUE);
     SetINIParseArgsInSection(TRUE);
+    SetINIChangeCurrentDir(TRUE);
 
 	newargs = argparse (argc, argv, Template);
 
