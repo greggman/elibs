@@ -6,6 +6,7 @@
 <title>The Echidna Libraries</title>
 <style>
 <!--
+body         { background-color: #FFFFE0; }
 h3           { color: #FFFFFF; padding: 3; background-color: #000080 }
 -->
 </style>
@@ -113,49 +114,49 @@ would like to use. Please do not ask us to support them. That is not why they ar
 <h3><a name="interesting"></a>What's Interesting here?</h3>
 </b>
 
-<p>These tools and libraries started in the early 1990 so some parts of it are 
+<p>These tools and libraries started in the early 1990 so some parts of it are
 more relevant to today then others.&nbsp; The parts you might find interesting</p>
 
 <h4>Most Interesting:</h4>
 
 <ul>
-  <li>The Echidna Data Linker.&nbsp; Links together complex data for easy 
+  <li>The Echidna Data Linker.&nbsp; Links together complex data for easy
   loading into a game</li>
-  <li>The GF tools, gfxinout, gfshrink, gfpal.&nbsp; These 3 tools can for 
-  example make mips for textures and palletize them including having on palette 
-  across mips.&nbsp; Sample a thousand images, make a one palette for all of 
+  <li>The GF tools, gfxinout, gfshrink, gfpal.&nbsp; These 3 tools can for
+  example make mips for textures and palletize them including having on palette
+  across mips.&nbsp; Sample a thousand images, make a one palette for all of
   them, then remap all the images to use that palette.</li>
-  <li>File format functions.&nbsp; In the libraries there are functions for 
-  reading various graphic formats. .PCX, .PSD, .PIC, .TGA, .IFF.&nbsp; Check out 
+  <li>File format functions.&nbsp; In the libraries there are functions for
+  reading various graphic formats. .PCX, .PSD, .PIC, .TGA, .IFF.&nbsp; Check out
   the functions in READGFX.H</li>
 </ul>
 
 <h4>Mildly Interesting:</h4>
 
 <ul>
-  <li>EIO.c / EIO.h&nbsp; this part of the libraries deals with IO across 
-  platforms including path manipulation, copying files, reading folders.&nbsp; 
-  As there is no consistent standard we wrote our own so our tools can be 
+  <li>EIO.c / EIO.h&nbsp; this part of the libraries deals with IO across
+  platforms including path manipulation, copying files, reading folders.&nbsp;
+  As there is no consistent standard we wrote our own so our tools can be
   platform independent.</li>
-  <li>Definer.&nbsp; A solution to the problem of having separate header files 
-  for 2 or more different languages but that have to remain in sync.&nbsp; For 
+  <li>Definer.&nbsp; A solution to the problem of having separate header files
+  for 2 or more different languages but that have to remain in sync.&nbsp; For
   example keeping your constants in sync and available to both C and assembly.</li>
 </ul>
 
 <h4>Less Interesting</h4>
 
 <ul>
-  <li>Cutbytes.&nbsp; It's a simple program but sometimes when you are trying to 
-  hack something apart it can be easier to just cut it up using a simple tool 
+  <li>Cutbytes.&nbsp; It's a simple program but sometimes when you are trying to
+  hack something apart it can be easier to just cut it up using a simple tool
   like this.</li>
-  <li>Argparse.c/Argparse.h.&nbsp; It's our solution to argument parsing.&nbsp; 
-  Handles multiple arguments per field and passing the arguments in by files to 
+  <li>Argparse.c/Argparse.h.&nbsp; It's our solution to argument parsing.&nbsp;
+  Handles multiple arguments per field and passing the arguments in by files to
   get around the limits some system have with long command lines.</li>
-  <li>Maclang.cpp/Maclang.h.&nbsp; A simple text based macro expansion language 
+  <li>Maclang.cpp/Maclang.h.&nbsp; A simple text based macro expansion language
   that can be applied to any string.</li>
-  <li>Readini.c/Readini.h.&nbsp; Functions to read windows style .ini files.&nbsp; 
+  <li>Readini.c/Readini.h.&nbsp; Functions to read windows style .ini files.&nbsp;
   Can make it easy to make configuration files for example.</li>
-  <li>Ensure.c/Ensure.h&nbsp; For examples of making your own printf and 
+  <li>Ensure.c/Ensure.h&nbsp; For examples of making your own printf and
   printing it's results to the VC++ debugger's output pane.</li>
 </ul>
 
