@@ -1,0 +1,810 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="ja">
+<meta name="GENERATOR" content="Microsoft FrontPage 5.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Back in the early 90s as soon as CD based game systems came out it became 
+clear that one of the big problems with CD based games was</title>
+<style>
+<!--
+.elist1      { background-color: #E3E3FF; vertical-align:top }
+.elist2      { background-color: #F0F0FF; vertical-align:top }
+pre          { margin-bottom: 0 }
+-->
+</style>
+</head>
+
+<body>
+
+<h1>MKLOADOB (the Echidna Data Linker)</h1>
+<p>Back in the early 90s as soon as CD based game systems came out it became 
+clear that one of the big problems with CD based games was they took forever to 
+load!&nbsp; Those problems were mostly solved by several companies back in the 
+early 90s but it seems like almost no one noticed because we still get crap like 
+Crash Bandicoot: Wrath of Cortex with atrocious load times.&nbsp; Pick a level, 
+wait 90 seconds, take a few steps, die, wait 90 seconds for the hub level to 
+load so you can immediately jump back into the level and have to wait another 90 
+seconds!!</p>
+<p>How do you get around these problems?&nbsp; The biggest step is realizing 
+that A CONSOLE IS NOT A PC!!!!&nbsp; Burn that into your brain!!!</p>
+<p>It's not uncommon for PC games to just put each texture, each model, each 
+sound in a separate file.&nbsp; When you install the game all of them get copied 
+to your hard drive and when you start the game they load them up, one at a time.&nbsp; 
+The only thing that makes this possibly acceptable on a PC is you are loading 
+them off the hard drive or a 40x CD/DVD drive with disk caching built into the 
+OS.&nbsp; Good consoles don't have an OS and to keep costs down they don't have 
+40x CD/DVD drives.</p>
+<p>The other excuse is nobody knows what kind of PC the game will run on.&nbsp; 
+Will it be a 512meg Pentium 4 with 128Meg of Video RAM or a 300mhz Celeron and a 
+4Meg RIVA 128 card?&nbsp; In that case sometimes there might be different 
+versions of each model, texture, sound etc.&nbsp; Consoles don't have this 
+problem.&nbsp; There is only one type.&nbsp; If you are making a PS2 game you 
+know exactly what hardware the user will have.</p>
+<p>Basically here is what you need to do to get your load times to be as fast as 
+possible.</p>
+<ul>
+  <li>Load all your data from ONE FILE!!!</li>
+</ul>
+<blockquote>
+  <p>There are two steps to this.&nbsp; One, for a single stage, attempt to load 
+  all the data for that stage from one file directly into memory.&nbsp; No 
+  loading one model from one file and a different model from a different file.&nbsp; 
+  Even if that means putting some of the same models, textures or sounds on the 
+  DVD more than once, do it!&nbsp; You've got a friggen DVD worth of space.&nbsp; 
+  Use it!</p>
+  <p>The second step is putting all the files in your game (the one file for 
+  each stage) all together into one BIG file that contains all the data for your 
+  entire game.&nbsp; This is not a hard thing to do and it will remove even more 
+  overhead for your game.</p>
+</blockquote>
+<ul>
+  <li>Load your data in chucks no smaller than 1 DVD hardware sector.&nbsp; In 
+  otherwords, if on your platform a DVD hardware sector holds 2048 bytes of data 
+  then ALWAYS LOAD A MULTIPLE OF 2048 bytes.&nbsp; Never load less even if you 
+  have to pad the file.</li>
+</ul>
+<blockquote>
+  <p>The reason is on some systems data can be DMAed directly into memory but 
+  this is only true if you are DMAing a whole sector.&nbsp; Anything less than a 
+  sector and it first has to be read into some buffer in the OS and then copied 
+  to your memory.&nbsp; That also means you cannot read a few bytes from the 
+  file and then start reading multiples of sector size chucks of data.&nbsp; You 
+  have to start right from the beginning going at full speed.</p>
+</blockquote>
+<ul>
+  <li>Finally, load your data in as close to an image of memory as possible.&nbsp; 
+  You should NOT have to parse your data while your are loading it or after.&nbsp; 
+  With very few exceptions you should NOT have to copy things around.&nbsp; I've 
+  seen many schemes that make some file format where there are &quot;chunks&quot;.&nbsp; A 
+  chunk is usually some kind of ID followed by the length of the chunk after 
+  which follows the next chunk.&nbsp; That is NOT a good format for a game.&nbsp; 
+  That's a great format for a tool or an application but not for a game because 
+  parsing takes time.&nbsp; More time than not parsing.&nbsp; In game, anything 
+  which takes more time is BAD.&nbsp; Don't do it!</li>
+</ul>
+<p>It's this last step that I'm here to help you with.&nbsp; In the early 1990s 
+my friends and I wrote a tool to deal with this.&nbsp; Since about 1997 we have 
+made it free but without docs it's been unlikely that anybody has used it let 
+alone even found it, until now!</p>
+<h2>The Data Linker</h2>
+<p>It's what we call a Data Linker because it takes a bunch of data an links it 
+together.&nbsp; It's called MKLOADOB.&nbsp; Lame name I know but hey, it's old, 
+back from the days of DOS.&nbsp; If you are curious, MKLOADOB stands for MaKe 
+LOAD OBject.</p>
+<p>It takes a bunch of spec files of the form below and generates a hierarchical 
+binary file with pointers.</p>
+<h2>Data Linker File Format</h2>
+<p>The format of the data linker files is as follows</p>
+<h3>Preprocessor commands:</h3>
+<table border="0" cellpadding="5" cellspacing="0" style="border-collapse: collapse">
+  <tr>
+    <td class="elist1">#include &quot;filename&quot;</td>
+    <td class="elist1">includes another linker file</td>
+  </tr>
+  <tr>
+    <td class="elist2">#define var value</td>
+    <td class="elist2">defines a var that can be referenced as %var%</td>
+  </tr>
+</table>
+<h3>Commands:</h3>
+<p>IMPORTANT!!!</p>
+<p>data fields are not automatically aligned. In other words</p>
+<blockquote>
+  <pre>[mysection]
+byte=1
+long=2</pre>
+</blockquote>
+<p>Will result in a long starting at a 1 byte offset from the start of mysection.&nbsp; 
+The reason is this allows you to use the data linker to make unaligned data. If 
+you want aligned data you need to use the align= option</p>
+<table border="0" cellpadding="5" cellspacing="0" style="border-collapse: collapse">
+  <tr>
+    <td class="elist1">[secname]</td>
+    <td class="elist1">start a section<p>You can set the alignment for 
+    a section as follows</p>
+    <blockquote>
+      <pre>[mysection,align=16]</pre>
+    </blockquote>
+    <p>My section will start at a 16 byte boundary</p>
+    <p>NOTE: the alignment is relative to the address of the particular block 
+    this section ends up being placed in. The alignment of block is up to the 
+    loader in the program you are using this data.</td>
+  </tr>
+  <tr>
+    <td class="elist2">file=</td>
+    <td class="elist2">pointer to a file : quotes are optional<p>You 
+    can also optionally specify an alignment for the file like this</p>
+    <blockquote>
+      <pre>file=myfile.bin,align=16</pre>
+    </blockquote>
+    <p>NOTE: the alignment is relative to the address of the particular block 
+    this section ends up being placed in. The alignment of block is up to the 
+    loader in the program you are using this data.</p>
+    <p>To understand file, the long hand way of writing this would be as follows</p>
+    <blockquote>
+      <pre>...
+pntr=myfile.bin.section
+...
+
+[myfile.bin.section]
+binc=myfile.bin</pre>
+    </blockquote>
+    </td>
+  </tr>
+  <tr>
+    <td class="elist1">data=</td>
+    <td class="elist1">pointer to a file (same as file=) : quotes are 
+    optional</td>
+  </tr>
+  <tr>
+    <td class="elist2">load=</td>
+    <td class="elist2">pointer to a file loaded at runtime : quotes 
+    are optional
+    <p>note: this will actually start as a pointer to a filename with with the 
+    POSITIONFLAG_ISFILE set to tell your loader that you need to load the file
+    </p>
+    <p>since mkloadob excepts variables both as environment vars and as #define 
+    var value, the expected usage of load= is as follows</p>
+    <blockquote>
+      <pre>#define objectload=load
+;#define objectload=file
+#define weaponsload=load
+;#define weaponsload=file
+
+%objectload%=&quot;myobject1.ob&quot;
+%objectload%=&quot;myobject2.ob&quot;
+%weaponload%=&quot;myweapon1.foo&quot;
+%weaponload%=&quot;myweapon2.foo&quot;</pre>
+      <p>this way you can comment turn on/off individual files or file types 
+      throughout.</p>
+    </blockquote>
+    </td>
+  </tr>
+  <tr>
+    <td class="elist1">pntr=</td>
+    <td class="elist1">pointer to another section</td>
+  </tr>
+  <tr>
+    <td class="elist2">level=</td>
+    <td class="elist2">pointer to another section (same as level=)</td>
+  </tr>
+  <tr>
+    <td class="elist1">long=</td>
+    <td class="elist1">longs (4 bytes each)</td>
+  </tr>
+  <tr>
+    <td class="elist2">int32=</td>
+    <td class="elist2">longs (4 bytes each)</td>
+  </tr>
+  <tr>
+    <td class="elist1">uint32=</td>
+    <td class="elist1">longs (4 bytes each)</td>
+  </tr>
+  <tr>
+    <td class="elist2">word=</td>
+    <td class="elist2">words (2 bytes each)</td>
+  </tr>
+  <tr>
+    <td class="elist1">short=</td>
+    <td class="elist1">words (2 bytes each)</td>
+  </tr>
+  <tr>
+    <td class="elist2">int16=</td>
+    <td class="elist2">words (2 bytes each)</td>
+  </tr>
+  <tr>
+    <td class="elist1">uint16=</td>
+    <td class="elist1">words (2 bytes each)</td>
+  </tr>
+  <tr>
+    <td class="elist2">byte=</td>
+    <td class="elist2">bytes (1 byte each)</td>
+  </tr>
+  <tr>
+    <td class="elist1">char=</td>
+    <td class="elist1">bytes (1 byte each)</td>
+  </tr>
+  <tr>
+    <td class="elist2">int8=</td>
+    <td class="elist2">bytes (1 byte each)</td>
+  </tr>
+  <tr>
+    <td class="elist1">uint8=</td>
+    <td class="elist1">bytes (1 byte each)</td>
+  </tr>
+  <tr>
+    <td class="elist2">float=</td>
+    <td class="elist2">floats (4 bytes each)</td>
+  </tr>
+  <tr>
+    <td class="elist1">string=</td>
+    <td class="elist1">string, note: NO NULL IS INSERTED!!!<table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="100%">
+      <tr>
+        <td class="elist1">
+        <pre>string=ABC</pre>
+        </td>
+        <td class="elist1">inserts ABC</td>
+      </tr>
+      <tr>
+        <td class="elist1">
+        <pre>string=&quot;ABC&quot;</pre>
+        </td>
+        <td class="elist1">inserts &quot;ABC&quot; (including the quotes!!!)</td>
+      </tr>
+    </table>
+    </td>
+  </tr>
+  <tr>
+    <td class="elist2">binc= </td>
+    <td class="elist2">binary file to include here, quotes are 
+    optional</td>
+  </tr>
+  <tr>
+    <td class="elist1">align=</td>
+    <td class="elist1">boundary to align to (no arg or 0 = default)<p>
+    NOTE: THIS ALIGNS BASED ON THE START OF THE SECTION&nbsp; NOT MEMORY.</p>
+    <p>In other words, if you have section like this</p>
+    <blockquote>
+      <pre>[mysection]
+byte=1
+align=4
+long=$12345678</pre>
+    </blockquote>
+    <p>You will get 3 bytes of padding after the first byte BUT the section will 
+    be placed based on the -PADSIZE option. If -PADSIZE is set to a non multiple 
+    of 4 in the example above it's possible the section will not start at a 4 
+    byte boundary and therefore neither will the long</td>
+  </tr>
+  <tr>
+    <td class="elist2">pad=</td>
+    <td class="elist2">pad with N bytes<blockquote>
+      <pre>pad=24</pre>
+    </blockquote>
+    <p>insert 24 bytes (value 0)</td>
+  </tr>
+  <tr>
+    <td class="elist1">path= </td>
+    <td class="elist1">set the path for loading binary files. Files 
+    encountered after this line will be loaded from here<p>&nbsp;NOTE: Files are 
+    parsed from the TOP section to each connecting section&nbsp; so for example</p>
+    <blockquote>
+      <pre>[start]
+pntr=section1
+file=file3.bin ; load dir\subdir\file2.bin
+
+[section1]
+path=dir\subdir
+file=file1.bin ; loads dir\subdir\file1.bin</pre>
+    </blockquote>
+    </td>
+  </tr>
+  <tr>
+    <td class="elist2">insert=</td>
+    <td class="elist2">inserts another section here.&nbsp; Not a 
+    pointer, the actual section so for example this:<blockquote>
+      <pre>[start]
+byte=1 2 3
+insert=othersection
+byte=7 8 9
+
+[othersection]
+byte=4
+byte=5 6</pre>
+    </blockquote>
+    <p>is the same as this</p>
+    <blockquote>
+      <pre>[start]
+byte=1 2 3
+byte=4
+byte=5 6
+byte=7 8 9</pre>
+    </blockquote>
+    </td>
+  </tr>
+</table>
+<h2>Numeric Format</h2>
+<p>You can specify integer based numbers as follows</p>
+<blockquote>
+<table border="0" cellpadding="4" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111">
+  <tr>
+    <td class="elist1">
+    <pre>1234</pre>
+    </td>
+    <td class="elist1">= decimal 1234</td>
+  </tr>
+  <tr>
+    <td class="elist2">
+    <pre>$1234</pre>
+    </td>
+    <td class="elist2">= hexadecimal 0x1234</td>
+  </tr>
+  <tr>
+    <td class="elist1">
+    <pre>0x1234</pre>
+    </td>
+    <td class="elist1">= hexadecimal 0x1234</td>
+  </tr>
+  <tr>
+    <td class="elist2">
+    <pre>1234h</pre>
+    </td>
+    <td class="elist2">= hexadecimal 0x1234</td>
+  </tr>
+  <tr>
+    <td class="elist1">
+    <pre>!12.34</pre>
+    </td>
+    <td class="elist1">= fixed point 16.16 fraction</td>
+  </tr>
+</table>
+</blockquote>
+<h2>Command Line Arguments</h2>
+<p>Usage: MKLOADOB OUTFILE SPECFILES [switches...]</p>
+<table border="0" cellpadding="5" cellspacing="0" style="border-collapse: collapse">
+  <tr>
+    <td class="elist1" nowrap>OUTFILE</td>
+    <td class="elist1">Output filename</td>
+  </tr>
+  <tr>
+    <td class="elist2" nowrap>SPECFILES</td>
+    <td class="elist2">Linker files</td>
+  </tr>
+  <tr>
+    <td class="elist1" nowrap>-VERBOSE</td>
+    <td class="elist1">Verbose (print too much info)</td>
+  </tr>
+  <tr>
+    <td class="elist2" nowrap>-NOOUTPUT</td>
+    <td class="elist2">Don't write output file</td>
+  </tr>
+  <tr>
+    <td class="elist1" nowrap>-DUPERR</td>
+    <td class="elist1">To sections with the same name cause an error (default, 
+    ignore duplicates)</td>
+  </tr>
+  <tr>
+    <td class="elist2" nowrap>-NOPACK</td>
+    <td class="elist2">Don't Pack.&nbsp; Don't check the contents of each binary 
+    file to see if it match another binary file</td>
+  </tr>
+  <tr>
+    <td class="elist1" nowrap>-BIGENDIAN</td>
+    <td class="elist1">Big Endian, default is little endian.</td>
+  </tr>
+  <tr>
+    <td class="elist2" nowrap>-PADSIZE &lt;bytes&gt;</td>
+    <td class="elist2">Padsize Size (Def. 4). This is the default alignment for 
+    the start of sections</td>
+  </tr>
+  <tr>
+    <td class="elist1" nowrap>-CHUNKSIZE &lt;bytes&gt;</td>
+    <td class="elist1">Chunk Size (Def. 2048).&nbsp; This is the size of one 
+    chuck.&nbsp; See Chunkifying your data.&nbsp; Most likely you'll want to set 
+    this to something like $8000000</td>
+  </tr>
+  <tr>
+    <td class="elist2" nowrap>-SECTORSIZE &lt;bytes&gt;</td>
+    <td class="elist2">Hardware Sector Size (Def. 1).&nbsp; If you set this to 
+    anysize larger then 1 your file will be padded to be a multiple of this 
+    number.</td>
+  </tr>
+  <tr>
+    <td class="elist1" nowrap>-FIXUPMODE &lt;mode&gt;</td>
+    <td class="elist1">Fixup mode.&nbsp; This specifies the the method used to 
+    save the optional pointer fixup table<blockquote>
+      <p>0 = none (def)<br>
+      1 = at beginning of the file<br>
+      2 = at end (this is probably the most common setting)</p>
+    </blockquote>
+    </td>
+  </tr>
+  <tr>
+    <td class="elist2" nowrap>-NOPAD</td>
+    <td class="elist2">Don't pad end of file to Chunk size.&nbsp; You will 
+    probably want to set this option, otherwise if you set the chunksize above 
+    to some very large size you'll get a gigantic file</td>
+  </tr>
+  <tr>
+    <td class="elist1" nowrap>-TOP &lt;top&gt;</td>
+    <td class="elist1">Top Section (Def. 'START').&nbsp; By default the linker 
+    will look for a section called [start] for where it should start parsing.&nbsp; 
+    You can change that with this option</td>
+  </tr>
+  <tr>
+    <td class="elist2" nowrap>-WRITEPRE &lt;prefile&gt;</td>
+    <td class="elist2">Write Preload file</td>
+  </tr>
+  <tr>
+    <td class="elist1" nowrap>-WRITEKEY&lt;prekey&gt;</td>
+    <td class="elist1">Write Preload key file</td>
+  </tr>
+  <tr>
+    <td class="elist2" nowrap>-NOSORT</td>
+    <td class="elist2">Do NOT sort binary files.&nbsp; The point of this is 
+    supposed to be that if not sorted, &quot;file=&quot; files will generally get loaded 
+    in memory consecutively as they are found in the linker file. Of course they 
+    will be no where near the non-file data</td>
+  </tr>
+  <tr>
+    <td class="elist1" nowrap>-READPRE &lt;prefile&gt;</td>
+    <td class="elist1">Read preload file</td>
+  </tr>
+  <tr>
+    <td class="elist2" nowrap>-INCLUDE &lt;incpath&gt;</td>
+    <td class="elist2">Add an include pat</td>
+  </tr>
+</table>
+<h2>Macro Language</h2>
+<p>There is a small macro language built in.&nbsp; It works on a line by line 
+basis.&nbsp; In other words, macros can NOT span more than one line.&nbsp; 
+Variables and macros are referenced with %.&nbsp; Example</p>
+                <blockquote>
+                  <pre>#define file myfile
+#define extension .bin
+load=%file%%extension%</pre>
+</blockquote>
+<p>would be the same as</p>
+<blockquote>
+  <pre>load=myfile.bin</pre>
+</blockquote>
+<p>Note: The format is %blah%.&nbsp; Notice the ending %.&nbsp; This is so you 
+can put two variables directly next to each other like in the example above.&nbsp; 
+It is optional only when the next thing following is not a macro/variable.&nbsp; 
+This has the following consequence.&nbsp; If you follow a macro with a variable 
+or another macro be sure to remember the trailing %.&nbsp; For example</p>
+<blockquote>
+  <pre>%fadd(2,3)%fadd(4,5)</pre>
+</blockquote>
+<p>That is most likely a bug.&nbsp; It reads as %fadd(2,3)% followed by 
+fadd(4,5).&nbsp; The second fadd is not preceded by a % and is therefore not a 
+macro call.&nbsp; The correct way is</p>
+<blockquote>
+  <pre>%fadd(2,3)%%fadd(4,5)</pre>
+</blockquote>
+<h3>Macro commands</h3>
+<table border="0" cellpadding="5" cellspacing="0" style="border-collapse: collapse">
+<tr><td class="elist1">%fnop (...)</td><td class="elist1">anything
+    inside the parentheses is ignored.&nbsp; Kind of a way to comment something
+    out.</td></tr>
+<tr><td class="elist2">%fset (var,value)</td><td class="elist2">set
+    the variable called <b>var</b> to <b>value</b></td></tr>
+<tr><td class="elist1">%fadd (value1,value2,...)</td><td class="elist1">add
+    <b>value1</b> to <b>value2</b> (then add <b>value3</b>, ... etc)</td></tr>
+<tr><td class="elist2">%fsubtract,%fsub (value1,value2,...)</td><td class="elist2">sub
+    <b>value2</b> from <b>value1</b> (then subtract <b>value3</b>, ...etc)</td></tr>
+<tr><td class="elist1">%fdivide,%fdiv (value1,value2,...)</td><td class="elist1">divide
+    <b>value1</b> by <b>value2</b> (then divide by <b>value3,</b> ...etc)</td></tr>
+<tr><td class="elist2">%fmultiply,%fmul,%fmult (value1,value2,...)</td><td class="elist2">multiply
+    <b>value1</b> by <b>value2</b> (then multiply by <b>value3</b>, ..etc)</td></tr>
+<tr><td class="elist1">%fmodulo,%fmod (value1,value2,...)</td><td class="elist1">return
+    the remainder when dividing <b>value1</b> by <b>value2</b></td></tr>
+<tr><td class="elist2">%fconcatenate,%fconcate,%fcat (str1,
+    str2, ...)</td><td class="elist2">concatenate <b>str2</b>
+    on the end of <b>str1</b> (then <b>str3</b> on the end of that etc)</td></tr>
+<tr><td class="elist1">%fsubstr (str,index[,len])</td><td class="elist1">return
+    the substring of <b>str</b>.&nbsp; If just <b>index</b> is specified then
+    you get the substring from index to the end of the string.&nbsp; If <b>len</b>
+    is specified then you get <b>len</b> characters after <b>index</b></td></tr>
+<tr><td class="elist2">%fleft(str,count)</td><td class="elist2">return
+    the left <b>count</b> characters of <b>str</b></td></tr>
+<tr><td class="elist1">%fright(str,count)</td><td class="elist1">return
+    the right <b>count</b> characters of <b>str</b></td></tr>
+<tr><td class="elist2">%fstrlen (str1,...)</td><td class="elist2">return
+    the length the <b>str1</b> (plus <b>str2</b>, etc...)</td></tr>
+<tr><td class="elist1">%fif (value,truecase[,falsecase])</td><td class="elist1">if
+    <b>value</b> is true return <b>truecase</b>, else, if there is a <b>falsecase</b>
+    return it</td></tr>
+<tr><td class="elist2">%fequal,%feq (value1,value2)</td><td class="elist2">return
+    1 if <b>value1</b> is equal to <b>value2</b> (integer compare)</td></tr>
+<tr><td class="elist1">%fgreaterthan,%fgt (value,value)</td><td class="elist1">return
+    1 if <b>value1</b> is greater than to <b>value2</b> (integer compare)</td></tr>
+<tr><td class="elist2">%fgreaterthanequal,%fge (value,value)</td><td class="elist2">return
+    1 if <b>value1</b> is greater than or equal to <b>value2</b> (integer
+    compare)</td></tr>
+<tr><td class="elist1">%flessthan,%flt (value,value)</td><td class="elist1">return
+    1 if <b>value1</b> is less than to <b>value2</b> (integer compare)</td></tr>
+<tr><td class="elist2">%flessthanequal,%fle (value,value)</td><td class="elist2">return
+    1 if <b>value1</b> is less than or equal to <b>value2</b> (integer compare)</td></tr>
+<tr><td class="elist1">%fnotequal,%fne, (value,value)</td><td class="elist1">return
+    1 if <b>value1</b> is not equal to <b>value2</b> (integer compare)</td></tr>
+<tr><td class="elist2">%for (value,value,...)</td><td class="elist2">return
+    1 if <b>value1</b> is OR <b>value2</b> is not zero (or <b>value3</b>,...
+    etc) (integer compare)</td></tr>
+<tr><td class="elist1">%fand (value,value,...)</td><td class="elist1">return
+    1 if <b>value1</b> is AND <b>value2</b> is not zero (and <b>value3</b>,...
+    etc) (integer compare)</td></tr>
+<tr><td class="elist2">%fnot(value)</td><td class="elist2">return
+    1 if <b>value</b> is zero, else return <b>0</b></td></tr>
+<tr><td class="elist1">%frand(range) ... (min,max)</td><td class="elist1">return
+    a random number.&nbsp; If one argument is specified the returned value will
+    be from 0 to 1 - that number.&nbsp; If two numbers are specified the number
+    returned will be from min to max-1</td></tr>
+<tr><td class="elist2">%fstrcmp(str1,str2)</td><td class="elist2">compare
+    <b>str1</b> to <b>str2</b>.&nbsp; Return -1 if <b>str1</b> is asciibetically
+    lower than <b>str2</b>, 0 if they are equal, 1 if <b>str1</b> is
+    asciibetically higher than <b>str2</b></td></tr>
+<tr><td class="elist1">%fstricmp(value,value)</td><td class="elist1">compare
+    <b>str1</b> to <b>str2</b> case insensitive (using stricmp).&nbsp; Return -1
+    if <b>str1</b> is asciibetically lower than <b>str2</b>, 0 if they are
+    equal, 1 if <b>str1</b> is asciibetically higher than <b>str2</b></td></tr>
+<tr><td class="elist2">%fascii(str)</td><td class="elist2">return
+    the ascii value of the first character of <b>str</b></td></tr>
+<tr><td class="elist1">%fquote(str)</td><td class="elist1">quote
+    a str.&nbsp; This is used to make macros.&nbsp; Normally, all arguments are
+    interpreted when they are first used.&nbsp; This function prevents
+    that.&nbsp; Example:
+    <blockquote>
+      <p>%fset(filename,mypic.jpg)<br>
+      %fset(somecode,%picWidth(%filename))</p>
+    </blockquote>
+    <p>Assuming mypic.jpg is 75 pixels wide somecode=&quot;75&quot;</p>
+    <blockquote>
+      <p>%fset(filename,mypic.jpg)<br>
+      %fset(somecode,%fquote(%picWidth(%filename)))</p>
+    </blockquote>
+    <p>In this case somecode=&quot;%picWidth(%filename)&quot; which means later
+    in the code you can do this put %somecode in your HTML and it will get
+    evaluated</td></tr>
+<tr><td class="elist2">%fsearch(string1,string2)</td><td class="elist2">find
+    string2 in string1, if found return the index to the&nbsp;first character
+    found or -1 if not found</td></tr>
+<tr><td class="elist1">%fint(value)</td><td class="elist1">convert
+    an float to an int.&nbsp; 27.9 becomes 27</td></tr>
+<tr><td class="elist2">%fexists(filename)</td><td class="elist2">
+  returns 1 if the file exists, 0 if it does not</td></tr>
+<tr><td class="elist1">%ffilelength(filename)</td><td class="elist1">
+  returns the length of a file in bytes</td></tr>
+<tr><td class="elist2">%fformat(string,arg)</td><td class="elist2">format&nbsp;arg
+    using string like printf from C/C++
+    <p>fformat only does one value at a time. The first argument is the
+    formatting specification. The second is the value to format. A formatting
+    specification starts with % although it will get addedt of you forget. It
+    ends with one of the <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vclib/html/_crt_printf_type_field_characters.asp">these
+    letters</a></p>
+    <blockquote>
+    <div class="tablediv">
+      <table class="dtTABLE" cellSpacing="1" cellpadding="3" bgcolor="#000000">
+        <tbody>
+          <tr>
+            <th width="16%" class="elist1"><font size="2">Character</font></th>
+            <th width="21%" class="elist1"><font size="2">Type</font></th>
+            <th width="63%" class="elist1"><font size="2">Output format</font></th>
+          </tr>
+          <tr>
+            <td width="16%" class="elist1"><b><font size="2">c</font></b></td>
+            <td width="21%" class="elist1"><b><font size="2">integer</font></b></td>
+            <td width="63%" class="elist1"><font size="2">specifies a single-byte character</font></td>
+          </tr>
+          <tr>
+            <td width="16%" class="elist1"><b><font size="2">C</font></b></td>
+            <td width="21%" class="elist1"><b><font size="2">integer</font></b></td>
+            <td width="63%" class="elist1"><font size="2">specifies a single-byte character.</font></td>
+          </tr>
+          <tr>
+            <td width="16%" class="elist1"><b><font size="2">d</font></b></td>
+            <td width="21%" class="elist1"><b><font size="2">integer</font></b></td>
+            <td width="63%" class="elist1"><font size="2">Signed decimal integer.</font></td>
+          </tr>
+          <tr>
+            <td width="16%" class="elist1"><b><font size="2">i</font></b></td>
+            <td width="21%" class="elist1"><b><font size="2">integer</font></b></td>
+            <td width="63%" class="elist1"><font size="2">Signed decimal integer.</font></td>
+          </tr>
+          <tr>
+            <td width="16%" class="elist1"><b><font size="2">o</font></b></td>
+            <td width="21%" class="elist1"><b><font size="2">integer</font></b></td>
+            <td width="63%" class="elist1"><font size="2">Unsigned octal integer.</font></td>
+          </tr>
+          <tr>
+            <td width="16%" class="elist1"><b><font size="2">u</font></b></td>
+            <td width="21%" class="elist1"><b><font size="2">integer</font></b></td>
+            <td width="63%" class="elist1"><font size="2">Unsigned decimal integer.</font></td>
+          </tr>
+          <tr>
+            <td width="16%" class="elist1"><b><font size="2">x</font></b></td>
+            <td width="21%" class="elist1"><b><font size="2">integer</font></b></td>
+            <td width="63%" class="elist1"><font size="2">Unsigned hexadecimal integer, using &quot;abcdef.&quot;</font></td>
+          </tr>
+          <tr>
+            <td width="16%" class="elist1"><b><font size="2">X</font></b></td>
+            <td width="21%" class="elist1"><b><font size="2">integer</font></b></td>
+            <td width="63%" class="elist1"><font size="2">Unsigned hexadecimal integer, using &quot;ABCDEF.&quot;</font></td>
+          </tr>
+          <tr>
+            <td width="16%" class="elist1"><b><font size="2">e</font></b></td>
+            <td width="21%" class="elist1"><b><font size="2">float</font></b></td>
+            <td width="63%" class="elist1"><font size="2">Signed value having the form [ – ]<i>d</i><b>.</b><i>dddd</i>
+              <b>e</b> [<i>sign</i>]<i>ddd</i> where <i>d</i> is a single
+              decimal digit, <i>dddd</i> is one or more decimal digits, <i>ddd</i>
+              is exactly three decimal digits, and <i>sign</i> is + or –.</font></td>
+          </tr>
+          <tr>
+            <td width="16%" class="elist1"><b><font size="2">E</font></b></td>
+            <td width="21%" class="elist1"><b><font size="2">float</font></b></td>
+            <td width="63%" class="elist1"><font size="2">Identical to the <b>e</b> format except that <b>E</b>
+              rather than <b>e</b> introduces the exponent.</font></td>
+          </tr>
+          <tr>
+            <td width="16%" class="elist1"><b><font size="2">f</font></b></td>
+            <td width="21%" class="elist1"><b><font size="2">float</font></b></td>
+            <td width="63%" class="elist1"><font size="2">Signed value having the form [ – ]<i>dddd</i><b>.</b><i>dddd</i>,
+              where <i>dddd</i> is one or more decimal digits. The number of
+              digits before the decimal point depends on the magnitude of the
+              number, and the number of digits after the decimal point depends
+              on the requested precision.</font></td>
+          </tr>
+          <tr>
+            <td width="16%" class="elist1"><b><font size="2">g</font></b></td>
+            <td width="21%" class="elist1"><b><font size="2">float</font></b></td>
+            <td width="63%" class="elist1"><font size="2">Signed value
+              printed in <b>f</b>  or <b>e</b>  format, whichever is more
+              compact for the given value and precision. The <b>e</b>
+              format is used only when the exponent of the value is less than
+              –4 or greater than or equal to the precision argument. Trailing
+              zeros are truncated, and the decimal point appears only if one or
+              more digits follow it.</font></td>
+          </tr>
+          <tr>
+            <td width="16%" class="elist1"><b><font size="2">G</font></b></td>
+            <td width="21%" class="elist1"><b><font size="2">float</font></b></td>
+            <td width="63%" class="elist1"><font size="2">Identical to the <b>g</b> 
+              format, except that <b>E</b>, rather than <b>e</b>, introduces the
+              exponent (where appropriate).</font></td>
+          </tr>
+          <tr>
+            <td width="16%" class="elist1"><b><font size="2">s</font></b></td>
+            <td width="21%" class="elist1"><font size="2">String</font></td>
+            <td width="63%" class="elist1"><font size="2">specifies a string;
+              Characters are printed up to the first null character or until the <i>precision</i>
+              value is reached.</font></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    </blockquote>
+    <p>&nbsp;</p>
+    <p>If
+    you know C or C++ it is just using printf.&nbsp; If not you can read about how
+    the formatting works <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vclib/html/_crt_format_specification_fields_.2d_.printf_and_wprintf_functions.asp">here</a></p>
+    <p>example:</p>
+    <p>&nbsp;&nbsp;&nbsp; fformat(%1.1f,27.4699)</p>
+    <p>the %1.1f above says; Print at least 1 character and print
+    one and only one after the decimal so in the example above you'd get
+    &quot;27.5&quot;.</p>
+    <p>%5.3 would print at least five
+    characters with 3 after the decimal point so &quot;2.54&quot; would become
+    &quot;2.540&quot;.</p>
+    <p>%09.4f would make
+    it &quot;0002.5400&quot;.</p>
+    <p> %9.4f would make it &quot;&nbsp;&nbsp;&nbsp;&nbsp; 2.5400&quot;</p>
+    <p>Note the the last example of &quot;&nbsp;&nbsp;&nbsp; 2.5400&quot; would
+    not work in HTML because HTML usually converts a bunch of spaces to one
+    space.&nbsp; Only inside a &lt;pre&gt; &lt;/pre&gt; section are spaces not
+    ignored. (pre = preformatted).&nbsp; If you need things to be right aligned
+    use HTML's align property instead of spaces.</td></tr>
+                </table>
+<h2>Chunkifying your data</h2>
+<p>&nbsp;MKLOADOB canl separate data into chucks of a specified size. If you 
+don't need chucks specify a really large size and you'll get just one chunk! 
+Note: no piece of data or any tables can be larger than a single chunk.</p>
+<p>What's the point to chunks?</p>
+<ul>
+  <li>You want to spool music from the CD and STILL be able to load in real 
+  time. Load one chuck at a time (giving the machine time to grab more music 
+  between chucks<br>
+&nbsp;</li>
+  <li>You want to be able to LOAD and later FREE multiple levels in the same 
+  memory space without having to worry about garbage collection and 
+  fragmentation. You do this by storing the level in chunks using this program.</li>
+</ul>
+<blockquote>
+  <p>At runtime you allocation say 200 chunks of memory. You can then load each 
+  chunk from on of these files into any of those 200 chunks in any order since 
+  all pointers are chuck relative.</p>
+</blockquote>
+<p>The beginning of the file contains a pointer field for each chunk that ends 
+in NULL. So if there are 4 chunks the start<br>
+of the very first chunk would be </p>
+<blockquote>
+  <pre>$FFFFFFFF ; space for pointer for chunk 0
+$FFFFFFFF ; space for pointer for chunk 1
+$FFFFFFFF ; space for pointer for chunk 2
+$FFFFFFFF ; space for pointer for chunk 3
+$00000000 ; end marker
+$???????? ; pointer to start of data</pre>
+</blockquote>
+<p>As you load each chunk you can record it's address in memory in that table.</p>
+<p>When you are finish you can go and fix up all the pointers in your data 
+something like this</p>
+<blockquote>
+  <pre>long* chunktable; ; address of first chunk
+long relpntr;     ; a pointer you've gotten out of the data
+void* pntr;       ; actuall address in memory
+
+pntr = chunktable[relpntr &amp; (LOAD_CHUNK_MASK &gt;&gt; LOAD_CHUNK_SHIFT)]
+            + (relpntr &amp; LOAD_CHUCK_OFFSET_MASK)</pre>
+</blockquote>
+<p>It is assumed that no pointer may be at an ODD address therefore all pointers 
+in the file have their low bit set (0x00000001). This is so as you fix up the 
+pointers you know if the pointer has already been fixed up. This is important 
+because if you are fixing up the pointers by walking the data yourself.</p>
+<p>So for example if you have this</p>
+<blockquote>
+  <pre>[start]
+pntr=section1
+pntr=section1
+
+[section1]
+file=myfile.bin</pre>
+</blockquote>
+<p>As you walk your data you will encounter 2 pointers to section1. When you 
+find the first one you would go fix up section1. When you find the second one 
+you would go to fix up section1 again and if you didn't know the pointers were 
+already fixed up you'd fix them again and mess them up.</p>
+<p>Optionally you can write out a fixup table. This is a list of relative 
+pointers too ALL other pointers in the file followed by a null.&nbsp; The issue 
+here is currently all fixup pointers must all fit in the first chunk.&nbsp; If 
+you are not using chunks this is not an issue.&nbsp; If you are and you run out 
+of room then it would be relatively easy to come up with a format that allowed 
+the fixup table to span chunks.</p>
+<p>When using the multiple chunk method each chunk is padded to be one full 
+chunk long. If you are only using one chunk you probably want to use -NOPAD 
+option to not pad since you will specify an arbitrarily large chunk.</p>
+<p>BUT, at the same time you probably want your in game loader to be as simple 
+as possible like for example never having to load less than a full sector of 
+data from the CD/DVD. In that case use the -SECTORSIZE option to specify the 
+size of a sector on the CD/DVD. This is pretty much only useful if you are using 
+ONE chunk.</p>
+<p>Why is that important? Because many DVD/CD libraries will read directly to 
+user memory if they can read an entire sector but if they have to read less than 
+an entire sector they must first load it to their own buffer then copy the part 
+you wanted to user memory. That's clearly slower than directly reading it.</p>
+<p>*) Loading a multi-chunk file would look something like this:</p>
+<ul>
+  <li>Get length of entire file and divide by the chunk size to get the number 
+  of chunks</li>
+  <li>for each chunk<ul>
+    <li>Load a chunk</li>
+    <li>record the address of the loaded chunk in the corresponding long word in 
+    the first chunk.</li>
+  </ul>
+  </li>
+  <li>end for</li>
+</ul>
+<p>&nbsp;now all the blocks are loaded and you know where the data offset table 
+starts so:</p>
+<ul>
+  <li>for each non-zero data offset<ul>
+    <li>look up the correct block address</li>
+    <li>add the block offset</li>
+    <li>or in the data offset</li>
+  </ul>
+  </li>
+  <li>endfor</li>
+</ul>
+
+</body>
+
+</html>
