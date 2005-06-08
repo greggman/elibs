@@ -44,9 +44,15 @@
 
 typedef struct TGAHeader
 {
-    uint8   ID;             // Byte 0
-    uint8   ctype;          // Byte 1
-    uint8   itype;          // Byte 2
+    uint8   ID;             // Byte 0	num bytes in ID field
+    uint8   ctype;          // Byte 1	0 = no colormap, 1 = colormap
+    uint8   itype;          // Byte 2	0 = none,
+							//			1 = uncompressed colormap img
+							//			2 = uncompressed truecolor
+							//			3 = uncompressed black&white
+							//			9 = rle colormapped
+							//			10 = rle truecolor
+							//			11 = rle black and white
     uint8   mincolorl;      // Byte 3
     uint8   mincolorh;      // Byte 4
     uint8   colorsl;        // Byte 5
@@ -97,96 +103,161 @@ typedef struct TGAHeader
  * SEE ALSO
  *
 */
-static int loadUncompressedTGA (BlockO32BitPixels *blockPtr, MEMFILE *mf, int bpp, uint8 idesc)
+static int loadUncompressedTGA (BlockO32BitPixels *blockPtr, int channels, MEMFILE *mf, pixel32* colorMap, uint8 idesc)
 {
-    pixel32* bufferStart;
-    pixel32* buffer;
 
-    long     i;
-    long     loop;
-    long     lineSize;
-    long     bufferSize;
-    long     bufferWidth;
-    long     bufferHeight;
-    int      is8Bit;
+	pixel32* bufferStart;
+	pixel32* buffer;
 
-    is8Bit       = (bpp == 8);
-    bufferWidth  = blockPtr->width;
-    bufferHeight = blockPtr->height;
-    lineSize     = bufferWidth;
-    bufferSize   = lineSize * bufferHeight;
+	long	 i;
+	long	 loop;
+	long	 lineSize;
+	long	 bufferSize;
+	long	 bufferWidth;
+	long	 bufferHeight;
+	long	 lineMod;
 
-    bufferStart  = blockPtr->rgba + bufferSize - lineSize;
+	bufferWidth  = blockPtr->width;
+	bufferHeight = blockPtr->height;
+	lineSize     = bufferWidth;
+	bufferSize   = lineSize * bufferHeight;
 
-    buffer = bufferStart;
+	#if READ_UPSIDEDOWN
+		if (idesc & TGA_IDESC_VFLIP)
+		{
+			bufferStart  = blockPtr->rgba + bufferSize - lineSize;
+			lineMod      = -lineSize;
+		}
+		else
+		{
+			bufferStart  = blockPtr->rgba;
+			lineMod      = lineSize;
+		}
+    #else
+		if (idesc & TGA_IDESC_VFLIP)
+		{
+			bufferStart  = blockPtr->rgba;
+			lineMod      = lineSize;
+		}
+		else
+		{
+			bufferStart  = blockPtr->rgba + bufferSize - lineSize;
+			lineMod      = -lineSize;
+		}
+	#endif
 
-    if (!blockPtr->channels)
-    {
-        // No Alpha / Uncompressed
+	buffer = bufferStart;
 
-        for (loop = 0; loop < bufferHeight; loop++)
-        {
-            buffer = bufferStart;
+	switch (channels)
+	{
+	case 1:
+		if (colorMap)
+		{
+			// No Alpha / Uncompressed
 
-            for (i = 0; i < bufferWidth; i++)
-            {
-                uint8   r,g,b;
+			for (loop = 0; loop < bufferHeight; loop++)
+			{
+				buffer = bufferStart;
 
-                b = MEMFILE_getc(mf);
-                if (is8Bit)
-                {
-                    g = b;
-                    r = b;
-                }
-                else
-                {
-                    g = MEMFILE_getc(mf);
-                    r = MEMFILE_getc(mf);
-                }
+				for (i = 0; i < bufferWidth; i++)
+				{
+					uint8	k;
 
-                buffer->red   = r;
-                buffer->green = g;
-                buffer->blue  = b;
-                buffer->alpha = 255;
-                buffer++;
-            }
+					k = MEMFILE_getc(mf);
 
-            bufferStart -= lineSize;
-        }
-    }
-    else
-    {
-        // Alpha / Uncompressed
+					buffer->red   = colorMap[k].red;
+					buffer->green = colorMap[k].green;
+					buffer->blue  = colorMap[k].blue;
+					buffer->alpha = colorMap[k].alpha;
+					buffer++;
+				}
 
-        for (loop = 0; loop < bufferHeight; loop++)
-        {
-            buffer = bufferStart;
+				bufferStart += lineMod;
+			}
+		}
+		else
+		{
+			// No Alpha / Uncompressed
 
-            for (i = 0; i < bufferWidth; i++)
-            {
-                uint8   r,g,b,a;
+			for (loop = 0; loop < bufferHeight; loop++)
+			{
+				buffer = bufferStart;
 
-                b = MEMFILE_getc(mf);
-                g = MEMFILE_getc(mf);
-                r = MEMFILE_getc(mf);
-                a = MEMFILE_getc(mf);
+				for (i = 0; i < bufferWidth; i++)
+				{
+					uint8	k;
 
-                buffer->red   = r;
-                buffer->green = g;
-                buffer->blue  = b;
-                buffer->alpha = a;
-                buffer++;
-            }
-            bufferStart -= lineSize;
-        }
-    }
+					k = MEMFILE_getc(mf);
 
-    if (idesc & TGA_IDESC_VFLIP)
-    {
-		return flipBuffer (blockPtr->rgba, blockPtr->width * 4, blockPtr->height);
-    }
+					buffer->red   = k;
+					buffer->green = k;
+					buffer->blue  = k;
+					buffer->alpha = 255;
+					buffer++;
+				}
 
-    return TRUE;
+				bufferStart += lineMod;
+			}
+		}
+		break;
+	case 3:
+		{
+			// No Alpha / Uncompressed
+
+			for (loop = 0; loop < bufferHeight; loop++)
+			{
+				buffer = bufferStart;
+
+				for (i = 0; i < bufferWidth; i++)
+				{
+					uint8	r,g,b;
+
+					b = MEMFILE_getc(mf);
+					g = MEMFILE_getc(mf);
+					r = MEMFILE_getc(mf);
+
+					buffer->red   = r;
+					buffer->green = g;
+					buffer->blue  = b;
+					buffer->alpha = 255;
+					buffer++;
+				}
+
+				bufferStart += lineMod;
+			}
+		}
+		break;
+	case 4:
+		{
+			// Alpha / Uncompressed
+
+			for (loop = 0; loop < bufferHeight; loop++)
+			{
+				buffer = bufferStart;
+
+				for (i = 0; i < bufferWidth; i++)
+				{
+					uint8	r,g,b,a;
+
+					b = MEMFILE_getc(mf);
+					g = MEMFILE_getc(mf);
+					r = MEMFILE_getc(mf);
+					a = MEMFILE_getc(mf);
+
+					buffer->red   = r;
+					buffer->green = g;
+					buffer->blue  = b;
+					buffer->alpha = a;
+					buffer++;
+				}
+				bufferStart += lineMod;
+			}
+		}
+		break;
+	default:
+		return FALSE;
+	}
+	return TRUE;
 }
 // loadUncompressedTGA
 
@@ -538,7 +609,7 @@ int flipBuffer (void *buffer, long rowSize, long rows)
  * loadCompressedTGA
  *
  * SYNOPSIS
- *      void  loadCompressedTGA (BlockO32BitPixels *blockPtr, uint8 *fileBufferPtr)
+ *		void  loadCompressedTGA (BlockO32BitPixels *blockPtr, uint8 *fileBufferPtr)
  *
  * PURPOSE
  *
@@ -558,118 +629,156 @@ int flipBuffer (void *buffer, long rowSize, long rows)
  * SEE ALSO
  *
 */
-int loadCompressedTGA (BlockO32BitPixels *blockPtr, MEMFILE *mf, int bpp, uint8 idesc)
+int loadCompressedTGA (BlockO32BitPixels *blockPtr, int channels, MEMFILE *mf, pixel32* colorMap, uint8 idesc)
 {
-    uint8           a;
-    uint8           r;
-    uint8           g;
-    uint8           b;
-    uint8           i;
-    uint8           count;
-    pixel32*        buffer;
+	uint8			a;
+	uint8			r;
+	uint8			g;
+	uint8			b;
+	uint8			i;
+	uint8			count;
+	pixel32*		buffer;
 
-    int             hasAlpha;
-    int             is8Bit;
+	long			pixelCount;
+	long			totalPixels;
+	long			bufferWidth;
+	long			bufferHeight;
 
-    long            pixelCount;
-    long            totalPixels;
-    long            bufferWidth;
-    long            bufferHeight;
+	bufferWidth  = blockPtr->width;
+	bufferHeight = blockPtr->height;
+	totalPixels  = bufferWidth * bufferHeight;
+	buffer       = blockPtr->rgba;
+	pixelCount   = 0;
 
-    bufferWidth  = blockPtr->width;
-    bufferHeight = blockPtr->height;
-    totalPixels  = bufferWidth * bufferHeight;
-    buffer       = blockPtr->rgba;
-    pixelCount   = 0;
-    hasAlpha     = blockPtr->channels;
-    a            = 255;
-    is8Bit       = (bpp == 8);
-
-    while (pixelCount < totalPixels)
-    {
-        i = MEMFILE_getc(mf);
-        count = (0x7F & i) + 1;
-
-        pixelCount += count;
-
-        if (pixelCount > totalPixels)
-        {
-            SetGlobalErr (ERR_GENERIC);
-            GEcatf ("Pixel overflow in targa decompression");
-            return FALSE;
-        }
-
-        if (i & 0x80)
-        {
-            // run data
-
-            b = MEMFILE_getc(mf);
-            if (is8Bit)
-            {
-                g = b;
-                r = b;
-            }
-            else
-            {
-                g = MEMFILE_getc(mf);
-                r = MEMFILE_getc(mf);
-
-                if (hasAlpha)
-                {
-                    a = MEMFILE_getc(mf);
-                }
-            }
-
-            while (count--)
-            {
-                buffer->red   = r;
-                buffer->green = g;
-                buffer->blue  = b;
-                buffer->alpha = a;
-                buffer++;
-            }
-        }
-        else
-        {
-            // dump data
-
-            while (count--)
-            {
-                b = MEMFILE_getc(mf);
-
-                if (is8Bit)
-                {
-                    r = b;
-                    g = b;
-                }
-                else
-                {
-                    g = MEMFILE_getc(mf);
-                    r = MEMFILE_getc(mf);
-
-                    if (hasAlpha)
-                    {
-                        a = MEMFILE_getc(mf);
-                    }
-                }
-
-                buffer->red   = r;
-                buffer->green = g;
-                buffer->blue  = b;
-                buffer->alpha = a;
-                buffer++;
-            }
-        }
-    }
-
-    if (idesc & TGA_IDESC_VFLIP)
+	while (pixelCount < totalPixels)
 	{
-		return TRUE;
+		i = MEMFILE_getc(mf);
+		count = (0x7F & i) + 1;
+
+		pixelCount += count;
+
+		if (pixelCount > totalPixels)
+		{
+			SetGlobalErr(ERR_GENERIC);
+			GEcatf ("Pixel overflow in targa decompression\n");
+			return FALSE;
+		}
+
+		if (i & 0x80)
+		{
+			// run data
+			switch (channels)
+			{
+			case 1:
+				if (colorMap)
+				{
+					uint8 k;
+					k = MEMFILE_getc(mf);
+
+					r = colorMap[k].red;
+					g = colorMap[k].green;
+					b = colorMap[k].blue;
+					a = colorMap[k].alpha;
+				}
+				else
+				{
+					b = MEMFILE_getc(mf);
+					g = b;
+					r = b;
+					a = 255;
+				}
+				break;
+			case 3:
+				b = MEMFILE_getc(mf);
+				g = MEMFILE_getc(mf);
+				r = MEMFILE_getc(mf);
+				a = 255;
+				break;
+			case 4:
+				b = MEMFILE_getc(mf);
+				g = MEMFILE_getc(mf);
+				r = MEMFILE_getc(mf);
+				a = MEMFILE_getc(mf);
+				break;
+			}
+
+			while (count--)
+			{
+				buffer->red   = r;
+				buffer->green = g;
+				buffer->blue  = b;
+				buffer->alpha = a;
+				buffer++;
+			}
+		}
+		else
+		{
+			// dump data
+
+			while (count--)
+			{
+				switch (channels)
+				{
+				case 1:
+					if (colorMap)
+					{
+						uint8 k;
+						k = MEMFILE_getc(mf);
+
+						r = colorMap[k].red;
+						g = colorMap[k].green;
+						b = colorMap[k].blue;
+						a = colorMap[k].alpha;
+					}
+					else
+					{
+						b = MEMFILE_getc(mf);
+						g = b;
+						r = b;
+						a = 255;
+					}
+					break;
+				case 3:
+					b = MEMFILE_getc(mf);
+					g = MEMFILE_getc(mf);
+					r = MEMFILE_getc(mf);
+					break;
+				case 4:
+					b = MEMFILE_getc(mf);
+					g = MEMFILE_getc(mf);
+					r = MEMFILE_getc(mf);
+					a = MEMFILE_getc(mf);
+					break;
+				}
+
+				buffer->red   = r;
+				buffer->green = g;
+				buffer->blue  = b;
+				buffer->alpha = a;
+				buffer++;
+			}
+		}
 	}
-	else
-	{
-		return flipBuffer (blockPtr->rgba, blockPtr->width * 4, blockPtr->height);
-	}
+
+    #if READ_UPSIDEDOWN
+		if (idesc & TGA_IDESC_VFLIP)
+		{
+			flipBuffer (blockPtr->rgba, blockPtr->width * sizeof (pixel32), blockPtr->height);
+		}
+		else
+		{
+		}
+    #else
+		if (idesc & TGA_IDESC_VFLIP)
+		{
+		}
+		else
+		{
+			flipBuffer (blockPtr->rgba, blockPtr->width * sizeof (pixel32), blockPtr->height);
+		}
+	#endif
+
+	return TRUE;
 }
 // loadCompressedTGA
 
@@ -699,6 +808,8 @@ int loadCompressedTGA (BlockO32BitPixels *blockPtr, MEMFILE *mf, int bpp, uint8 
  * SEE ALSO
  *
 */
+#define MAX_COLORMAP 256
+
 int loadTGA32Bit (BlockO32BitPixels *blockPtr, MEMFILE *mf)
 {
     TGAHeader        tgaHeaderX;
@@ -708,17 +819,11 @@ int loadTGA32Bit (BlockO32BitPixels *blockPtr, MEMFILE *mf)
     long            bufferWidth;
     long            bufferHeight;
 
+	pixel32			colorMap[MAX_COLORMAP];
+	int				fColorMap = FALSE;
+	int				channels = 0;
+
     MEMFILE_Read(mf, tgaHeader, sizeof (TGAHeader));
-
-
-    #if 0
-    if (tgaHeader->idesc & 0xf0)
-    {
-        SetGlobalErr (ERR_GENERIC);
-        GEcatf ("Invalid TGA file");
-        goto cleanup;
-    }
-    #endif
 
     #if 0
     {
@@ -747,14 +852,81 @@ int loadTGA32Bit (BlockO32BitPixels *blockPtr, MEMFILE *mf)
 
     MEMFILE_Seek (mf, tgaHeader->ID, SEEK_CUR); // Skip User Info
 
+    alphachannels = FALSE;
     if (tgaHeader->bpp == 32)
     {
         alphachannels = TRUE;
+		channels = 4;
     }
-    else
-    {
-        alphachannels = FALSE;
-    }
+	else if (tgaHeader->bpp == 24)
+	{
+		channels = 3;
+	}
+	else if (tgaHeader->bpp == 8)
+	{
+		int	firstColor = ((long)tgaHeader->mincolorl + (long)tgaHeader->mincolorh * 256L);
+		int	numColors  = ((long)tgaHeader->colorsl   + (long)tgaHeader->colorsh   * 256L);
+
+		channels = 1;
+
+		fColorMap = TRUE;
+
+		if (numColors > 0 && firstColor + numColors <= 256)
+		{
+			int colorNdx;
+			memset (colorMap, 0, sizeof (colorMap));
+
+			switch (tgaHeader->colorsize)
+			{
+			case 24:
+				for (colorNdx = 0; colorNdx < numColors; ++colorNdx)
+				{
+					uint8 r,g,b;
+
+					b = MEMFILE_getc(mf);
+					g = MEMFILE_getc(mf);
+					r = MEMFILE_getc(mf);
+
+					colorMap[firstColor + colorNdx].red   = r;
+					colorMap[firstColor + colorNdx].green = g;
+					colorMap[firstColor + colorNdx].blue  = b;
+					colorMap[firstColor + colorNdx].alpha = 255;
+				}
+				break;
+			case 32:
+				for (colorNdx = 0; colorNdx < numColors; ++colorNdx)
+				{
+					uint8 r,g,b,a;
+					b = MEMFILE_getc(mf);
+					g = MEMFILE_getc(mf);
+					r = MEMFILE_getc(mf);
+					a = MEMFILE_getc(mf);
+
+					colorMap[firstColor + colorNdx].red   = r;
+					colorMap[firstColor + colorNdx].green = g;
+					colorMap[firstColor + colorNdx].blue  = b;
+					colorMap[firstColor + colorNdx].alpha = a;
+				}
+				break;
+			default:
+				SetGlobalErr (ERR_GENERIC);
+				GEcatf ("unhandled color map size\n");
+				goto cleanup;
+			}
+		}
+		else if (numColors)
+		{
+			SetGlobalErr (ERR_GENERIC);
+			GEcatf ("too many colors in color map\n");
+			goto cleanup;
+		}
+	}
+	else
+	{
+		SetGlobalErr (ERR_GENERIC);
+		GEcatf ("unsupported bits per pixel\n");
+		goto cleanup;
+	}
 
     bufferWidth  = ((long)tgaHeader->widthl  + (long)tgaHeader->widthh * 256L);
     bufferHeight = ((long)tgaHeader->heightl + (long)tgaHeader->heighth * 256L);
@@ -783,45 +955,99 @@ int loadTGA32Bit (BlockO32BitPixels *blockPtr, MEMFILE *mf)
 
     switch (tgaHeader->itype)
     {
-    case 2:
-        if (((tgaHeader->bpp != 24) && (tgaHeader->bpp != 32) && (tgaHeader->bpp != 8)))
-        {
-            SetGlobalErr (ERR_GENERIC);
-            GEcatf1 ("Unsupported bit depth (%d)", tgaHeader->bpp);
-            goto cleanup;
-        }
-        else
-        {
-            // for 8bit to 32bit should I load the 8bit and convert or fix the 32bit to load 8bits?
-            // The first is more work but faster.  The seconds less work but slower
-            //
-// printf ("load uncompressed tga\n");
-            if (!loadUncompressedTGA (blockPtr, mf, tgaHeader->bpp, tgaHeader->idesc))
-            {
-                goto cleanup;
-            }
-        }
-        break;
-
-    case 10:
-        if (((tgaHeader->bpp != 24) && (tgaHeader->bpp != 32) && (tgaHeader->bpp != 8)))
-        {
-            SetGlobalErr (ERR_GENERIC);
-            GEcatf1 ("Unsupported bit depth (%d)", tgaHeader->bpp);
-            goto cleanup;
-        }
-        else
-        {
-// printf ("load compressed tga\n");
-            if (!loadCompressedTGA (blockPtr, mf, tgaHeader->bpp, tgaHeader->idesc))
-            {
-                goto cleanup;
-            }
-        }
-        break;
-    default:
+	case 1: // uncompressed color map
+		if (tgaHeader->bpp != 8)
+		{
+			SetGlobalErr (ERR_GENERIC);
+			GEcatf1 ("Unsupported bit depth (%d)\n", tgaHeader->bpp);
+			goto cleanup;
+		}
+		else
+		{
+			if (!loadUncompressedTGA (blockPtr, channels, mf, colorMap, tgaHeader->idesc))
+			{
+				goto cleanup;
+			}
+		}
+		break;
+	case 2: // uncompressed true color
+		if (((tgaHeader->bpp != 24) && (tgaHeader->bpp != 32)))
+		{
+			SetGlobalErr (ERR_GENERIC);
+			GEcatf1 ("Unsupported bit depth (%d)\n", tgaHeader->bpp);
+			goto cleanup;
+		}
+		else
+		{
+			if (!loadUncompressedTGA (blockPtr, channels, mf, NULL, tgaHeader->idesc))
+			{
+				goto cleanup;
+			}
+		}
+		break;
+	case 3: // uncompressed black & white
+		if (tgaHeader->bpp != 8)
+		{
+			SetGlobalErr (ERR_GENERIC);
+			GEcatf1("Unsupported bit depth (%d)\n", tgaHeader->bpp);
+			goto cleanup;
+		}
+		else
+		{
+			if (!loadUncompressedTGA (blockPtr, channels, mf, NULL, tgaHeader->idesc))
+			{
+				goto cleanup;
+			}
+		}
+		break;
+	case 9: // rle compressed color map
+		if (tgaHeader->bpp != 8)
+		{
+			SetGlobalErr (ERR_GENERIC);
+			GEcatf1 ("Unsupported bit depth (%d)\n", tgaHeader->bpp);
+			goto cleanup;
+		}
+		else
+		{
+			if (!loadCompressedTGA (blockPtr, channels, mf, colorMap, tgaHeader->idesc))
+			{
+				goto cleanup;
+			}
+		}
+		break;
+	case 10: // rle compressed black & white
+		if (((tgaHeader->bpp != 24) && (tgaHeader->bpp != 32)))
+		{
+			SetGlobalErr (ERR_GENERIC);
+			GEcatf1 ("Unsupported bit depth (%d)\n", tgaHeader->bpp);
+			goto cleanup;
+		}
+		else
+		{
+			if (!loadCompressedTGA (blockPtr, channels, mf, NULL, tgaHeader->idesc))
+			{
+				goto cleanup;
+			}
+		}
+		break;
+	case 11: // rle compressed black & white
+		if (tgaHeader->bpp != 8)
+		{
+			SetGlobalErr (ERR_GENERIC);
+			GEcatf1 ("Unsupported bit depth (%d)\n", tgaHeader->bpp);
+			goto cleanup;
+		}
+		else
+		{
+			if (!loadCompressedTGA (blockPtr, channels, mf, NULL, tgaHeader->idesc))
+			{
+				goto cleanup;
+			}
+		}
+		break;
+	default:
         SetGlobalErr (ERR_GENERIC);
-        GEcatf ("Unsupported TGA file type");
+        GEcatf ("Unsupported TGA file type\n");
         goto cleanup;
     }
 
@@ -834,6 +1060,7 @@ cleanup:
     }
     return FALSE;
 }
+
 // loadTGA32Bit
 
 /*************************************************************************
