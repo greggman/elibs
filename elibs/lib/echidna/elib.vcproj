@@ -38,7 +38,8 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="..\mfcelibd.lib"
-				SuppressStartupBanner="TRUE"/>
+				SuppressStartupBanner="TRUE"
+				IgnoreAllDefaultLibraries="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -88,7 +89,8 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="..\elib.lib"
-				SuppressStartupBanner="TRUE"/>
+				SuppressStartupBanner="TRUE"
+				IgnoreAllDefaultLibraries="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -136,7 +138,8 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="..\elibd.lib"
-				SuppressStartupBanner="TRUE"/>
+				SuppressStartupBanner="TRUE"
+				IgnoreAllDefaultLibraries="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -187,7 +190,8 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="..\mfcelib.lib"
-				SuppressStartupBanner="TRUE"/>
+				SuppressStartupBanner="TRUE"
+				IgnoreAllDefaultLibraries="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -237,7 +241,8 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="..\mtelib.lib"
-				SuppressStartupBanner="TRUE"/>
+				SuppressStartupBanner="TRUE"
+				IgnoreAllDefaultLibraries="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -285,7 +290,8 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="..\mtelibd.lib"
-				SuppressStartupBanner="TRUE"/>
+				SuppressStartupBanner="TRUE"
+				IgnoreAllDefaultLibraries="TRUE"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -1178,55 +1184,7 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="readini.c">
-			<FileConfiguration
-				Name="MFC Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="2"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="MFC Release|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="2"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="MultiThread DLL Release|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="2"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="MultiThread DLL Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
+			RelativePath=".\readini.cpp">
 		</File>
 		<File
 			RelativePath="readpcx.c">
