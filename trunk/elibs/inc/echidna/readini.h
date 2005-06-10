@@ -38,13 +38,18 @@ extern "C" {
 
 /**************************** C O N S T A N T S ***************************/
 
+#define USE_STL 1
 
 /******************************** T Y P E S *******************************/
 
 typedef struct
 {
+	#if USE_STL
+	void* data;
+	#else
     LST_LIST SectionList;
     LST_LIST FileList;
+	#endif
 }
 IniList;
 
