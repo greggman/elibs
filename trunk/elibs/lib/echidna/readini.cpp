@@ -196,10 +196,22 @@ public:
 			}
 		}
 	}
+	bool FileExists(const char* filename)
+	{
+		char strFullPath[EIO_MAXPATH];
+
+		_fullpath(strFullPath, filename, EIO_MAXPATH);
+
+		return (filenameMap.find(strFullPath) != filenameMap.end());
+	}
 	const char* AddFilename(const char* filename)
 	{
-		filenameMap[filename] = filename;
-		return filenameMap[filename].c_str();
+		char strFullPath[EIO_MAXPATH];
+
+		_fullpath(strFullPath, filename, EIO_MAXPATH);
+
+		filenameMap[strFullPath] = filename;
+		return filenameMap[strFullPath].c_str();
 	}
 };
 
@@ -611,6 +623,12 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 
 	#if USE_STL
 	RealIniList& ril =  *((RealIniList*)(pIniList->data));
+
+	if (ril.FileExists(filename))
+	{
+		goto FINISH;
+	}
+
 	#endif
 
     /*** add filename to filename list ***/
@@ -1054,6 +1072,7 @@ IniList *AppendINI(IniList *pIniList, const char *filename)
 /**/	goto ABORT;
     }
 
+FINISH:
 	fclose(pFile);
 	return pIniList;
 
