@@ -17,7 +17,7 @@
    TABS : 5 9
 
    HISTORY
-		03/28/96 : Created.
+        03/28/96 : Created.
 
  *************************************************************************/
 
@@ -40,10 +40,10 @@ extern "C" {
 
 typedef struct MEMFILE
 {
-	uint8	*buffer;
-	uint8	*curPtr;
-	long	 size;
-	long	 bytesLeft;
+    uint8   *buffer;
+    uint8   *curPtr;
+    long     size;
+    long     bytesLeft;
 }
 MEMFILE;
 
@@ -53,11 +53,12 @@ MEMFILE;
 /****************************** M A C R O S ******************************/
 
 
-#define	MEMFILE_getc(mf) \
-	(((mf)->bytesLeft > 0) ? (((mf)->bytesLeft--),(*mf->curPtr++)) : EOF)
+#define MEMFILE_getc(mf) \
+    (((mf)->bytesLeft > 0) ? (((mf)->bytesLeft--),(*mf->curPtr++)) : EOF)
 
 /************************** P R O T O T Y P E S **************************/
 
+extern void MEMFILE_Init(MEMFILE* mf, void* buf, long len);
 extern MEMFILE *MEMFILE_Load (const char* filename);
 extern void MEMFILE_Close (MEMFILE *mf);
 extern int MEMFILE_Read(MEMFILE *mf, void *buf, long len);
