@@ -21,135 +21,135 @@ h2           { border-top-style: solid; padding-top: 10 }
 <h1>MKLOADOB (the Echidna Data Linker)</h1>
 <hr>
 <ul>
-  <li><a href="#why"><span lang="ja">W</span></a><span lang="ja"><a href="#why">hy, 
+  <li><a href="#why"><span lang="ja">W</span></a><span lang="ja"><a href="#why">hy,
   What, Where</a></span></li>
-  <li><a href="#introduction"><span lang="ja">I</span>ntroductio<span lang="ja">n 
+  <li><a href="#introduction"><span lang="ja">I</span>ntroductio<span lang="ja">n
   and example</span></a></li>
-  <li><a href="#running"><span lang="ja">R</span>unnin<span lang="ja">g the 
+  <li><a href="#running"><span lang="ja">R</span>unnin<span lang="ja">g the
   linker</span></a></li>
-  <li><a href="#loading"><span lang="ja">L</span>oadin<span lang="ja">g your 
+  <li><a href="#loading"><span lang="ja">L</span>oadin<span lang="ja">g your
   data</span></a></li>
   <li><a href="#download"><span lang="ja">D</span>ownloa<span lang="ja">d</span></a></li>
   <li><a href="#format"><span lang="ja">Data Linker input file f</span>ormat</a></li>
   <li><a href="#numberformat"><span lang="ja">Nu</span>m<span lang="ja">eric Fo</span>rma<span lang="ja">ts</span></a></li>
   <li><a href="#arguments"><span lang="ja">Command line a</span>rguments</a></li>
   <li><a href="#macros"><span lang="ja">M</span>acro<span lang="ja"> Language</span></a></li>
-  <li><a href="#tips"><span lang="ja">T</span>ip<span lang="ja">s and 
+  <li><a href="#tips"><span lang="ja">T</span>ip<span lang="ja">s and
   Suggestions</span></a></li>
   <li><a href="#cyd"><span lang="ja">Chunkifying your data</span></a></li>
 </ul>
-<p><a name="why"></a>Back in the early 90s as soon as CD based game systems came out it became 
-clear that one of the big problems with CD based games was they took forever to 
-load!&nbsp; Those problems were mostly solved by several companies back in the 
-early 90s but it seems like almost no one noticed because we still get crap like 
-Crash Bandicoot: Wrath of Cortex with atrocious load times.&nbsp; Pick a level, 
-wait 90 seconds, take a few steps, die, wait 90 seconds for the hub level to 
-load so you can immediately jump back into the level and have to wait another 90 
+<p><a name="why"></a>Back in the early 90s as soon as CD based game systems came out it became
+clear that one of the big problems with CD based games was they took forever to
+load!&nbsp; Those problems were mostly solved by several companies back in the
+early 90s but it seems like almost no one noticed because we still get crap like
+Crash Bandicoot: Wrath of Cortex with atrocious load times.&nbsp; Pick a level,
+wait 90 seconds, take a few steps, die, wait 90 seconds for the hub level to
+load so you can immediately jump back into the level and have to wait another 90
 seconds!!</p>
-<p>How do you get around these problems?&nbsp; The biggest step is realizing 
+<p>How do you get around these problems?&nbsp; The biggest step is realizing
 that A CONSOLE IS NOT A PC!!!!&nbsp; Burn that into your brain!!!</p>
-<p>It's not uncommon for PC games to just put each texture, each model, each 
-sound in a separate file.&nbsp; When you install the game all of them get copied 
-to your hard drive and when you start the game they load them up, one at a time.&nbsp; 
-The only thing that makes this possibly acceptable on a PC is you are loading 
-them off the hard drive or a 40x CD/DVD drive with disk caching built into the 
-OS.&nbsp; Good consoles don't have an OS and to keep costs down they don't have 
+<p>It's not uncommon for PC games to just put each texture, each model, each
+sound in a separate file.&nbsp; When you install the game all of them get copied
+to your hard drive and when you start the game they load them up, one at a time.&nbsp;
+The only thing that makes this possibly acceptable on a PC is you are loading
+them off the hard drive or a 40x CD/DVD drive with disk caching built into the
+OS.&nbsp; Good consoles don't have an OS and to keep costs down they don't have
 40x CD/DVD drives.</p>
-<p>The other excuse is nobody knows what kind of PC the game will run on.&nbsp; 
-Will it be a 512meg Pentium 4 with 128Meg of Video RAM or a 300mhz Celeron and a 
-4Meg RIVA 128 card?&nbsp; In that case sometimes there might be different 
-versions of each model, texture, sound etc.&nbsp; Consoles don't have this 
-problem.&nbsp; There is only one type.&nbsp; If you are making a PS2 game you 
+<p>The other excuse is nobody knows what kind of PC the game will run on.&nbsp;
+Will it be a 512meg Pentium 4 with 128Meg of Video RAM or a 300mhz Celeron and a
+4Meg RIVA 128 card?&nbsp; In that case sometimes there might be different
+versions of each model, texture, sound etc.&nbsp; Consoles don't have this
+problem.&nbsp; There is only one type.&nbsp; If you are making a PS2 game you
 know exactly what hardware the user will have.</p>
-<p>Basically here is what you need to do to get your load times to be as fast as 
+<p>Basically here is what you need to do to get your load times to be as fast as
 possible.</p>
 <ul>
   <li>Load all your data from ONE FILE!!!</li>
 </ul>
 <blockquote>
-  <p>There are two steps to this.&nbsp; One, for a single stage/level, attempt to load 
-  all the data for that stage from one file directly into memory.&nbsp; No 
-  loading one model from one file and a different model from a different file.&nbsp; 
-  Even if that means putting some of the same models, textures or sounds on the 
-  DVD more than once, do it!&nbsp; You've got a friggin DVD worth of space.&nbsp; 
+  <p>There are two steps to this.&nbsp; One, for a single stage/level, attempt to load
+  all the data for that stage from one file directly into memory.&nbsp; No
+  loading one model from one file and a different model from a different file.&nbsp;
+  Even if that means putting some of the same models, textures or sounds on the
+  DVD more than once, do it!&nbsp; You've got a friggin DVD worth of space.&nbsp;
   Use it!</p>
   <blockquote>
-  <p>Note! I do not mean a WAD files, PAK files or CAB file likes are used in 
-  many PC games.&nbsp; Although those are better than separate files they will 
-  not speed up your load times much at all because you are still treating them 
+  <p>Note! I do not mean a WAD files, PAK files or CAB file likes are used in
+  many PC games.&nbsp; Although those are better than separate files they will
+  not speed up your load times much at all because you are still treating them
   as separate files.</p>
   </blockquote>
-  <p>The second step is putting all the files in your game (the one file for 
-  each stage) all together into one BIG file that contains all the data for your 
-  entire game.&nbsp; This is not a hard thing to do and it will remove even more 
+  <p>The second step is putting all the files in your game (the one file for
+  each stage) all together into one BIG file that contains all the data for your
+  entire game.&nbsp; This is not a hard thing to do and it will remove even more
   overhead for your game.</p>
 </blockquote>
 <ul>
-  <li>Load your data in chucks no smaller than 1 DVD hardware sector.&nbsp; In 
-  other words, if on your platform a DVD hardware sector holds 2048 bytes of data 
-  then ALWAYS LOAD A MULTIPLE OF 2048 bytes.&nbsp; Never load less even if you 
+  <li>Load your data in chucks no smaller than 1 DVD hardware sector.&nbsp; In
+  other words, if on your platform a DVD hardware sector holds 2048 bytes of data
+  then ALWAYS LOAD A MULTIPLE OF 2048 bytes.&nbsp; Never load less even if you
   have to pad the file.</li>
 </ul>
 <blockquote>
-  <p>The reason is on some systems data can be DMAed directly into memory but 
-  this is only true if you are DMAing a whole sector.&nbsp; Anything less than a 
-  sector and it first has to be read into some buffer in the OS and then copied 
-  to your memory.&nbsp; That also means you cannot read a few bytes from the 
-  file and then start reading multiples of sector size chucks of data.&nbsp; You 
+  <p>The reason is on some systems data can be DMAed directly into memory but
+  this is only true if you are DMAing a whole sector.&nbsp; Anything less than a
+  sector and it first has to be read into some buffer in the OS and then copied
+  to your memory.&nbsp; That also means you cannot read a few bytes from the
+  file and then start reading multiples of sector size chucks of data.&nbsp; You
   have to start right from the beginning going at full speed.</p>
 </blockquote>
 <ul>
-  <li>Finally, load your data in as close to an image of memory as possible.&nbsp; 
-  You should NOT have to parse your data while your are loading it or after.&nbsp; 
-  With very few exceptions you should NOT have to copy things around.&nbsp; I've 
-  seen many schemes that make some file format where there are &quot;chunks&quot;.&nbsp; A 
-  chunk is usually some kind of ID followed by the length of the chunk after 
-  which follows the next chunk.&nbsp; That is NOT a good format for a game.&nbsp; 
-  That's a great format for a tool or an application but not for a game because 
-  parsing takes time, code and memory.&nbsp; More time, more code and more 
-  memory than not parsing.&nbsp; In a game, anything 
+  <li>Finally, load your data in as close to an image of memory as possible.&nbsp;
+  You should NOT have to parse your data while your are loading it or after.&nbsp;
+  With very few exceptions you should NOT have to copy things around.&nbsp; I've
+  seen many schemes that make some file format where there are &quot;chunks&quot;.&nbsp; A
+  chunk is usually some kind of ID followed by the length of the chunk after
+  which follows the next chunk.&nbsp; That is NOT a good format for a game.&nbsp;
+  That's a great format for a tool or an application but not for a game because
+  parsing takes time, code and memory.&nbsp; More time, more code and more
+  memory than not parsing.&nbsp; In a game, anything
   which takes more time or memory or code is BAD.&nbsp; Don't do it!</li>
 </ul>
-<p>It's this last step that I'm here to help you with.&nbsp; In the early 1990s 
-my friends and I wrote a tool to deal with this.&nbsp; Since about 1997 we have 
-made it freely available but without docs it's been unlikely that anybody has used it let 
+<p>It's this last step that I'm here to help you with.&nbsp; In the early 1990s
+my friends and I wrote a tool to deal with this.&nbsp; Since about 1997 we have
+made it freely available but without docs it's been unlikely that anybody has used it let
 alone even found it, until now!</p>
 <h2><a name="introduction"></a>The Echidna Data Linker</h2>
-<p>It's what we call a Data Linker because it takes a bunch of data an links it 
+<p>It's what we call a Data Linker because it takes a bunch of data an links it
 together.&nbsp; It's called MKLOADOB.&nbsp; Lame name I know but hey, it's old,
-starting back from the days of DOS.&nbsp; If you are curious, MKLOADOB stands for MaKe 
+starting back from the days of DOS.&nbsp; If you are curious, MKLOADOB stands for MaKe
 LOAD OBject.</p>
-<p>It takes a bunch of spec files of the form below and generates a hierarchical 
+<p>It takes a bunch of spec files of the form below and generates a hierarchical
 binary file with pointers.</p>
 <h3>Example:</h3>
-<p>Here's a short example.&nbsp; Let's say you want to have level structure that 
-is an<span lang="ja"> array of</span> instances where an instance is a model pointer, a position and a y 
+<p>Here's a short example.&nbsp; Let's say you want to have level structure that
+is an<span lang="ja"> array of</span> instances where an instance is a model pointer, a position and a y
 rotation.&nbsp; Here's the C/C++ structure for what I'm talking about</p>
 <blockquote>
 <pre>// level.h
 //
 struct Instance
 {
-	float   transx;
-	float   transy;
-	float   transz;
-	float   rotationy;
-	Model*	pModel;
+    float   transx;
+    float   transy;
+    float   transz;
+    float   rotationy;
+    Model*  pModel;
 };
 
 struct Level
 {
-	int       numInstances;
-	Instance* pInstances;
+    int       numInstances;
+    Instance* pInstances;
 };</pre>
 </blockquote>
-<p>Now lets make a small level with a ground model, a house model and 2 trees of 
+<p>Now lets make a small level with a ground model, a house model and 2 trees of
 the same model using the data linker</p>
 <blockquote>
   <pre>// linker file
 //
 [start]
-long=4	; number of models
+long=4  ; number of models
 pntr=modeltable
 
 [modeltable]
@@ -166,28 +166,28 @@ float=30.0          ; rotation for tree1
 file=tree.3d        ; model file for tree
 
 float=-2.0 0.0 -4.0 ; translation for tree2
-float=225.0	    ; rotation for tree2
+float=225.0     ; rotation for tree2
 file=tree.3d        ; model file for tree</pre>
 </blockquote>
-<p>You pass this file to the data linker and you'll get a binary file that you 
-can load directly into memory and with only a few lines of code all your 
+<p>You pass this file to the data linker and you'll get a binary file that you
+can load directly into memory and with only a few lines of code all your
 pointers will already be pointing at your data.</p>
-<p>Above notice the third line that says &quot;pntr=&quot;.&nbsp; This line generates a 
-pointer to a section that matches the name after the '='.&nbsp; You can have as 
+<p>Above notice the third line that says &quot;pntr=&quot;.&nbsp; This line generates a
+pointer to a section that matches the name after the '='.&nbsp; You can have as
 many pointers as you need/want.&nbsp; They can be nested to any level and they
-can be circular.&nbsp; 
-Also<span lang="ja">,</span> notice that the file tree.3d is referenced twice.&nbsp; In this case the 
-file tree.3d would be stored only once inside the binary file that the data linker creates 
+can be circular.&nbsp;
+Also<span lang="ja">,</span> notice that the file tree.3d is referenced twice.&nbsp; In this case the
+file tree.3d would be stored only once inside the binary file that the data linker creates
 but there would be two pointers pointing to that data.</p>
-<p><span lang="ja">For a real game, most of the time we would not write data 
-linker files by hand.&nbsp; We would make our tools generate data linker files 
-and then let the data linker pull it all together.&nbsp; There's n</span>o need 
-to hand load and hand parse stuff<span lang="ja"> which is another huge 
-advantage.&nbsp; Most games that use individual files or chunky formats end up 
-reading a few bytes at a time and *parsing* the data, reading the size of this 
-or that, allocating bits of memory at time etc..&nbsp; That's a lot of work.&nbsp; 
-Many loaders are hundreds of lines long.&nbsp; Using the a data linker removes 
-all that code.&nbsp; Less code = faster development, faster loading, more 
+<p><span lang="ja">For a real game, most of the time we would not write data
+linker files by hand.&nbsp; We would make our tools generate data linker files
+and then let the data linker pull it all together.&nbsp; There's n</span>o need
+to hand load and hand parse stuff<span lang="ja"> which is another huge
+advantage.&nbsp; Most games that use individual files or chunky formats end up
+reading a few bytes at a time and *parsing* the data, reading the size of this
+or that, allocating bits of memory at time etc..&nbsp; That's a lot of work.&nbsp;
+Many loaders are hundreds of lines long.&nbsp; Using the a data linker removes
+all that code.&nbsp; Less code = faster development, faster loading, more
 memory, less bugs.</span></p>
 <h2><a name="running"></a>Running the Data Linker</h2>
 <p>A typical command line might look like this</p>
@@ -199,41 +199,41 @@ memory, less bugs.</span></p>
 <table border="0" cellpadding="5" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111">
   <tr>
     <td valign="top" bgcolor="#E3E3FF" nowrap>mylevel.lbi</td>
-    <td valign="top" bgcolor="#E3E3FF">the name of the file we are going to 
+    <td valign="top" bgcolor="#E3E3FF">the name of the file we are going to
     create</td>
   </tr>
   <tr>
     <td valign="top" bgcolor="#F0F0FF" nowrap>-duperr</td>
-    <td valign="top" bgcolor="#F0F0FF">if two sections have the same name print 
+    <td valign="top" bgcolor="#F0F0FF">if two sections have the same name print
     an error</td>
   </tr>
   <tr>
     <td valign="top" bgcolor="#E3E3FF" nowrap>-sectorsize 2048</td>
-    <td valign="top" bgcolor="#E3E3FF">one sector of the disk is 2048 bytes so 
+    <td valign="top" bgcolor="#E3E3FF">one sector of the disk is 2048 bytes so
     our filesize will be padded to a multiple of 2048 bytes</td>
   </tr>
   <tr>
     <td valign="top" bgcolor="#F0F0FF" nowrap>-chunksize $2800000</td>
-    <td valign="top" bgcolor="#F0F0FF">chunks are probably not something you will 
-    use.&nbsp; In this case we just want one big chunk so we set the chunksize 
+    <td valign="top" bgcolor="#F0F0FF">chunks are probably not something you will
+    use.&nbsp; In this case we just want one big chunk so we set the chunksize
     to some giant size</td>
   </tr>
   <tr>
     <td valign="top" bgcolor="#E3E3FF" nowrap>-nopad</td>
-    <td valign="top" bgcolor="#E3E3FF">normally all chucks would get filled out 
-    to be chunksize big but in this case we don't want that since there is only 
+    <td valign="top" bgcolor="#E3E3FF">normally all chucks would get filled out
+    to be chunksize big but in this case we don't want that since there is only
     one chunk.</td>
   </tr>
   <tr>
     <td valign="top" bgcolor="#F0F0FF" nowrap>-nosort</td>
-    <td valign="top" bgcolor="#F0F0FF">don't sort any binary included files.&nbsp; 
-    Normally they get sorted so that they can be squeezed into the various 
+    <td valign="top" bgcolor="#F0F0FF">don't sort any binary included files.&nbsp;
+    Normally they get sorted so that they can be squeezed into the various
     chunks but since we are only going to have one chunk there is no point.</td>
   </tr>
   <tr>
     <td valign="top" bgcolor="#E3E3FF" nowrap>-fixupmode 2</td>
-    <td valign="top" bgcolor="#E3E3FF">put the pointer fixup table at the end of 
-    the file.&nbsp; Because it's at the end, once the pointers have been fixed 
+    <td valign="top" bgcolor="#E3E3FF">put the pointer fixup table at the end of
+    the file.&nbsp; Because it's at the end, once the pointers have been fixed
     up you can free that part of memory if you want to</td>
   </tr>
   <tr>
@@ -243,7 +243,7 @@ memory, less bugs.</span></p>
   </tr>
 </table>
 <h2><a name="loading"></a>Loading Your Data</h2>
-<p>In the case of a one chunk file, loading your data is pretty straight 
+<p>In the case of a one chunk file, loading your data is pretty straight
 forward.&nbsp; Here's some sample code:</p>
 <blockquote>
   <pre>#include &quot;link.h&quot;</pre>
@@ -251,22 +251,22 @@ forward.&nbsp; Here's some sample code:</p>
 
 pLevel = LINK_QuickLoadBlockFile (&quot;mylevel.lbi&quot;);</pre>
 </blockquote>
-<p>As you can tell that was extremely difficult! :-p&nbsp; Your level is now 
+<p>As you can tell that was extremely difficult! :-p&nbsp; Your level is now
 loaded and all your pointers are correct.</p>
 <p>The example loading and pointer fixup files are in
-<a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/elibs/elibs/tools/mkloadob/">
+<a href="http://svn.sourceforge.net/viewvc/elibs/trunk/elibs/tools/mkloadob/">
 the same folder as mkloadob</a> in the CVS repository.&nbsp; See
-<a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/elibs/elibs/tools/mkloadob/quickload.cpp?rev=HEAD&content-type=text/html">
+<a href="http://svn.sourceforge.net/viewvc/elibs/trunk/elibs/tools/mkloadob/quickload.cpp?view=markup">
 Quickload.cpp</a>,
-<a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/elibs/elibs/tools/mkloadob/quickload.h?rev=HEAD&content-type=text/html">
+<a href="http://svn.sourceforge.net/viewvc/elibs/trunk/elibs/tools/mkloadob/quickload.h?view=markup">
 Quickload.h</a>,
-<a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/elibs/elibs/tools/mkloadob/link.cpp?rev=HEAD&content-type=text/html">
+<a href="http://svn.sourceforge.net/viewvc/elibs/trunk/elibs/tools/mkloadob/link.cpp?view=markup">
 Link.cpp</a> and
-<a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/elibs/elibs/tools/mkloadob/link.h?rev=HEAD&content-type=text/html">
+<a href="http://svn.sourceforge.net/viewvc/elibs/trunk/elibs/tools/mkloadob/link.h?view=markup">
 Link.h</a></p>
 <h2><span lang="ja"><a name="download"></a>Downloading</span></h2>
-<p><span lang="ja">The Echidna Data Linker is one of the tools in the Echidna 
-Libraries which can be <a href="http://elibs.sourceforge.net">accessed through 
+<p><span lang="ja">The Echidna Data Linker is one of the tools in the Echidna
+Libraries which can be <a href="http://elibs.sourceforge.net">accessed through
 sourceforge.net here</a>.</span></p>
 <h2><a name="format"></a>Data Linker File Format</h2>
 <p>The format of the data linker files is as follows</p>
@@ -310,8 +310,8 @@ sourceforge.net here</a>.</span></p>
 byte=1
 long=2</pre>
 </blockquote>
-<p>Will result in a long starting at a 1 byte offset from the start of mysection.&nbsp; 
-The reason is this allows you to use the data linker to make unaligned data. If 
+<p>Will result in a long starting at a 1 byte offset from the start of mysection.&nbsp;
+The reason is this allows you to use the data linker to make unaligned data. If
 you want aligned data you need to use the align= option<span lang="ja"> as in</span></p>
 <blockquote>
   <pre><span lang="ja">[mysection]
@@ -322,25 +322,25 @@ long=2</span></pre>
 <table border="0" cellpadding="5" cellspacing="0" style="border-collapse: collapse">
   <tr>
     <td class="elist1">[secname]</td>
-    <td class="elist1">start a section<p>You can set the alignment for 
+    <td class="elist1">start a section<p>You can set the alignment for
     a section as follows</p>
     <blockquote>
       <pre>[mysection,align=16]</pre>
     </blockquote>
     <p>Mysection will start at a 16 byte boundary</p>
-    <p>NOTE: the alignment is relative to the address of the particular block 
-    this section ends up being placed in. The alignment of block is up to the 
+    <p>NOTE: the alignment is relative to the address of the particular block
+    this section ends up being placed in. The alignment of block is up to the
     loader in the program you are using this data.</td>
   </tr>
   <tr>
     <td class="elist2">file=</td>
-    <td class="elist2">pointer to a file : quotes are optional<p>You 
+    <td class="elist2">pointer to a file : quotes are optional<p>You
     can also optionally specify an alignment for the file like this</p>
     <blockquote>
       <pre>file=myfile.bin,align=16</pre>
     </blockquote>
-      <p>alignment is relative to the address of the particular block 
-    this files ends up being placed in. The alignment of block is up to the 
+      <p>alignment is relative to the address of the particular block
+    this files ends up being placed in. The alignment of block is up to the
     loader in the program you are using this data.</p>
     <p>You can also optionally allow a file to not exist like this</p>
       <blockquote>
@@ -361,17 +361,17 @@ binc=myfile.bin</pre>
   </tr>
   <tr>
     <td class="elist1">data=</td>
-    <td class="elist1">pointer to a file (same as file=) : quotes are 
+    <td class="elist1">pointer to a file (same as file=) : quotes are
     optional</td>
   </tr>
   <tr>
     <td class="elist2">load=</td>
-    <td class="elist2">pointer to a file loaded at runtime : quotes 
+    <td class="elist2">pointer to a file loaded at runtime : quotes
     are optional
-    <p>note: this will actually start as a pointer to a filename with with the 
+    <p>note: this will actually start as a pointer to a filename with with the
     POSITIONFLAG_ISFILE set to tell your loader that you need to load the file
     </p>
-    <p>since mkloadob excepts variables both as environment vars and as #define 
+    <p>since mkloadob excepts variables both as environment vars and as #define
     var value, the expected usage of load= is as follows</p>
     <blockquote>
       <pre>#define objectload=load
@@ -383,7 +383,7 @@ binc=myfile.bin</pre>
 %objectload%=&quot;myobject2.ob&quot;
 %weaponload%=&quot;myweapon1.foo&quot;
 %weaponload%=&quot;myweapon2.foo&quot;</pre>
-      <p>this way you can comment turn on/off individual files or file types 
+      <p>this way you can comment turn on/off individual files or file types
       throughout.</p>
     </blockquote>
     </td>
@@ -471,7 +471,7 @@ binc=myfile.bin</pre>
   </tr>
   <tr>
     <td class="elist2">binc= </td>
-    <td class="elist2">binary file to include here, quotes are 
+    <td class="elist2">binary file to include here, quotes are
     optional</td>
   </tr>
   <tr>
@@ -485,9 +485,9 @@ byte=1
 align=4
 long=$12345678</pre>
     </blockquote>
-    <p>You will get 3 bytes of padding after the first byte BUT the section will 
-    be placed based on the -PADSIZE option. If -PADSIZE is set to a non multiple 
-    of 4 in the example above it's possible the section will not start at a 4 
+    <p>You will get 3 bytes of padding after the first byte BUT the section will
+    be placed based on the -PADSIZE option. If -PADSIZE is set to a non multiple
+    of 4 in the example above it's possible the section will not start at a 4
     byte boundary and therefore neither will the long</td>
   </tr>
   <tr>
@@ -499,8 +499,8 @@ long=$12345678</pre>
   </tr>
   <tr>
     <td class="elist1">path= </td>
-    <td class="elist1">set the path for loading binary files. Files 
-    encountered after this line will be loaded from here<p>&nbsp;NOTE: Files are 
+    <td class="elist1">set the path for loading binary files. Files
+    encountered after this line will be loaded from here<p>&nbsp;NOTE: Files are
     parsed from the TOP section to each connecting section&nbsp; so for example</p>
     <blockquote>
       <pre>[start]
@@ -511,15 +511,15 @@ file=file3.bin ; load dir\subdir\file2.bin
 path=dir\subdir
 file=file1.bin ; loads dir\subdir\file1.bin</pre>
     </blockquote>
-      <p><span lang="ja">Also note that by default, files are loaded relative to 
-      the file they are referenced from first.&nbsp; In other words if a file= 
-      statement is found in c:\mydir\myfile.dlink the file will be looked for in 
+      <p><span lang="ja">Also note that by default, files are loaded relative to
+      the file they are referenced from first.&nbsp; In other words if a file=
+      statement is found in c:\mydir\myfile.dlink the file will be looked for in
       c:\mydir </span>
     </td>
   </tr>
   <tr>
     <td class="elist2">insert=</td>
-    <td class="elist2">inserts another section here.&nbsp; Not a 
+    <td class="elist2">inserts another section here.&nbsp; Not a
     pointer, the actual section so for example this:<blockquote>
       <pre>[start]
 byte=1 2 3
@@ -586,9 +586,9 @@ byte=7 8 9</pre>
   </tr>
   <tr>
     <td class="elist2" nowrap>SPECFILES</td>
-    <td class="elist2">Linker files.&nbsp; Note it says FILES.&nbsp; As in 
-    PLURAL.&nbsp; You can use include statements and/or you can specify as many 
-    files as you need right here.&nbsp; Files are parsed from the [start] 
+    <td class="elist2">Linker files.&nbsp; Note it says FILES.&nbsp; As in
+    PLURAL.&nbsp; You can use include statements and/or you can specify as many
+    files as you need right here.&nbsp; Files are parsed from the [start]
     section so the order sections appear in the files and the order
     <span lang="ja">they are</span> includ<span lang="ja">ed is</span> n<span lang="ja">ot</span> relevant (<a href="#relevant">*</a>)</td>
   </tr>
@@ -602,12 +602,12 @@ byte=7 8 9</pre>
   </tr>
   <tr>
     <td class="elist1" nowrap>-DUPERR</td>
-    <td class="elist1">To sections with the same name cause an error (default, 
+    <td class="elist1">To sections with the same name cause an error (default,
     ignore duplicates)</td>
   </tr>
   <tr>
     <td class="elist2" nowrap>-NOPACK</td>
-    <td class="elist2">Don't Pack.&nbsp; Don't check the contents of each binary 
+    <td class="elist2">Don't Pack.&nbsp; Don't check the contents of each binary
     file to see if it match another binary file</td>
   </tr>
   <tr>
@@ -616,24 +616,24 @@ byte=7 8 9</pre>
   </tr>
   <tr>
     <td class="elist2" nowrap>-PADSIZE &lt;bytes&gt;</td>
-    <td class="elist2">Padsize Size (Def. 4). This is the default alignment for 
+    <td class="elist2">Padsize Size (Def. 4). This is the default alignment for
     the start of sections</td>
   </tr>
   <tr>
     <td class="elist1" nowrap>-CHUNKSIZE &lt;bytes&gt;</td>
-    <td class="elist1">Chunk Size (Def. 2048).&nbsp; This is the size of one 
-    chuck.&nbsp; See <a href="#cyd">Chunkifying your data</a>.&nbsp; Most likely you'll want to set 
+    <td class="elist1">Chunk Size (Def. 2048).&nbsp; This is the size of one
+    chuck.&nbsp; See <a href="#cyd">Chunkifying your data</a>.&nbsp; Most likely you'll want to set
     this to something like $<span lang="ja">7F0</span>00000</td>
   </tr>
   <tr>
     <td class="elist2" nowrap>-SECTORSIZE &lt;bytes&gt;</td>
-    <td class="elist2">Hardware Sector Size (Def. 1).&nbsp; If you set this to 
-    any<span lang="ja"> </span>size larger then 1 your file will be padded to be a multiple of this 
+    <td class="elist2">Hardware Sector Size (Def. 1).&nbsp; If you set this to
+    any<span lang="ja"> </span>size larger then 1 your file will be padded to be a multiple of this
     number.</td>
   </tr>
   <tr>
     <td class="elist1" nowrap>-FIXUPMODE &lt;mode&gt;</td>
-    <td class="elist1">Fixup mode.&nbsp; This specifies the the method used to 
+    <td class="elist1">Fixup mode.&nbsp; This specifies the the method used to
     save the optional pointer fixup table<blockquote>
       <p>0 = none (def)<br>
       1 = at beginning of the file<br>
@@ -643,14 +643,14 @@ byte=7 8 9</pre>
   </tr>
   <tr>
     <td class="elist2" nowrap>-NOPAD</td>
-    <td class="elist2">Don't pad end of file to Chunk size.&nbsp; You will 
-    probably want to set this option, otherwise if you set the chunksize above 
+    <td class="elist2">Don't pad end of file to Chunk size.&nbsp; You will
+    probably want to set this option, otherwise if you set the chunksize above
     to some very large size you'll get a gigantic file</td>
   </tr>
   <tr>
     <td class="elist1" nowrap>-TOP &lt;top&gt;</td>
-    <td class="elist1">Top Section (Def. 'START').&nbsp; By default the linker 
-    will look for a section called [start] for where it should start parsing.&nbsp; 
+    <td class="elist1">Top Section (Def. 'START').&nbsp; By default the linker
+    will look for a section called [start] for where it should start parsing.&nbsp;
     You can change that with this option</td>
   </tr>
   <tr>
@@ -663,9 +663,9 @@ byte=7 8 9</pre>
   </tr>
   <tr>
     <td class="elist2" nowrap>-NOSORT</td>
-    <td class="elist2">Do NOT sort binary files.&nbsp; The point of this is 
-    supposed to be that if not sorted, &quot;file=&quot; files will generally get loaded 
-    in memory consecutively as they are found in the linker file. Of course they 
+    <td class="elist2">Do NOT sort binary files.&nbsp; The point of this is
+    supposed to be that if not sorted, &quot;file=&quot; files will generally get loaded
+    in memory consecutively as they are found in the linker file. Of course they
     will be no where near the non-file data</td>
   </tr>
   <tr>
@@ -677,13 +677,13 @@ byte=7 8 9</pre>
     <td class="elist2">Add an include pat</td>
   </tr>
 </table>
-<p><font size="2"><a name="relevant"></a>(*) Never relevant is an over 
-statement.&nbsp; Of course if you have an include in the middle of a section 
-then it does matter but there is no reason to do that.&nbsp; Use the insert= 
+<p><font size="2"><a name="relevant"></a>(*) Never relevant is an over
+statement.&nbsp; Of course if you have an include in the middle of a section
+then it does matter but there is no reason to do that.&nbsp; Use the insert=
 statement instead.</font></p>
 <h2><a name="macros"></a>Macro Language</h2>
-<p>There is a small macro language built in.&nbsp; It works on a line by line 
-basis.&nbsp; In other words, macros can NOT span more than one line.&nbsp; 
+<p>There is a small macro language built in.&nbsp; It works on a line by line
+basis.&nbsp; In other words, macros can NOT span more than one line.&nbsp;
 Variables and macros are referenced with %.&nbsp; Example</p>
                 <blockquote>
                   <pre>#define file myfile
@@ -694,16 +694,16 @@ load=%file%%extension%</pre>
 <blockquote>
   <pre>load=myfile.bin</pre>
 </blockquote>
-<p>Note: The format is %blah%.&nbsp; Notice the ending %.&nbsp; This is so you 
-can put two variables directly next to each other like in the example above.&nbsp; 
-It is optional only when the next thing following is not a macro/variable.&nbsp; 
-This has the following consequence.&nbsp; If you follow a macro with a variable 
+<p>Note: The format is %blah%.&nbsp; Notice the ending %.&nbsp; This is so you
+can put two variables directly next to each other like in the example above.&nbsp;
+It is optional only when the next thing following is not a macro/variable.&nbsp;
+This has the following consequence.&nbsp; If you follow a macro with a variable
 or another macro be sure to remember the trailing %.&nbsp; For example</p>
 <blockquote>
   <pre>%fadd(2,3)%fadd(4,5)</pre>
 </blockquote>
-<p>That is most likely a bug.&nbsp; It reads as %fadd(2,3)% followed by 
-fadd(4,5).&nbsp; The second fadd is not preceded by a % and is therefore not a 
+<p>That is most likely a bug.&nbsp; It reads as %fadd(2,3)% followed by
+fadd(4,5).&nbsp; The second fadd is not preceded by a % and is therefore not a
 macro call.&nbsp; The correct way is</p>
 <blockquote>
   <pre>%fadd(2,3)%%fadd(4,5)</pre>
@@ -776,7 +776,7 @@ macro call.&nbsp; The correct way is</p>
     equal, 1 if <b>str1</b> is asciibetically higher than <b>str2</b></td></tr>
 <tr><td class="elist2">%fascii(str)</td><td class="elist2">return
     the ascii value of the first character of <b>str</b></td></tr>
-<tr><td class="elist1">%fquote(str)</td><td class="elist1"><span lang="ja">quote 
+<tr><td class="elist1">%fquote(str)</td><td class="elist1"><span lang="ja">quote
   something, don't interpret it</span></td></tr>
 <tr><td class="elist2">%fsearch(string1,string2)</td><td class="elist2">find
     string2 in string1, if found return the index to the&nbsp;first character
@@ -880,7 +880,7 @@ macro call.&nbsp; The correct way is</p>
           <tr>
             <td width="16%" class="elist1"><b><font size="2">G</font></b></td>
             <td width="21%" class="elist1"><b><font size="2">float</font></b></td>
-            <td width="63%" class="elist1"><font size="2">Identical to the <b>g</b> 
+            <td width="63%" class="elist1"><font size="2">Identical to the <b>g</b>
               format, except that <b>E</b>, rather than <b>e</b>, introduces the
               exponent (where appropriate).</font></td>
           </tr>
@@ -933,7 +933,7 @@ struct Level
     <pre>// linker file
 [start]
 long=1  ; version number
-long=4	; number of models
+long=4  ; number of models
 pntr=modeltable</pre>
   </blockquote>
   <p>This way, anytime I change the format of the data I change the version
@@ -1019,25 +1019,25 @@ pntr=right_forearm_attachments,nullok=true</pre>
   </blockquote>
 </blockquote>
 <h2><a name="cyd"></a>Chunkifying <span lang="ja">Y</span>our <span lang="ja">D</span>ata</h2>
-<p>MKLOADOB can separate data into chucks of a specified size. If you 
-don't need chucks specify a really large size and you'll get just one chunk! 
+<p>MKLOADOB can separate data into chucks of a specified size. If you
+don't need chucks specify a really large size and you'll get just one chunk!
 Note: no piece of data or any sections can be larger than a single chunk.</p>
 <p>What's the point to chunks?</p>
 <ul>
-  <li>You want to spool music from the CD and STILL be able to load in real 
-  time. Load one chuck at a time (giving the machine time to grab more music 
+  <li>You want to spool music from the CD and STILL be able to load in real
+  time. Load one chuck at a time (giving the machine time to grab more music
   between chucks<br>
 &nbsp;</li>
-  <li>You want to be able to LOAD and later FREE multiple levels in the same 
-  memory space without having to worry about garbage collection and 
+  <li>You want to be able to LOAD and later FREE multiple levels in the same
+  memory space without having to worry about garbage collection and
   fragmentation. You do this by storing the level in chunks using this program.</li>
 </ul>
 <blockquote>
-  <p>At runtime you allocation say 200 chunks of memory. You can then load each 
-  chunk from one of these files into any of those 200 chunks in any order since 
+  <p>At runtime you allocation say 200 chunks of memory. You can then load each
+  chunk from one of these files into any of those 200 chunks in any order since
   all pointers are chuck relative.</p>
 </blockquote>
-<p>The <span lang="ja">first chunk</span> of the file contains a pointer field for each chunk that ends 
+<p>The <span lang="ja">first chunk</span> of the file contains a pointer field for each chunk that ends
 in NULL. So if there are 4 chunks the start
 of the very first chunk would be </p>
 <blockquote>
@@ -1049,7 +1049,7 @@ $00000000 ; end marker
 $???????? ; pointer to start of data</pre>
 </blockquote>
 <p>As you load each chunk you can record it's address in memory in that table.</p>
-<p>When you are finish you can go and fix up all the pointers in your data 
+<p>When you are finish you can go and fix up all the pointers in your data
 something like this</p>
 <blockquote>
   <pre>long* chunktable; ; address of first chunk
@@ -1059,9 +1059,9 @@ void* pntr;       ; actuall address in memory
 pntr = chunktable[relpntr &amp; (LOAD_CHUNK_MASK &gt;&gt; LOAD_CHUNK_SHIFT)]
             + (relpntr &amp; LOAD_CHUCK_OFFSET_MASK)</pre>
 </blockquote>
-<p>It is assumed that no pointer may be at an ODD address therefore all pointers 
-in the file have their low bit set (0x00000001). This is so as you fix up the 
-pointers you know if the pointer has already been fixed up. This is important 
+<p>It is assumed that no pointer may be at an ODD address therefore all pointers
+in the file have their low bit set (0x00000001). This is so as you fix up the
+pointers you know if the pointer has already been fixed up. This is important
 because if you are fixing up the pointers by walking the data yourself.</p>
 <p>So for example if you have this</p>
 <blockquote>
@@ -1072,42 +1072,42 @@ pntr=section1
 [section1]
 file=myfile.bin</pre>
 </blockquote>
-<p>As you walk your data you will encounter 2 pointers to section1. When you 
-find the first one you would go fix up section1. When you find the second one 
-you would go to fix up section1 again and if you didn't know the pointers were 
+<p>As you walk your data you will encounter 2 pointers to section1. When you
+find the first one you would go fix up section1. When you find the second one
+you would go to fix up section1 again and if you didn't know the pointers were
 already fixed up you'd fix them again and mess them up.</p>
-<p>Optionally you can write out a fixup table. This is a list of relative 
-pointers to ALL other pointers in the file followed by a null.&nbsp; The issue 
-here is currently all fixup pointers must all fit in the first chunk.&nbsp; If 
-you are not using chunks this is not an issue.&nbsp; If you are and you run out 
-of room then it would be relatively easy to come up with a format that allowed 
-the fixup table to span chunks.&nbsp; Last time we used chunks we were not using 
+<p>Optionally you can write out a fixup table. This is a list of relative
+pointers to ALL other pointers in the file followed by a null.&nbsp; The issue
+here is currently all fixup pointers must all fit in the first chunk.&nbsp; If
+you are not using chunks this is not an issue.&nbsp; If you are and you run out
+of room then it would be relatively easy to come up with a format that allowed
+the fixup table to span chunks.&nbsp; Last time we used chunks we were not using
 a fixup table.</p>
-<p>When using the multiple chunk method each chunk is padded to be one full 
-chunk long. If you are only using one chunk you probably want to use -NOPAD 
+<p>When using the multiple chunk method each chunk is padded to be one full
+chunk long. If you are only using one chunk you probably want to use -NOPAD
 option to not pad since you will specify an arbitrarily large chunk.</p>
-<p>BUT, at the same time you probably want your in game loader to be as simple 
-as possible like for example never having to load less than a full sector of 
-data from the CD/DVD. In that case use the -SECTORSIZE option to specify the 
-size of a sector on the CD/DVD. This is pretty much only useful if you are using 
+<p>BUT, at the same time you probably want your in game loader to be as simple
+as possible like for example never having to load less than a full sector of
+data from the CD/DVD. In that case use the -SECTORSIZE option to specify the
+size of a sector on the CD/DVD. This is pretty much only useful if you are using
 ONE chunk.</p>
-<p>Why is that important? Because many DVD/CD libraries will read directly to 
-user memory if they can read an entire sector but if they have to read less than 
-an entire sector they must first load it to their own buffer then copy the part 
+<p>Why is that important? Because many DVD/CD libraries will read directly to
+user memory if they can read an entire sector but if they have to read less than
+an entire sector they must first load it to their own buffer then copy the part
 you wanted to user memory. That's clearly slower than directly reading it.</p>
 <p>Loading a multi-chunk file would look something like this:</p>
 <ul>
-  <li>Get length of entire file and divide by the chunk size to get the number 
+  <li>Get length of entire file and divide by the chunk size to get the number
   of chunks</li>
   <li>for each chunk<ul>
     <li>Load a chunk</li>
-    <li>record the address of the loaded chunk in the corresponding long word in 
+    <li>record the address of the loaded chunk in the corresponding long word in
     the first chunk.</li>
   </ul>
   </li>
   <li>end for</li>
 </ul>
-<p>now all the blocks are loaded and you know where the data offset  
+<p>now all the blocks are loaded and you know where the data offset
 starts, the first pointer after the chunk table so:</p>
 <ul>
   <li>for each non-zero data offset<ul>
