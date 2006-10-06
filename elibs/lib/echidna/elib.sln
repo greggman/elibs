@@ -10,6 +10,9 @@ Global
 		MFC Release = MFC Release
 		MultiThread DLL Debug = MultiThread DLL Debug
 		MultiThread DLL Release = MultiThread DLL Release
+		MultiThread Static Debug = MultiThread Static Debug
+		MultiThread Static Release = MultiThread Static Release
+		MultiThreadedReleaseDebug = MultiThreadedReleaseDebug
 		Release = Release
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
@@ -23,6 +26,12 @@ Global
 		{ADF1C622-349B-4026-AF5D-706083979B4E}.MultiThread DLL Debug.Build.0 = MultiThread DLL Debug|Win32
 		{ADF1C622-349B-4026-AF5D-706083979B4E}.MultiThread DLL Release.ActiveCfg = MultiThread DLL Release|Win32
 		{ADF1C622-349B-4026-AF5D-706083979B4E}.MultiThread DLL Release.Build.0 = MultiThread DLL Release|Win32
+		{ADF1C622-349B-4026-AF5D-706083979B4E}.MultiThread Static Debug.ActiveCfg = MultiThread Static Debug|Win32
+		{ADF1C622-349B-4026-AF5D-706083979B4E}.MultiThread Static Debug.Build.0 = MultiThread Static Debug|Win32
+		{ADF1C622-349B-4026-AF5D-706083979B4E}.MultiThread Static Release.ActiveCfg = MultiThread Static Release|Win32
+		{ADF1C622-349B-4026-AF5D-706083979B4E}.MultiThread Static Release.Build.0 = MultiThread Static Release|Win32
+		{ADF1C622-349B-4026-AF5D-706083979B4E}.MultiThreadedReleaseDebug.ActiveCfg = MultiThreadedReleaseDebug|Win32
+		{ADF1C622-349B-4026-AF5D-706083979B4E}.MultiThreadedReleaseDebug.Build.0 = MultiThreadedReleaseDebug|Win32
 		{ADF1C622-349B-4026-AF5D-706083979B4E}.Release.ActiveCfg = Release|Win32
 		{ADF1C622-349B-4026-AF5D-706083979B4E}.Release.Build.0 = Release|Win32
 	EndGlobalSection
