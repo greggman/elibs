@@ -46,421 +46,421 @@ extern "C" {
 		/* Processor:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		
+
 		   #define _EL_CPU_iAPx86__   0
 		   #define _EL_CPU_M68000__   0
 		   #define _EL_CPU_ARM60__    0
 		   #define _EL_CPU_PPC602__   0
 		   #define _EL_CPU_r4400__    0
 		   #define _EL_CPU_R3000__    1
-		
+
 		/* Operating System:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		
-		
-		   #define _EL_OS_MSDOS__          0        
+
+
+		   #define _EL_OS_MSDOS__          0
 		   #define _EL_OS_WIN32__          0
-		   #define _EL_OS_AMIGAOS__        0         
+		   #define _EL_OS_AMIGAOS__        0
 		   #define _EL_OS_MACOS__          0
 		   #define _EL_OS_IRIX53__         0
 		   #define _EL_OS_PSXOS__          1
-		
+
 		/* Compiler:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		   
+
 		   #define _EL_CC_TURBOC__      0     // Borland
-		   #define _EL_CC_ARMC__        0     // Arm 
+		   #define _EL_CC_ARMC__        0     // Arm
 		   #define _EL_CC_WATCOMC__     0     // Watcom
 		   #define _EL_CC_ZTC__         0     // Zortech
 		   #define _EL_CC_MACSC__       0     // Macintosh
 		   #define _EL_CC_DIABC__       0     // Diab
 		   #define _EL_CC_SGIC__        0     // SGI C
 		   #define _EL_CC_VC__          0     // Microsoft VC++
-		   #define _EL_CC_CCPSX__       1     // Psygnosis Psy-Q 
-		
+		   #define _EL_CC_CCPSX__       1     // Psygnosis Psy-Q
+
 		/* Include Syntax:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		   #define _EL_INCSYNTAX_A__    0     // e.g. echidna/platform.h  
-		   #define _EL_INCSYNTAX_B__    0     // e.g. echidna:platform.h  
+		   #define _EL_INCSYNTAX_A__    0     // e.g. echidna/platform.h
+		   #define _EL_INCSYNTAX_B__    0     // e.g. echidna:platform.h
 		   #define _EL_INCSYNTAX_C__    1     // e.g. echidna\platform.h
 		   #define _EL_INCSYNTAX_D__    0     // e.g. :echidna:platform.h
-		
+
 	#elif defined(_EL_PLAT_M2__)
 
 		/* Processor:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		
+
 		   #define _EL_CPU_iAPx86__   0
 		   #define _EL_CPU_M68000__   0
 		   #define _EL_CPU_ARM60__    0
 		   #define _EL_CPU_PPC602__   1
 		   #define _EL_CPU_r4400__    0
 		   #define _EL_CPU_R3000__    0
-		
+
 		/* Operating System:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		
-		
-		   #define _EL_OS_MSDOS__          0        
+
+
+		   #define _EL_OS_MSDOS__          0
 		   #define _EL_OS_WIN32__          0
-		   #define _EL_OS_AMIGAOS__        0         
+		   #define _EL_OS_AMIGAOS__        0
 		   #define _EL_OS_MACOS__          0
 		   #define _EL_OS_IRIX53__         0
 		   #define _EL_OS_PSXOS__          0
-		
+
 		/* Compiler:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		   
+
 		   #define _EL_CC_TURBOC__      0     // Borland
-		   #define _EL_CC_ARMC__        0     // Arm 
+		   #define _EL_CC_ARMC__        0     // Arm
 		   #define _EL_CC_WATCOMC__     0     // Watcom
 		   #define _EL_CC_ZTC__         0     // Zortech
 		   #define _EL_CC_MACSC__       0     // Macintosh
 		   #define _EL_CC_DIABC__       1     // Diab
 		   #define _EL_CC_SGIC__        0     // SGI C
 		   #define _EL_CC_VC__          0     // Microsoft VC++
-		   #define _EL_CC_CCPSX__       0     // Psygnosis Psy-Q 
-		
+		   #define _EL_CC_CCPSX__       0     // Psygnosis Psy-Q
+
 		/* Include Syntax:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		   #define _EL_INCSYNTAX_A__    0     // e.g. echidna/platform.h  
-		   #define _EL_INCSYNTAX_B__    1     // e.g. echidna:platform.h  
+		   #define _EL_INCSYNTAX_A__    0     // e.g. echidna/platform.h
+		   #define _EL_INCSYNTAX_B__    1     // e.g. echidna:platform.h
 		   #define _EL_INCSYNTAX_C__    0     // e.g. echidna\platform.h
 		   #define _EL_INCSYNTAX_D__    0     // e.g. :echidna:platform.h
-		
+
    #elif defined(_EL_PLAT_SGI__)
 
 		/* Processor:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		
+
 		   #define _EL_CPU_iAPx86__   0
 		   #define _EL_CPU_M68000__   0
 		   #define _EL_CPU_ARM60__    0
 		   #define _EL_CPU_PPC602__   0
 		   #define _EL_CPU_r4400__    1
 		   #define _EL_CPU_R3000__    0
-		
+
 		/* Operating System:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		
-		
-		   #define _EL_OS_MSDOS__          0        
+
+
+		   #define _EL_OS_MSDOS__          0
 		   #define _EL_OS_WIN32__          0
-		   #define _EL_OS_AMIGAOS__        0         
+		   #define _EL_OS_AMIGAOS__        0
 		   #define _EL_OS_MACOS__          0
 		   #define _EL_OS_IRIX53__         1
 		   #define _EL_OS_PSXOS__          0
-		
+
 		/* Compiler:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		   
+
 		   #define _EL_CC_TURBOC__      0     // Borland
-		   #define _EL_CC_ARMC__        0     // Arm 
+		   #define _EL_CC_ARMC__        0     // Arm
 		   #define _EL_CC_WATCOMC__     0     // Watcom
 		   #define _EL_CC_ZTC__         0     // Zortech
 		   #define _EL_CC_MACSC__       0     // Macintosh
 		   #define _EL_CC_DIABC__       0     // Diab
 		   #define _EL_CC_SGIC__        1     // SGI C
 		   #define _EL_CC_VC__          0     // Microsoft VC++
-		   #define _EL_CC_CCPSX__       0     // Psygnosis Psy-Q 
-		
+		   #define _EL_CC_CCPSX__       0     // Psygnosis Psy-Q
+
 		/* Include Syntax:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		   #define _EL_INCSYNTAX_A__    1     // e.g. echidna/platform.h  
-		   #define _EL_INCSYNTAX_B__    0     // e.g. echidna:platform.h  
+		   #define _EL_INCSYNTAX_A__    1     // e.g. echidna/platform.h
+		   #define _EL_INCSYNTAX_B__    0     // e.g. echidna:platform.h
 		   #define _EL_INCSYNTAX_C__    0     // e.g. echidna\platform.h
 		   #define _EL_INCSYNTAX_D__    0     // e.g. :echidna:platform.h
-		
+
 	#elif defined(_EL_PLAT_M2__)
 
 		/* Processor:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		
+
 		   #define _EL_CPU_iAPx86__   0
 		   #define _EL_CPU_M68000__   0
 		   #define _EL_CPU_ARM60__    0
 		   #define _EL_CPU_PPC602__   1
 		   #define _EL_CPU_r4400__    0
 		   #define _EL_CPU_R3000__    0
-		
+
 		/* Operating System:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		
-		
-		   #define _EL_OS_MSDOS__          0        
+
+
+		   #define _EL_OS_MSDOS__          0
 		   #define _EL_OS_WIN32__          0
-		   #define _EL_OS_AMIGAOS__        0         
+		   #define _EL_OS_AMIGAOS__        0
 		   #define _EL_OS_MACOS__          0
 		   #define _EL_OS_IRIX53__         0
 		   #define _EL_OS_PSXOS__          0
-		
+
 		/* Compiler:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		   
+
 		   #define _EL_CC_TURBOC__      0     // Borland
-		   #define _EL_CC_ARMC__        0     // Arm 
+		   #define _EL_CC_ARMC__        0     // Arm
 		   #define _EL_CC_WATCOMC__     0     // Watcom
 		   #define _EL_CC_ZTC__         0     // Zortech
 		   #define _EL_CC_MACSC__       0     // Macintosh
 		   #define _EL_CC_DIABC__       1     // Diab
 		   #define _EL_CC_SGIC__        0     // SGI C
 		   #define _EL_CC_VC__          0     // Microsoft VC++
-		   #define _EL_CC_CCPSX__       0     // Psygnosis Psy-Q 
-		
+		   #define _EL_CC_CCPSX__       0     // Psygnosis Psy-Q
+
 		/* Include Syntax:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		   #define _EL_INCSYNTAX_A__    0     // e.g. echidna/platform.h  
-		   #define _EL_INCSYNTAX_B__    1     // e.g. echidna:platform.h  
+		   #define _EL_INCSYNTAX_A__    0     // e.g. echidna/platform.h
+		   #define _EL_INCSYNTAX_B__    1     // e.g. echidna:platform.h
 		   #define _EL_INCSYNTAX_C__    0     // e.g. echidna\platform.h
 		   #define _EL_INCSYNTAX_D__    0     // e.g. :echidna:platform.h
-		
+
 	#elif defined(_EL_PLAT_MAC68__)	// Mac with 68000
 
 		/* Processor:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		
+
 		   #define _EL_CPU_iAPx86__   0
 		   #define _EL_CPU_M68000__   1
 		   #define _EL_CPU_ARM60__    0
 		   #define _EL_CPU_PPC602__   0
 		   #define _EL_CPU_r4400__    0
 		   #define _EL_CPU_R3000__    0
-		
+
 		/* Operating System:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		
-		
-		   #define _EL_OS_MSDOS__          0        
+
+
+		   #define _EL_OS_MSDOS__          0
 		   #define _EL_OS_WIN32__          0
-		   #define _EL_OS_AMIGAOS__        0         
+		   #define _EL_OS_AMIGAOS__        0
 		   #define _EL_OS_MACOS__          1
 		   #define _EL_OS_IRIX53__         0
 		   #define _EL_OS_PSXOS__          0
-		
+
 		/* Compiler:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		   
+
 		   #define _EL_CC_TURBOC__      0     // Borland
-		   #define _EL_CC_ARMC__        0     // Arm 
+		   #define _EL_CC_ARMC__        0     // Arm
 		   #define _EL_CC_WATCOMC__     0     // Watcom
 		   #define _EL_CC_ZTC__         0     // Zortech
 		   #define _EL_CC_MACSC__       1     // Macintosh
 		   #define _EL_CC_DIABC__       0     // Diab
 		   #define _EL_CC_SGIC__        0     // SGI C
 		   #define _EL_CC_VC__          0     // Microsoft VC++
-		   #define _EL_CC_CCPSX__       0     // Psygnosis Psy-Q 
-		
+		   #define _EL_CC_CCPSX__       0     // Psygnosis Psy-Q
+
 		/* Include Syntax:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		   #define _EL_INCSYNTAX_A__    0     // e.g. echidna/platform.h  
-		   #define _EL_INCSYNTAX_B__    0     // e.g. echidna:platform.h  
+		   #define _EL_INCSYNTAX_A__    0     // e.g. echidna/platform.h
+		   #define _EL_INCSYNTAX_B__    0     // e.g. echidna:platform.h
 		   #define _EL_INCSYNTAX_C__    0     // e.g. echidna\platform.h
 		   #define _EL_INCSYNTAX_D__    1     // e.g. :echidna:platform.h
-		
+
 	#elif defined(_EL_PLAT_PCB16__)	/* PC with Borland */
 
 		/* Processor:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		
+
 		   #define _EL_CPU_iAPx86__   1
 		   #define _EL_CPU_M68000__   0
 		   #define _EL_CPU_ARM60__    0
 		   #define _EL_CPU_PPC602__   0
 		   #define _EL_CPU_r4400__    0
 		   #define _EL_CPU_R3000__    0
-		
+
 		/* Operating System:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		
-		
-		   #define _EL_OS_MSDOS__          1        
+
+
+		   #define _EL_OS_MSDOS__          1
 		   #define _EL_OS_WIN32__          0
-		   #define _EL_OS_AMIGAOS__        0         
+		   #define _EL_OS_AMIGAOS__        0
 		   #define _EL_OS_MACOS__          0
 		   #define _EL_OS_IRIX53__         0
 		   #define _EL_OS_PSXOS__          0
-		
+
 		/* Compiler:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		   
+
 		   #define _EL_CC_TURBOC__      1     // Borland
-		   #define _EL_CC_ARMC__        0     // Arm 
+		   #define _EL_CC_ARMC__        0     // Arm
 		   #define _EL_CC_WATCOMC__     0     // Watcom
 		   #define _EL_CC_ZTC__         0     // Zortech
 		   #define _EL_CC_MACSC__       0     // Macintosh
 		   #define _EL_CC_DIABC__       0     // Diab
 		   #define _EL_CC_SGIC__        0     // SGI C
 		   #define _EL_CC_VC__          0     // Microsoft VC++
-		   #define _EL_CC_CCPSX__       0     // Psygnosis Psy-Q 
-		
+		   #define _EL_CC_CCPSX__       0     // Psygnosis Psy-Q
+
 		/* Include Syntax:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		   #define _EL_INCSYNTAX_A__    0     // e.g. echidna/platform.h  
-		   #define _EL_INCSYNTAX_B__    0     // e.g. echidna:platform.h  
+		   #define _EL_INCSYNTAX_A__    0     // e.g. echidna/platform.h
+		   #define _EL_INCSYNTAX_B__    0     // e.g. echidna:platform.h
 		   #define _EL_INCSYNTAX_C__    1     // e.g. echidna\platform.h
 		   #define _EL_INCSYNTAX_D__    0     // e.g. :echidna:platform.h
-		
+
 	#elif defined(_EL_PLAT_PCB32__)	/* PC with Borland 32 bits */
 
 		/* Processor:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		
+
 		   #define _EL_CPU_iAPx86__   1
 		   #define _EL_CPU_M68000__   0
 		   #define _EL_CPU_ARM60__    0
 		   #define _EL_CPU_PPC602__   0
 		   #define _EL_CPU_r4400__    0
 		   #define _EL_CPU_R3000__    0
-		
+
 		/* Operating System:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		
-		
-		   #define _EL_OS_MSDOS__          1        
+
+
+		   #define _EL_OS_MSDOS__          1
 		   #define _EL_OS_WIN32__          0
-		   #define _EL_OS_AMIGAOS__        0         
+		   #define _EL_OS_AMIGAOS__        0
 		   #define _EL_OS_MACOS__          0
 		   #define _EL_OS_IRIX53__         0
 		   #define _EL_OS_PSXOS__          0
-		
+
 		/* Compiler:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		   
+
 		   #define _EL_CC_TURBOC__      1     // Borland
-		   #define _EL_CC_ARMC__        0     // Arm 
+		   #define _EL_CC_ARMC__        0     // Arm
 		   #define _EL_CC_WATCOMC__     0     // Watcom
 		   #define _EL_CC_ZTC__         0     // Zortech
 		   #define _EL_CC_MACSC__       0     // Macintosh
 		   #define _EL_CC_DIABC__       0     // Diab
 		   #define _EL_CC_SGIC__        0     // SGI C
 		   #define _EL_CC_VC__          0     // Microsoft VC++
-		   #define _EL_CC_CCPSX__       0     // Psygnosis Psy-Q 
-		
+		   #define _EL_CC_CCPSX__       0     // Psygnosis Psy-Q
+
 		/* Include Syntax:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		   #define _EL_INCSYNTAX_A__    0     // e.g. echidna/platform.h  
-		   #define _EL_INCSYNTAX_B__    0     // e.g. echidna:platform.h  
+		   #define _EL_INCSYNTAX_A__    0     // e.g. echidna/platform.h
+		   #define _EL_INCSYNTAX_B__    0     // e.g. echidna:platform.h
 		   #define _EL_INCSYNTAX_C__    1     // e.g. echidna\platform.h
 		   #define _EL_INCSYNTAX_D__    0     // e.g. :echidna:platform.h
-		
+
 	#elif defined(_EL_PLAT_PCM32__)	/* PC with Microsoft 32 bits */
 
 		/* Processor:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		
+
 		   #define _EL_CPU_iAPx86__   1
 		   #define _EL_CPU_M68000__   0
 		   #define _EL_CPU_ARM60__    0
 		   #define _EL_CPU_PPC602__   0
 		   #define _EL_CPU_r4400__    0
 		   #define _EL_CPU_R3000__    0
-		
+
 		/* Operating System:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		
-		
-		   #define _EL_OS_MSDOS__          1        
+
+
+		   #define _EL_OS_MSDOS__          1
 		   #define _EL_OS_WIN32__          0
-		   #define _EL_OS_AMIGAOS__        0         
+		   #define _EL_OS_AMIGAOS__        0
 		   #define _EL_OS_MACOS__          0
 		   #define _EL_OS_IRIX53__         0
 		   #define _EL_OS_PSXOS__          0
-		
+
 		/* Compiler:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		   
+
 		   #define _EL_CC_TURBOC__      0     // Borland
-		   #define _EL_CC_ARMC__        0     // Arm 
+		   #define _EL_CC_ARMC__        0     // Arm
 		   #define _EL_CC_WATCOMC__     0     // Watcom
 		   #define _EL_CC_ZTC__         0     // Zortech
 		   #define _EL_CC_MACSC__       0     // Macintosh
 		   #define _EL_CC_DIABC__       0     // Diab
 		   #define _EL_CC_SGIC__        0     // SGI C
 		   #define _EL_CC_VC__          0     // Microsoft VC++
-		   #define _EL_CC_CCPSX__       0     // Psygnosis Psy-Q 
-		
+		   #define _EL_CC_CCPSX__       0     // Psygnosis Psy-Q
+
 		/* Include Syntax:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		   #define _EL_INCSYNTAX_A__    0     // e.g. echidna/platform.h  
-		   #define _EL_INCSYNTAX_B__    0     // e.g. echidna:platform.h  
+		   #define _EL_INCSYNTAX_A__    0     // e.g. echidna/platform.h
+		   #define _EL_INCSYNTAX_B__    0     // e.g. echidna:platform.h
 		   #define _EL_INCSYNTAX_C__    1     // e.g. echidna\platform.h
 		   #define _EL_INCSYNTAX_D__    0     // e.g. :echidna:platform.h
-		
+
 	#elif defined(_EL_PLAT_WIN32__)	/* PC with Microsoft 32 bits */
 
 		/* Processor:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		
+
 		   #define _EL_CPU_iAPx86__   1
 		   #define _EL_CPU_M68000__   0
 		   #define _EL_CPU_ARM60__    0
 		   #define _EL_CPU_PPC602__   0
 		   #define _EL_CPU_r4400__    0
 		   #define _EL_CPU_R3000__    0
-		
+
 		/* Operating System:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		
-		
+
+
 		   #define _EL_OS_MSDOS__          0
 		   #define _EL_OS_WIN32__          1
-		   #define _EL_OS_AMIGAOS__        0         
+		   #define _EL_OS_AMIGAOS__        0
 		   #define _EL_OS_MACOS__          0
 		   #define _EL_OS_IRIX53__         0
 		   #define _EL_OS_PSXOS__          0
-		
+
 		/* Compiler:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		   
+
 		   #define _EL_CC_TURBOC__      0     // Borland
-		   #define _EL_CC_ARMC__        0     // Arm 
+		   #define _EL_CC_ARMC__        0     // Arm
 		   #define _EL_CC_WATCOMC__     0     // Watcom
 		   #define _EL_CC_ZTC__         0     // Zortech
 		   #define _EL_CC_MACSC__       0     // Macintosh
 		   #define _EL_CC_DIABC__       0     // Diab
 		   #define _EL_CC_SGIC__        0     // SGI C
 		   #define _EL_CC_VC__          1     // Microsoft VC++
-		   #define _EL_CC_CCPSX__       0     // Psygnosis Psy-Q 
-		
+		   #define _EL_CC_CCPSX__       0     // Psygnosis Psy-Q
+
 		/* Include Syntax:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		   #define _EL_INCSYNTAX_A__    0     // e.g. echidna/platform.h  
-		   #define _EL_INCSYNTAX_B__    0     // e.g. echidna:platform.h  
+		   #define _EL_INCSYNTAX_A__    0     // e.g. echidna/platform.h
+		   #define _EL_INCSYNTAX_B__    0     // e.g. echidna:platform.h
 		   #define _EL_INCSYNTAX_C__    1     // e.g. echidna\platform.h
 		   #define _EL_INCSYNTAX_D__    0     // e.g. :echidna:platform.h
 
@@ -480,6 +480,20 @@ extern "C" {
 					#ifndef _AFX_NO_AFXCMN_SUPPORT
 						#include <afxcmn.h>			// MFC support for Windows 95 Common Controls
 					#endif // _AFX_NO_AFXCMN_SUPPORT
+
+					#define _EL_INCLUDED_LIBS = 1
+					#if 0 // this needs to be fixed
+					#if defined(_DEBUG)
+
+						#pragma (lib, "mfcelibd")
+
+					#else
+
+						#pragma (lib, "mfcelib")
+
+					#endif
+					#endif
+
 				#else
 					#include <windows.h>
 
@@ -490,53 +504,75 @@ extern "C" {
 				#include <windows.h>
 			#endif
 
+			#ifndef _EL_INCLUDED_LIBS
+				#if    defined(_DEBUG) &&  defined(_MT) &&  defined (_DLL)
+					#pragma comment(lib, "elibmtdlld")
+				#elif  defined(_DEBUG) &&  defined(_MT) && !defined (_DLL)
+					#pragma comment(lib, "elibmtd")
+				#elif  defined(_DEBUG) && !defined(_MT) &&  defined (_DLL)
+					#pragma comment(lib, "elibd")	// no non MT dll
+				#elif  defined(_DEBUG) && !defined(_MT) && !defined (_DLL)
+					#pragma comment(lib, "elibd")
+				#elif !defined(_DEBUG) &&  defined(_MT) &&  defined (_DLL)
+					#pragma comment(lib, "elibmtdll")
+				#elif !defined(_DEBUG) &&  defined(_MT) && !defined (_DLL)
+					#pragma comment(lib, "elibmt")
+				#elif !defined(_DEBUG) && !defined(_MT) &&  defined (_DLL)
+					#pragma comment(lib, "elib")	// no non MT dll
+				#elif !defined(_DEBUG) && !defined(_MT) && !defined (_DLL)
+					#pragma comment(lib, "elib")
+				#else
+					#error should not be here
+				#endif
+			#endif
+
 	#elif defined(_EL_PLAT_PCW32__)	/* PC with Watcom 32 bits */
 
 		/* Processor:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		
+
 		   #define _EL_CPU_iAPx86__   1
 		   #define _EL_CPU_M68000__   0
 		   #define _EL_CPU_ARM60__    0
 		   #define _EL_CPU_PPC602__   0
 		   #define _EL_CPU_r4400__    0
 		   #define _EL_CPU_R3000__    0
-		
+
 		/* Operating System:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		
-		
-		   #define _EL_OS_MSDOS__          1       
+
+
+		   #define _EL_OS_MSDOS__          1
 		   #define _EL_OS_WIN32__          0
-		   #define _EL_OS_AMIGAOS__        0         
+		   #define _EL_OS_AMIGAOS__        0
 		   #define _EL_OS_MACOS__          0
 		   #define _EL_OS_IRIX53__         0
 		   #define _EL_OS_PSXOS__          0
-		
+
 		/* Compiler:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		   
+
 		   #define _EL_CC_TURBOC__      0     // Borland
-		   #define _EL_CC_ARMC__        0     // Arm 
+		   #define _EL_CC_ARMC__        0     // Arm
 		   #define _EL_CC_WATCOMC__     1     // Watcom
 		   #define _EL_CC_ZTC__         0     // Zortech
 		   #define _EL_CC_MACSC__       0     // Macintosh
 		   #define _EL_CC_DIABC__       0     // Diab
 		   #define _EL_CC_SGIC__        0     // SGI C
 		   #define _EL_CC_VC__          0     // Microsoft VC++
-		   #define _EL_CC_CCPSX__       0     // Psygnosis Psy-Q 
-		
+		   #define _EL_CC_CCPSX__       0     // Psygnosis Psy-Q
+
 		/* Include Syntax:
 		 *    Set one of the defines below to 1, the rest to 0.
 		 */
-		   #define _EL_INCSYNTAX_A__    0     // e.g. echidna/platform.h  
-		   #define _EL_INCSYNTAX_B__    0     // e.g. echidna:platform.h  
+		   #define _EL_INCSYNTAX_A__    0     // e.g. echidna/platform.h
+		   #define _EL_INCSYNTAX_B__    0     // e.g. echidna:platform.h
 		   #define _EL_INCSYNTAX_C__    1     // e.g. echidna\platform.h
 		   #define _EL_INCSYNTAX_D__    0     // e.g. :echidna:platform.h
-		
+
    #else
  	   #error It would be best if you choose a platform.
 	#endif
@@ -560,9 +596,9 @@ extern "C" {
  *    the target platform is least significant byte first.
  *
  */
-   #if _EL_CPU_ARM60__  
+   #if _EL_CPU_ARM60__
 
-      #define FAR32  
+      #define FAR32
       #define HUGE32
       #define MK_FP32(seg,off) ((void *) (((seg)<<4)|(off)))
 
@@ -580,7 +616,7 @@ extern "C" {
       typedef           int      BOOL;
 
 	#elif _EL_CPU_PPC602__
-      #define FAR32  
+      #define FAR32
       #define HUGE32
       #define MK_FP32(seg,off) ((void *) ((off)))
 
@@ -591,16 +627,16 @@ extern "C" {
 
       typedef signed    char     INT8;
       typedef unsigned  char     UINT8;
-      typedef signed    short    INT16;   
-      typedef unsigned  short    UINT16;  
+      typedef signed    short    INT16;
+      typedef unsigned  short    UINT16;
       typedef signed    long     INT32;
       typedef unsigned  long     UINT32;
       typedef           int      BOOL;
 
       typedef signed    char     INT8;
       typedef unsigned  char     UINT8;
-      typedef signed    short    INT16;   
-      typedef unsigned  short    UINT16;  
+      typedef signed    short    INT16;
+      typedef unsigned  short    UINT16;
       typedef signed    long     INT32;
       typedef unsigned  long     UINT32;
       typedef           int      BOOL;
@@ -620,7 +656,7 @@ extern "C" {
       #endif
 
    #elif _EL_CPU_iAPx86__
-      
+
       #define __LSBFIRST__    1
       #define __WORD_ALIGN_SIZE__   1
       #define __mWordPtrUnAligned__    0x00UL
@@ -632,14 +668,14 @@ extern "C" {
 
 		 #define far
 		 #define huge
-         #define FAR32  
+         #define FAR32
          #define HUGE32
          #define MK_FP32(seg,off) ((void *) (((seg)<<4)+(off)))
 
          typedef signed    char     INT8;
          typedef unsigned  char     UINT8;
-         typedef signed    short    INT16;   
-         typedef unsigned  short    UINT16;  
+         typedef signed    short    INT16;
+         typedef unsigned  short    UINT16;
          typedef           long     INT32;
          typedef unsigned  long     UINT32;
          typedef           UINT8    BOOL;
@@ -653,14 +689,14 @@ extern "C" {
 
 		 #define far
 		 #define huge
-         #define FAR32  
+         #define FAR32
          #define HUGE32
 //         #define MK_FP32(seg,off) ((void *) (((seg)<<4)+(off)))
 
          typedef signed    char     INT8;
          typedef unsigned  char     UINT8;
-         typedef signed    short    INT16;   
-         typedef unsigned  short    UINT16;  
+         typedef signed    short    INT16;
+         typedef unsigned  short    UINT16;
          //typedef           long     INT32;
          //typedef unsigned  long     UINT32;
 
@@ -683,7 +719,7 @@ extern "C" {
 	   #define far
 	   #define huge
 
-      #define FAR32  
+      #define FAR32
       #define HUGE32
       #define MK_FP32(seg,off) ((void *) ((off)))
 
@@ -694,8 +730,8 @@ extern "C" {
 
       typedef signed    char     INT8;
       typedef unsigned  char     UINT8;
-      typedef signed    short    INT16;   
-      typedef unsigned  short    UINT16;  
+      typedef signed    short    INT16;
+      typedef unsigned  short    UINT16;
       typedef signed    long     INT32;
       typedef unsigned  long     UINT32;
       typedef           int      BOOL;
@@ -706,7 +742,7 @@ extern "C" {
       #define uint16 UINT16
       #define int32  INT32
       #define uint32 UINT32
-      
+
       #ifndef __cplusplus
           #define bool   BOOL
       #endif
@@ -715,7 +751,7 @@ extern "C" {
 	   #define FALSE 0
 
    #elif _EL_CPU_R3000__
-      
+
       #define __LSBFIRST__    1
       #define __WORD_ALIGN_SIZE__   4
       #define __mWordPtrUnAligned__    0x03UL
@@ -728,16 +764,16 @@ extern "C" {
       #elif _EL_CC_ZTC__
 
 	   #elif _EL_CC_VC__
-	   
+
 		#elif _EL_CC_CCPSX__
 
 		   #define TRUE  1
 		   #define FALSE 0
-	
+
 		   #define near
 		   #define far
 		   #define huge
-		   #define FAR32  
+		   #define FAR32
 		   #define HUGE32
 //	      #define MK_FP32(seg,off) ((void *) (((seg)<<4)+(off)))
 
@@ -745,8 +781,8 @@ extern "C" {
 			typedef unsigned	short		WORD;
 			typedef signed    char     INT8;
 			typedef unsigned  char     UINT8;
-			typedef signed    short    INT16;   
-			typedef unsigned  short    UINT16;  
+			typedef signed    short    INT16;
+			typedef unsigned  short    UINT16;
 			typedef signed    long     INT32;
 			typedef unsigned  long     UINT32;
 			typedef           int      BOOL;
@@ -798,15 +834,15 @@ extern "C" {
 #define AlignedDownPtr(ptr)   (void *)AlignedDown((UINT32)ptr)
 
 #define IsUnAlignedVal(val)   IsUnAligned(val)
-#define TruncAlignVal(val)    TruncAlign(val) 
-#define AlignedUpVal(val)     AlignedUp(val)  
+#define TruncAlignVal(val)    TruncAlign(val)
+#define AlignedUpVal(val)     AlignedUp(val)
 #define AlignedDownVal(val)   AlignedDown(val)
 
 /************************************  ************************************/
 /************************* Word/Long Sexify Macros ************************/
 /************************************  ************************************/
 
-/* Note: 
+/* Note:
  *    LSBF means Least significant Byte First.
  *    MSBF means Most significant Byte First.
  *    Native means natural byte order for platform.
@@ -851,10 +887,10 @@ extern "C" {
 									 ((((uint32)(a)) & 0x000000FFUL) << 24) ))
 	#define BigWord(a)		(      ( ((((uint16)(a)) & 0x00FF) << 8) |	\
 									 ((((uint16)(a)) & 0xFF00) >> 8) ))
-									 
+
 	#define LilLong(a)		(a)
 	#define	LilWord(a)		(a)
-	
+
 	#define BigLong2Native(a)	((a) = ( ((((uint32)(a)) & 0xFF000000UL) >> 24) |	\
 										 ((((uint32)(a)) & 0x00FF0000UL) >>  8) |	\
 										 ((((uint32)(a)) & 0x0000FF00UL) <<  8) |	\
@@ -903,10 +939,10 @@ extern "C" {
 									 ((((uint32)(a)) & 0x000000FFL) << 24) ))
 	#define LilWord(a)		(      ( ((((uint16)(a)) & 0x00FF) << 8) |	\
 									 ((((uint16)(a)) & 0xFF00) >> 8) ))
-									 
+
 	#define BigLong(a)		(a)
 	#define	BigWord(a)		(a)
-	
+
 	#define LilLong2Native(a)	((a) = ( ((((uint32)(a)) & 0xFF000000L) >> 24) |	\
 										 ((((uint32)(a)) & 0x00FF0000L) >>  8) |	\
 										 ((((uint32)(a)) & 0x0000FF00L) <<  8) |	\
@@ -989,7 +1025,7 @@ extern "C" {
 #define	__NOT_ANSI__	0
 #define DOS386			   0
 #define __MACOS__		   0
-#define	AZTEC_C			0 
+#define	AZTEC_C			0
 #endif
 
 #if (__WATCOMC__ && __DOS__ && __386__ && !defined(__MSDOS32X__))
