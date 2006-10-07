@@ -21,7 +21,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(LIB_BOOST),$(ELIBS)\inc"
+				AdditionalIncludeDirectories="$(LIB_BOOST),..\..\inc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_EL_PLAT_WIN32__=1"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
@@ -71,7 +71,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="$(LIB_BOOST),$(ELIBS)\inc"
+				AdditionalIncludeDirectories="$(LIB_BOOST),..\..\inc"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_EL_PLAT_WIN32__=1"
 				StringPooling="TRUE"
 				RuntimeLibrary="4"
@@ -121,7 +121,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(LIB_BOOST),$(ELIBS)\inc"
+				AdditionalIncludeDirectories="$(LIB_BOOST),..\..\inc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_EL_PLAT_WIN32__=1"
 				RuntimeLibrary="5"
 				UsePrecompiledHeader="2"
@@ -171,7 +171,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="$(LIB_BOOST),$(ELIBS)\inc"
+				AdditionalIncludeDirectories="$(LIB_BOOST),..\..\inc"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_EL_PLAT_WIN32__=1"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -223,7 +223,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="$(LIB_BOOST),$(ELIBS)\inc"
+				AdditionalIncludeDirectories="$(LIB_BOOST),..\..\inc"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_EL_PLAT_WIN32__=1"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -273,7 +273,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(LIB_BOOST),$(ELIBS)\inc"
+				AdditionalIncludeDirectories="$(LIB_BOOST),..\..\inc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_EL_PLAT_WIN32__=1"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
@@ -313,55 +313,6 @@
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 		<Configuration
-			Name="MultiThreadedReleaseDebug|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="4"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE">
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="$(LIB_BOOST),$(ELIBS)\inc"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_EL_PLAT_WIN32__=1"
-				RuntimeLibrary="2"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderFile=".\elib___Win32_MultiThread_DLL_Debug/elib.pch"
-				AssemblerListingLocation=".\elib___Win32_MultiThread_DLL_Debug/"
-				ObjectFile=".\elib___Win32_MultiThread_DLL_Debug/"
-				ProgramDataBaseFileName=".\elib___Win32_MultiThread_DLL_Debug/"
-				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
-				DebugInformationFormat="3"
-				CompileAs="0"/>
-			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="..\mtelibd.lib"
-				SuppressStartupBanner="TRUE"
-				IgnoreAllDefaultLibraries="TRUE"/>
-			<Tool
-				Name="VCMIDLTool"/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				Culture="1033"/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
-		</Configuration>
-		<Configuration
 			Name="MultiThread Static Debug|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
@@ -371,7 +322,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(LIB_BOOST),$(ELIBS)\inc"
+				AdditionalIncludeDirectories="$(LIB_BOOST),..\..\inc"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_EL_PLAT_WIN32__=1"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="2"
@@ -421,7 +372,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="$(LIB_BOOST),$(ELIBS)\inc"
+				AdditionalIncludeDirectories="$(LIB_BOOST),..\..\inc"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_EL_PLAT_WIN32__=1"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
@@ -516,14 +467,6 @@
 					PreprocessorDefinitions=""/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="MultiThreadedReleaseDebug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
 				Name="MultiThread Static Debug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
@@ -584,14 +527,6 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="MultiThread DLL Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="MultiThreadedReleaseDebug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
@@ -666,14 +601,6 @@
 					PreprocessorDefinitions=""/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="MultiThreadedReleaseDebug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
 				Name="MultiThread Static Debug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
@@ -734,14 +661,6 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="MultiThread DLL Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="MultiThreadedReleaseDebug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
@@ -816,14 +735,6 @@
 					PreprocessorDefinitions=""/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="MultiThreadedReleaseDebug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
 				Name="MultiThread Static Debug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
@@ -884,14 +795,6 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="MultiThread DLL Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="MultiThreadedReleaseDebug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
@@ -966,14 +869,6 @@
 					PreprocessorDefinitions=""/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="MultiThreadedReleaseDebug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
 				Name="MultiThread Static Debug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
@@ -1034,14 +929,6 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="MultiThread DLL Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="MultiThreadedReleaseDebug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
@@ -1116,14 +1003,6 @@
 					PreprocessorDefinitions=""/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="MultiThreadedReleaseDebug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
 				Name="MultiThread Static Debug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
@@ -1184,14 +1063,6 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="MultiThread DLL Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="MultiThreadedReleaseDebug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
@@ -1266,14 +1137,6 @@
 					PreprocessorDefinitions=""/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="MultiThreadedReleaseDebug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
 				Name="MultiThread Static Debug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
@@ -1334,14 +1197,6 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="MultiThread DLL Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="MultiThreadedReleaseDebug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
@@ -1416,14 +1271,6 @@
 					PreprocessorDefinitions=""/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="MultiThreadedReleaseDebug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
 				Name="MultiThread Static Debug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
@@ -1484,14 +1331,6 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="MultiThread DLL Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="MultiThreadedReleaseDebug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
@@ -1566,14 +1405,6 @@
 					PreprocessorDefinitions=""/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="MultiThreadedReleaseDebug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
 				Name="MultiThread Static Debug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
@@ -1641,14 +1472,6 @@
 					PreprocessorDefinitions=""/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="MultiThreadedReleaseDebug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
 				Name="MultiThread Static Debug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
@@ -1709,14 +1532,6 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="MultiThread DLL Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="MultiThreadedReleaseDebug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
@@ -1794,14 +1609,6 @@
 					PreprocessorDefinitions=""/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="MultiThreadedReleaseDebug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
 				Name="MultiThread Static Debug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
@@ -1865,14 +1672,6 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="MultiThread DLL Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="MultiThreadedReleaseDebug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
@@ -1947,14 +1746,6 @@
 					PreprocessorDefinitions=""/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="MultiThreadedReleaseDebug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
 				Name="MultiThread Static Debug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
@@ -2015,14 +1806,6 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="MultiThread DLL Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="MultiThreadedReleaseDebug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
@@ -2097,14 +1880,6 @@
 					PreprocessorDefinitions=""/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="MultiThreadedReleaseDebug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
 				Name="MultiThread Static Debug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
@@ -2165,14 +1940,6 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="MultiThread DLL Debug|Win32">
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions=""/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="MultiThreadedReleaseDebug|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
