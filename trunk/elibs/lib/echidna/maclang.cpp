@@ -1,10 +1,52 @@
-/*=======================================================================*
- |   file name : maclang.cpp
- |-----------------------------------------------------------------------*
- |   function  :
- |-----------------------------------------------------------------------*
- |   author    : Gregg Tavares
- *=======================================================================*/
+/*
+ * maclang.cpp
+ *
+ * PROGRAMMER : Gregg A. Tavares
+ *    VERSION : 00.000
+ *    CREATED : 01/15/01
+ *       TABS : 05 09
+ *
+ *	     \|///-_
+ *	     \oo///_
+ *	-----w/-w------
+ *	 E C H I D N A
+ *	---------------
+ *
+ *		Copyright (c) 2001-2008, Echidna
+ *
+ *		All rights reserved.
+ *
+ *		Redistribution and use in source and binary forms, with or
+ *		without modification, are permitted provided that the following
+ *		conditions are met:
+ *
+ *		* Redistributions of source code must retain the above copyright
+ *		  notice, this list of conditions and the following disclaimer. 
+ *		* Redistributions in binary form must reproduce the above copyright
+ *		  notice, this list of conditions and the following disclaimer
+ *		  in the documentation and/or other materials provided with the
+ *		  distribution. 
+ *
+ *		THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+ *		CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, 
+ *		INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ *		MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ *		DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS
+ *		BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ *		EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+ *		TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ *		DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ *		ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ *		OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ *		OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ *		POSSIBILITY OF SUCH DAMAGE.
+ *
+ * DESCRIPTION
+ *		
+ *
+ * HISTORY
+ *
+*/
 
 /**************************** i n c l u d e s ****************************/
 
@@ -580,7 +622,7 @@ bool mc_feval (MLangContext& context, string& localSub, const mlangArgList &argL
 /******************************** fsearch ********************************/
 bool mc_fsearch (MLangContext& context, string& localSub, const mlangArgList &argList)
 {
-	char* find = strstr (argList[0].c_str(), argList[1].c_str());
+	const char* find = strstr (argList[0].c_str(), argList[1].c_str());
 
 	int fvalue = (find != NULL) ? find - (const char*)argList[0].c_str() : -1;
 	
@@ -1145,7 +1187,8 @@ bool MLANG_SubVariablesLocal (MLangContext& context, string& str)
 								
 								// add args to new context;
 								StringList::const_iterator paramit = pFunc->m_namedArgList.begin();
-								for (mlangArgList::const_iterator argit = argList.begin();
+								mlangArgList::const_iterator argit;
+								for (argit = argList.begin();
 									 argit != argList.end() && paramit != pFunc->m_namedArgList.end();
 									 ++argit, ++paramit)
 								{
