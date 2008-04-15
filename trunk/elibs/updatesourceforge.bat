@@ -10,6 +10,7 @@ goto error
 
 :update
 "%PUTTY_PATH%\pscp.exe" "docs\The Echidna Libraries.htm" %SOURCEFORGE_NAME%@shell.sourceforge.net:/home/groups/e/el/elibs/htdocs/index.html
+"%PUTTY_PATH%\pscp.exe" "docs\notesstyledef.css" %SOURCEFORGE_NAME%@shell.sourceforge.net:/home/groups/e/el/elibs/htdocs/notesstyledef.css
 
 goto done
 :error
