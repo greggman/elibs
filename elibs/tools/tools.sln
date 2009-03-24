@@ -62,6 +62,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "riteargs", "riteargs\ritear
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sizefile", "sizefile\sizefile.vcproj", "{F001DC40-2DFE-43E5-9A67-5376B0FA97A1}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gfinfo", "gfinfo\gfinfo.vcproj", "{140B5345-5950-47A9-A732-45EC54AA22F5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -192,6 +194,10 @@ Global
 		{F001DC40-2DFE-43E5-9A67-5376B0FA97A1}.Debug|Win32.Build.0 = Debug|Win32
 		{F001DC40-2DFE-43E5-9A67-5376B0FA97A1}.Release|Win32.ActiveCfg = Release|Win32
 		{F001DC40-2DFE-43E5-9A67-5376B0FA97A1}.Release|Win32.Build.0 = Release|Win32
+		{140B5345-5950-47A9-A732-45EC54AA22F5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{140B5345-5950-47A9-A732-45EC54AA22F5}.Debug|Win32.Build.0 = Debug|Win32
+		{140B5345-5950-47A9-A732-45EC54AA22F5}.Release|Win32.ActiveCfg = Release|Win32
+		{140B5345-5950-47A9-A732-45EC54AA22F5}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
