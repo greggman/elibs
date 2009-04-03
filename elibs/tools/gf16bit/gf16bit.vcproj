@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="gf16bit"
 	ProjectGUID="{E62807E6-7D35-47B8-8BCC-C627D53ED122}"
+	RootNamespace="gf16bit"
 	>
 	<Platforms>
 		<Platform
@@ -43,7 +44,7 @@
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="../../inc"
-				PreprocessorDefinitions="WIN32,NDEBUG,_CONSOLE"
+				PreprocessorDefinitions="WIN32,NDEBUG,_CONSOLE,_EL_PLAT_WIN32__=1"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"

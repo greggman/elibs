@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="gfmerge"
 	ProjectGUID="{8908E534-8AF7-4464-8AE3-FC94950FC53A}"
+	RootNamespace="gfmerge"
 	>
 	<Platforms>
 		<Platform
@@ -132,7 +133,7 @@
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="../../inc"
-				PreprocessorDefinitions="WIN32,NDEBUG,_CONSOLE"
+				PreprocessorDefinitions="WIN32,NDEBUG,_CONSOLE,_EL_PLAT_WIN32__=1"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"

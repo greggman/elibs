@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="check4projects"
 	ProjectGUID="{00871346-B8D9-46E2-A335-7D2312189E91}"
+	RootNamespace="check4projects"
 	>
 	<Platforms>
 		<Platform
@@ -132,7 +133,7 @@
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="../../inc"
-				PreprocessorDefinitions="WIN32,NDEBUG,_CONSOLE"
+				PreprocessorDefinitions="WIN32,NDEBUG,_CONSOLE,_EL_PLAT_WIN32__=1"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"

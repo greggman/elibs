@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="copyframes"
 	ProjectGUID="{70BB0B07-FC20-4A89-B06F-6552BC2F97C2}"
+	RootNamespace="copyframes"
 	>
 	<Platforms>
 		<Platform
@@ -43,7 +44,7 @@
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="../../inc"
-				PreprocessorDefinitions="WIN32,NDEBUG,_CONSOLE"
+				PreprocessorDefinitions="WIN32,NDEBUG,_CONSOLE,_EL_PLAT_WIN32__=1"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"

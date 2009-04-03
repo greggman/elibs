@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="newer"
 	ProjectGUID="{329C217F-5C63-4505-89C1-A71309444FFC}"
+	RootNamespace="newer"
 	>
 	<Platforms>
 		<Platform
@@ -43,7 +44,7 @@
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="../../inc"
-				PreprocessorDefinitions="WIN32,NDEBUG,_CONSOLE"
+				PreprocessorDefinitions="WIN32,NDEBUG,_CONSOLE,_EL_PLAT_WIN32__=1"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
