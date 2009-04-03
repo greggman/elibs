@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="gfshrink"
 	ProjectGUID="{A6348930-7AF6-44C3-8442-603AED583101}"
+	RootNamespace="gfshrink"
 	>
 	<Platforms>
 		<Platform
@@ -132,7 +133,7 @@
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="../../inc"
-				PreprocessorDefinitions="WIN32,NDEBUG,_CONSOLE"
+				PreprocessorDefinitions="WIN32,NDEBUG,_CONSOLE,_EL_PLAT_WIN32__=1"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"

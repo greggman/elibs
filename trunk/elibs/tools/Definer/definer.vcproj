@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="definer"
 	ProjectGUID="{A6BEBBCC-FFFC-4FB7-A384-C6756BE2D468}"
+	RootNamespace="definer"
 	>
 	<Platforms>
 		<Platform
@@ -132,7 +133,7 @@
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="../../inc"
-				PreprocessorDefinitions="WIN32,NDEBUG,_CONSOLE"
+				PreprocessorDefinitions="WIN32,NDEBUG,_CONSOLE,_EL_PLAT_WIN32__=1"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"

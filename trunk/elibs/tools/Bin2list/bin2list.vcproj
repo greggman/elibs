@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="bin2list"
 	ProjectGUID="{9461614C-B237-418A-88B1-912AC376A6FF}"
+	RootNamespace="bin2list"
 	>
 	<Platforms>
 		<Platform
@@ -132,7 +133,7 @@
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="../../inc"
-				PreprocessorDefinitions="WIN32,NDEBUG,_CONSOLE"
+				PreprocessorDefinitions="WIN32,NDEBUG,_CONSOLE,_EL_PLAT_WIN32__=1"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
