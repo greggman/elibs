@@ -291,7 +291,7 @@ Examples of some of the utilities:
   </tr>
   <tr>
     <td WIDTH="16%" VALIGN="TOP">
-    [Mkloadob](mkloadob.html)</td>
+    [Mkloadob](http://greggman.github.io/elibs/mkloadob.html)</td>
     <td WIDTH="84%" VALIGN="TOP">Takes a "linker file" and builds a
     loadable binary file with lots of pointers that need to be fixed up :-)</td>
   </tr>
